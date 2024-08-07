@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  remote_auth:
+    container_name: remote_auth
+    build: ./open_auth
+    volumes:
+      - oauth_volume:/django
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    networks:
+      - nw
+    depends_on:
+      - postgreDB
+    restart: on-failure  # Ensures container restarts if it fails
+    
+  postgreDB:
+    image: postgres:latest
+    container_name: postgreDB
+    environment:
+      POSTGRES_DB: users_42
+      POSTGRES_USER: ayylaaba
+      POSTGRES_PASSWORD: password
+    volumes:
+      - /home/ayoub/data/db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - nw
+  nginx:
+    build: ./nginx  # Ensure this points to your Nginx directory with the Dockerfile and nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - remote_auth
+    # volumes:
+    #   - front_volume:var/www/front
+    networks:
+      - nw
+volumes:
+#   postgre_volume:
+  # front_volume:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     o: bind
+  #     device: ./nginx
+  oauth_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./open_auth
+networks:
+  nw:
+    driver: bridge

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        
+        #login-register {
+            display: block; /* Show login form initially */
+        }
+        #register-part, #Home_Part {
+            display: none; /* Hide register and home page initially */
+        }
+        .error_class {
+            color: #ff000033;
+            display: none; /* Initially hide errors */
+        }
+    </style>
+</head>
+<body>
+    <div id="login-register">
+        <form id="login-form" action="/login/" method="post">
+            <input type="hidden" id="csrf_token" name="csrfmiddlewaretoken">
+            <!-- <label for="username"> Username </label> -->
+            <input type="text" id="username" name="username">
+            <!-- <label for="password"> PassWord </label> -->
+            <input type="password" id="password" name="password">
+            <button type="submit">Login</button>
+        </form>
+        <div id="error" class="error_class">Invalid username or password</div>
+        <form id="login42-button" action="/oauth/authorize" method="get">
+            <button type="submit">Log in with <b>intra 42</b></button>
+        </form>
+        <button id="show-register">Register</button>
+    </div>
+
+    <div id="register-part">
+        <h1>Register</h1>
+        <form id="register-form" method="post">
+            <input type="hidden" id="csrf_token" name="csrfmiddlewaretoken" value="">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <div id="messageusername" class="error_class"></div>
+            <br>
+            <label for="password1">Password:</label>
+            <input type="password" id="password1" name="password1" required>
+            <div id="messagepassword1" class="error_class"></div>
+            <br>
+            <label for="password2">Confirm Password:</label>
+            <input type="password" id="password2" name="password2" required>
+            <div id="messagepassword2" class="error_class"></div>
+            <br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <div id="messageemail" class="error_class"></div>
+            <button type="submit">Register</button>
+            <button type="button" id="show-login">Back to Login</button>
+        </form>
+        <div id="error_id" class="error_class"></div>
+    </div>
+
+    <div id="Home_Part">
+        <h1> welcome To Home Page ^-^ </h1>
+    </div>
+
+    <br>
+    <br>
+
+    <script>
+        let csrfToken;
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Fetch and set the CSRF token
+            get_csrf_token();
+            console.log('We Start Dubugging'); // Debugging line
+            function get_csrf_token(){
+                fetch('/get_csrf_token/')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('inside get_csrf fun CSRF Token:', data.csrfToken); // Debugging line
+                        document.getElementById('csrf_token').value = data.csrfToken;
+                        csrfToken = data.csrfToken;
+                    })
+                    .catch(error => console.error('Error fetching CSRF token:', error));
+                }
+            // Handle login form submission
+            document.getElementById('login-form').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the default form submission
+                console.log('1 = hhhhhhhhhhhhhhhhh');
+                const formData = new FormData(this);
+                console.log('formData = ', formData);
+                const csrfToken = document.getElementById('csrf_token').value;
+                console.log('CSRF Token:', csrfToken); // Debugging line
+                fetch('/login/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: 
+                    {
+                        'X-CSRFToken': csrfToken,
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Handle successful login (e.g., redirect or update UI)
+                        document.getElementById('login-register').style.display = 'none';
+                        document.getElementById('Home_Part').style.display = 'block';
+                    } else {
+                        // Handle errors (display them to the user)
+                        console.log('Login failed:', data.errors);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+
+            document.getElementById('register-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                const csrfToken = document.getElementById('csrf_token').value;
+                fetch('/register/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Registration successful. Please log in.');
+                        document.getElementById('register-part').style.display = 'none';
+                        document.getElementById('login-register').style.display = 'block';
+                        } 
+                        else {
+                            console.log('not work ??')
+                            if (data.error.username) {
+                                document.getElementById('messageusername').innerHTML = "invalide Username";
+                                document.getElementById('messageusername').style.display = 'block';
+                            }
+                            if (data.error.password1) {
+                                document.getElementById('messagepassword1').innerHTML = data.error.password1;
+                                document.getElementById('messagepassword1').style.display = 'block';
+                            }
+                            if (data.error.password2) {
+                                document.getElementById('messagepassword2').innerHTML = data.error.password2;
+                                document.getElementById('messagepassword2').style.display = 'block';
+                            }
+                            if (data.error.email) {
+                                document.getElementById('messageemail').innerHTML = data.error.email;
+                                document.getElementById('messageemail').style.display = 'block';
+                            }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+
+            // Handle 42 login button click
+            document.getElementById('login42-button').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '/oauth/authorize';  // Redirect to OAuth authorization endpoint
+            });
+            // Show register form and hide login form
+            document.getElementById('show-register').addEventListener('click', function() {
+                document.getElementById('login-register').style.display = 'none';
+                document.getElementById('register-part').style.display = 'block';
+            });
+
+            // Show login form and hide register form
+            document.getElementById('show-login').addEventListener('click', function() {
+                document.getElementById('register-part').style.display = 'none';
+                document.getElementById('login-register').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+<!-- // Simple Terms
+// Find the button: The script looks for the button with the ID login-button.
+// Wait for a click: It sets up a listener to wait for the user to click the button.
+// Stop the default action: When the button is clicked, the script prevents the form from submitting in the usual way.
+// Redirect the user: Instead of submitting the form, the script redirects the user to the /oauth/authorize URL, starting the login process -->
