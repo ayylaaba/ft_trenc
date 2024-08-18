@@ -8,6 +8,9 @@ class CustomerForm(UserCreationForm):
         fields = [
             'id',
             'username',
+            'fullname',
+            'firstname',
+            'lastname',
             'email',     
             'password1', 
             'password2'

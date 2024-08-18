@@ -13,11 +13,15 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 
 class User_info(AbstractUser):
     access_token = models.CharField(max_length=255, null=True, blank=True)
-    intra_id = models.CharField(max_length=255, null=True, blank=True)
-    image_url = models.CharField(max_length=255, null=True, blank=True)
-    username = models.CharField(max_length=255, null=True, blank=True, unique=True)
-    full_name = models.CharField(max_length=255, null=True, blank=True)
-    email = models.EmailField(unique=True, null=True, blank=True)
+    intra_id  = models.CharField(max_length=255, null=True, blank=True)
+    imageProfile = models.ImageField(upload_to='profile_image/', null=True, blank=True)
+    username  = models.CharField(max_length=255, null=True, blank=True, unique=True)
+    firstname = models.CharField(max_length=255, null=True, blank=True, unique=True)
+    lastname  = models.CharField(max_length=255, null=True, blank=True, unique=True)
+    fullname = models.CharField(max_length=255, null=True, blank=True)
+    email     = models.EmailField(unique=True, null=True, blank=True)
+    
+
     # password = models.CharField(max_length=255)  # Add a field for the hashed password
 
     # understand this #

@@ -1,7 +1,7 @@
-from    django.urls import path
-from    .           import views
+from    django.urls             import path
+from    usermangement           import views
 
 urlpatterns=[
-    path('update/', views.update_user),
-    path('profile/', views.profile)
+    # path('update/', views.update_user),
+    path('Profile/', views.profile)
 ]

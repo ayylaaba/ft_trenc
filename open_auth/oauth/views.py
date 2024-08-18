@@ -19,14 +19,15 @@ from django.contrib.auth.forms          import UserCreationForm, AuthenticationF
 from django.utils.decorators            import method_decorator
 from rest_framework.response            import Response
 from rest_framework                     import status
+from django.core.files.base import ContentFile
+
 
 client_id       = "u-s4t2ud-fa7692872a0200db78dfe687567cc55dd2a444234c7720f33c53e0a4286a7301"
-client_secret   = "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"
-redirect_url    = "http://127.0.0.1:8000/oauth/callback/"
+client_secret   = "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"
+redirect_url    = "http://localhost/"
 authorization_url = "https://api.intra.42.fr/oauth/authorize"
 token_url = "https://api.intra.42.fr/oauth/token"
 grant_type = "authorization_code"
-
 
 @csrf_exempt
 @api_view(['POST'])
@@ -53,6 +54,16 @@ def     register_vu(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+def     logout_vu(request):
+    if request.method == 'POST':
+        logout(request)
+        return (JsonResponse({'status':'success'}))
+    else :
+        return (JsonResponse({'status':'faild'}))
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def login_vu(request):
     print("\033[1;35m This login_vu  \n")
     print(f"Form Data: {request.data}")
@@ -66,18 +77,27 @@ def login_vu(request):
         print("\033[1;46m this User Is Not Found \n")
         return Response({"status": False, "message": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
     print("\033[1;46m this User Is Found \n")
-    print("data == ", user)
+    print("user == ", user)
+
+    # Log the user in
+    login(request, user) # from now django will know that this user who make a request and will be update in case other user login 
+
     # Get or create token
     token, created = Token.objects.get_or_create(user=user)
     # Serialize user data
     serialize_user = CustmerSerializer(instance=user)
+    print('serializer_data = ', serialize_user.data)
     return Response({"token": token.key, "user": serialize_user.data, "status":"success"})
 
-def     oauth_authorize(request):
-    print("\033[1;32m please do something  \n")
+from django.contrib.sessions.models import Session
+
+def     oauth_authorize(request): 
+    print("\033[1;32m oauth_authorize \n")
+    print("Session Key in /oauth/:", request.session.session_key)
+    print("Session Data in /oauth/:", request.session.items()) 
     full_authoriztion_url = authorization_url + \
         f'?client_id={client_id}&redirect_uri={redirect_url}&response_type=code'
-    return redirect(full_authoriztion_url)
+    return JsonResponse({'status' : 'success','full_authoriztion_url' : full_authoriztion_url})
 
 # decorator ensures that the response will include a CSRF cookie if it wasn't already set.
 # in the firat time will create a cookie csrf
@@ -88,61 +108,127 @@ def get_csrf_token(request):
     print ("tokeeen -------> ", token)
     return JsonResponse({'csrfToken': token})
 
-def     callback(request):
-    print("\033[1;36m callback \n")
-    code  = request.GET.get('code')
-    print("\033[1;37m code  =  ", code, "\n")
-    if code :
-        necessary_info = {
-            'grant_type'     : grant_type,
-            'client_id'      : client_id,
-            'client_secret'  :   client_secret,
-            'code'           : code,
-            'redirect_uri'   : redirect_url
-        }
-        response = requests.post(token_url, data=necessary_info)
-        print("\033[1;38m status_code  =  ", response.status_code, "\n")
+import json, os
+# @csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+
+def callback(request):
+    print ('============================ callback is called ============================\n')
+    data = json.loads(request.body)
+    code = data.get('code')
+
+    print("\033[1;39m ---> code  =  ", code, "\n")
+    if not code:
+        return JsonResponse({'status': 'error', 'message': 'No code provided'}, status=400)
+
+    # Exchange the code for an access token
+    necessary_info = {
+        'grant_type': grant_type,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'code': code,
+        'redirect_uri': redirect_url
+    }
+    print("\033[1;35m ---> token **--** ", token_url)
+    response = requests.post(token_url, data=necessary_info)
+    print("Response Content: ", response.content)
     if response.status_code == 200:
         data = response.json()
-        access_token = data['access_token']
-        print("\033[1;38m access_token  =  ", access_token, "\n")
-        if access_token :
-            user_data = get_user_info(acess_token=access_token)
-            print("\033[1;36m  Hello \n")
-            print ("username = ",  user_data.get('login', 'Guest'))
-            print ("full_name = ", user_data.get('displayname', ''))
-            print("\033[1;36m  By \n")
-            if user_data:
-                user_name    = user_data.get('login', 'Guest')
-                full_name    = user_data.get('displayname', '')
-                image_url    = user_data.get('image', {}).get('link')  # Adjust based on actual API response    
-                # Save user information to the database
-                user, created = User_info.objects.get_or_create(user_name=user_name)
-                user.user_name = user_name
-                user.full_name = full_name
-                user.image_url = image_url
-                user.access_token = access_token
-                print ('image_url == ' , image_url)
-                user.save()
-                params = urllib.parse.urlencode({
-                        'user_name': user_name,
-                        'full_name': full_name,
-                        'image_url': image_url})
-                json_response = JsonResponse(user_data)
-                response = redirect(f'http://localhost/welcome.html?{params}')
-                response.set_cookie('user_info', json_response.content)
-                return JsonResponse({'full_name': full_name,
-                     'user_name': user_name, 'image_url': image_url})
-        else :
-            print("\033[1;38m Empty Access Token\n")
-    print ("username = ",  user_name)
-    print ("full_name = ", full_name)
-    return JsonResponse({'user_name': user_name, 'image_url': image_url})  
+        access_token = data.get('access_token')
+        if access_token:
+            user_data   = get_user_info(access_token)
+            print ('user_data : ' , user_data)
+            username    = user_data.get('login', 'Guest')
+            fullname    = user_data.get('displayname', '')
+            firstname = user_data.get('first_name', '')
+            lastname = user_data.get('last_name', '')
+            email = user_data.get('email', '')
+            image_url   = user_data.get('image', {}).get('link', '')
+            
+            # Save or update user info
+            user, created       = User_info.objects.get_or_create(username=username)
+            user.fullname       = fullname
+            user.username       = username
+            user.firstname      = firstname
+            user.lastname       = lastname
+            user.email          = email
+            user.access_token   = access_token
+            print ('image_url : ', image_url)
+            if image_url:
+                image_name = f'{username}.jpg'
+                if not user.imageProfile or not os.path.exists(user.imageProfile.path):
+                    # Image doesn't exist locally, download and save it
+                    imageResponse = requests.get(image_url)
+                    if imageResponse.status_code == 200:
+                        user.imageProfile.save(image_name, ContentFile(imageResponse.content), save=True)
+                    else:
+                        print('Image already exists, not downloading again.')
+            user.save()
+            login(request, user)
+            print("\033[1;39m ---> user = ", user) 
+            # Return user data as JSON
+            seria = CustmerSerializer(instance=user)
+            return JsonResponse({'status': 'success','data': seria.data})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Empty access token'}, status=400)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Failed to exchange token'}, status=response.status_code)
 
-def     get_user_info(acess_token):
+
+# def     callback(request):
+#     print("\033[1;36m callback \n")
+#     code  = request.GET.get('code')
+#     print("\033[1;37m code  =  ", code, "\n")
+#     # Initialize variables
+#     username = 'Guest'
+#     fullname = ''
+#     if code :
+#         necessary_info = {
+#             'grant_type'     : grant_type,
+#             'client_id'      : client_id,
+#             'client_secret'  :   client_secret,
+#             'code'           : code,
+#             'redirect_uri'   : redirect_url
+#         }
+#         response = requests.post(token_url, data=necessary_info)
+#         print("\033[1;38m status_code  =  ", response.status_code, "\n")
+#     if response.status_code == 200:
+#         data = response.json()
+#         access_token = data['access_token']
+#         print("\033[1;38m access_token  =  ", access_token, "\n")
+#         if access_token :
+#             user_data = get_user_info(access_token=access_token)
+#             print("\033[1;36m  Hello \n")
+#             print ("username = ",  user_data.get('login', 'Guest'))
+#             print ("full_name = ", user_data.get('displayname', ''))
+#             print("\033[1;36m  By \n")
+#             if user_data:
+#                 username    = user_data.get('login', 'Guest')
+#                 fullname    = user_data.get('displayname', '')
+#                 # image_url    = user_data.get('image', {}).get('link')  # Adjust based on actual API response    
+#                 # Save user information to the database
+#                 print ('username', username)
+#                 print("\033[1;36m  dubg \n")
+#                 user, created = User_info.objects.get_or_create(username=username)
+#                 user.username = username
+#                 user.fullname = fullname
+#                 # user.image_url = image_url
+#                 user.access_token = access_token
+#                 user.save()
+#                 print("\033[1;40m i am here !\n")
+#                 return JsonResponse({'status': 'success', 'fullname': fullname, 'username': username})
+#                 # redirect('/home/')
+#         else :
+#             print("\033[1;38m Empty Access Token\n")
+#     print ("username = ",  username)
+#     print ("fullname = ", fullname)
+#     return JsonResponse({'username': username})  
+
+def     get_user_info(access_token):
    user_endpoint = 'https://api.intra.42.fr/v2/me'
    headers= {
-      'Authorization' : f'Bearer {acess_token}'
+      'Authorization' : f'Bearer {access_token}'
    }
    response = requests.get(user_endpoint, headers=headers)
    if response.status_code == 200:

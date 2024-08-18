@@ -35,18 +35,18 @@ services:
       - "80:80"
     depends_on:
       - remote_auth
-    # volumes:
-    #   - front_volume:var/www/front
+    volumes:
+      - front_volume:/var/www/front  # Front-end files volume
     networks:
       - nw
 volumes:
-#   postgre_volume:
-  # front_volume:
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     o: bind
-  #     device: ./nginx
+  postgre_volume:
+  front_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./nginx/srcs
   oauth_volume:
     driver: local
     driver_opts:

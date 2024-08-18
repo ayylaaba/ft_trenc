@@ -24,14 +24,26 @@ Diagram
 
 - add nginx container.
 
+                        <-- important information -->
+                        <--------------------------->
+                <-- superuser: -> username = ayoub, password : ayoub.123 -->
+                        <--------------------------->
+                        <--------------------------->
+
 - response by json instead of  redirect 
 
---------------------------------- PLEASE READE ME -------------------------------------------
-
-
-1- return profile information and update it is so easy
-        - create a serialiser for Profile and updateSerializer (update password also make check validition of the fields).
-        - create a view for profile (get) and also for a update user (post) then save 
+---------------------------------  PLEASE READE ME -------------------------------------------
+ 
+-------------------------------------------------------------------------------------------------
+---------------------------------->       Tasks          <---------------------------------------
+ -----------------------------------------------------------------------------------------------
+|       - push the project in the githup (take idea about branchs).                             |
+|       - update it is so easy .                                                                |
+|       - create updateSerializer (update password also make check validition of the fields).   |
+|       - return profile information .                                                          |
+|       - create a view for profile (get) and also for a update user (post) then save .         |
+|       -  
+ -----------------------------------------------------------------------------------------------
 
 <!-- 1.1- most understand what happens by details of details of details specialy (csrf)
 
