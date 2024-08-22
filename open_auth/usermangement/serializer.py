@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from oauth.models     import User_info
+from django.contrib.auth.hashers import make_password
 
 class   ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,24 +13,59 @@ class   ProfileSerializer(serializers.ModelSerializer):
             'email'
         ]
 
-# class   UpdateUser(Serializers.ModelSerialzer):
+class UpdateUserSerializers(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, min_length=8)
+    confirm_password = serializers.CharField(write_only=True, required=False)
+
+    class Meta:
+        model = User_info
+        fields = [
+            'fullname',
+            'username',
+            'firstname',
+            'lastname',
+            'password',
+            'confirm_password',
+            'email'
+        ]
+    
+    def validate(self, data):
+        if 'confirm_password' in data and 'password' in data:
+            if data['password'] != data['confirm_password']:
+                raise serializers.ValidationError("Passwords do not match.")
+        return data
+
+    def update(self, instance, validated_data):
+        if 'password' in validated_data:
+            validated_data['password'] = make_password(validated_data['password'])
+            validated_data.pop('confirm_password', None)
+        return super().update(instance, validated_data)
+
+
+# class   UpdateUserSerializers(serializers.ModelSerializer):
+#     password = serializers.CharField(write_only=True, required=False, min_length=8)
+#     confirm_password = serializers.CharField(write_only=True, required=False)
+
 #     model = User_info
-#     fields=[
-#         'username',
+#     fields = [
 #         'fullname',
+#         'username',
 #         'firstname',
 #         'lastname',
+#         'password',
+#         'confirm_password',
 #         'email'
 #     ]
-#     def create(self, validated_data):
-#         user = User_info(
-#             email=validated_data['email'],
-#             username=validated_data['username'],
-#             first_name=validated_data['first_name'],
-#             last_name=validated_data['last_name'],
-#             password1=validated_data['password1'],
-#             password2=validated_data['password2']
-#         )
-#         user.set_password(validated_data['password1'])
-#         user.save()
-#         return user
+    
+#     def validate(self, data):
+#         if 'confirm_password' in data and 'password' in data:
+#             if data['password'] != data['confirm_password']:
+#                 raise serializers.ValidationError("Passwords do not match.")
+#             return data
+
+#     def update(self, instance, validated_data):
+#         if 'password' in validated_data:
+#             validated_data['password'] = make_password(validated_data['password'])
+#             validated_data.pop('confirm_password', None)  # Remove confirm_password as it's not a model field
+#         return super().update(instance, validated_data)
+    
