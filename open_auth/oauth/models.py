@@ -21,8 +21,8 @@ class User_info(AbstractUser):
     fullname = models.CharField(max_length=255, null=True, blank=True)
     email     = models.EmailField(unique=True, null=True, blank=True)
     
-
     # password = models.CharField(max_length=255)  # Add a field for the hashed password
+    # confirm_password = models.CharField(max_length=255)  # Add a field for the hashed password
 
     # understand this #
  
@@ -39,5 +39,3 @@ class User_info(AbstractUser):
 
     def __str__(self):
         return self.username
-    
-

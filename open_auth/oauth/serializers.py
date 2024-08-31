@@ -10,10 +10,20 @@ class       CustmerSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'fullname',
-            'imageProfile',
+            # 'imageProfile',
             'username',
             'firstname',
             'lastname',
             'email',
         ]
-    
+
+class       RegisterSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = User_info
+        fields = [
+            'fullname',
+            'username',
+            'firstname',
+            'lastname',
+            'email',
+        ]

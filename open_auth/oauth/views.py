@@ -12,7 +12,7 @@ from rest_framework.decorators          import api_view, permission_classes
 from rest_framework.permissions         import AllowAny
 from  rest_framework.authtoken.models   import Token
 from  rest_framework                    import status
-from .serializers                       import CustmerSerializer
+from .serializers                       import CustmerSerializer, RegisterSerializer
 from .forms                             import CustomerForm
 from .models                            import User_info
 from django.contrib.auth.forms          import UserCreationForm, AuthenticationForm
@@ -42,8 +42,10 @@ def     register_vu(request):
             print("\033[1;38m This user is valid \n")
             user = form.save()
             user_token, created = Token.objects.get_or_create(user=user)
+            seria = RegisterSerializer(instance=user)
             print(f"\033[1;38m This is the user token: {user_token}")
-            return JsonResponse({'status': 'success'}, status=200)
+            print(f"\033[1;38m This is the user data ", seria.data)
+            return JsonResponse({'status': 'success', 'data':seria.data}, status=200)
         else:
             errors = form.errors.as_json()
             print("\033[1;39m This user failed to sign up \n")
@@ -174,56 +176,6 @@ def callback(request):
             return JsonResponse({'status': 'error', 'message': 'Empty access token'}, status=400)
     else:
         return JsonResponse({'status': 'error', 'message': 'Failed to exchange token'}, status=response.status_code)
-
-
-# def     callback(request):
-#     print("\033[1;36m callback \n")
-#     code  = request.GET.get('code')
-#     print("\033[1;37m code  =  ", code, "\n")
-#     # Initialize variables
-#     username = 'Guest'
-#     fullname = ''
-#     if code :
-#         necessary_info = {
-#             'grant_type'     : grant_type,
-#             'client_id'      : client_id,
-#             'client_secret'  :   client_secret,
-#             'code'           : code,
-#             'redirect_uri'   : redirect_url
-#         }
-#         response = requests.post(token_url, data=necessary_info)
-#         print("\033[1;38m status_code  =  ", response.status_code, "\n")
-#     if response.status_code == 200:
-#         data = response.json()
-#         access_token = data['access_token']
-#         print("\033[1;38m access_token  =  ", access_token, "\n")
-#         if access_token :
-#             user_data = get_user_info(access_token=access_token)
-#             print("\033[1;36m  Hello \n")
-#             print ("username = ",  user_data.get('login', 'Guest'))
-#             print ("full_name = ", user_data.get('displayname', ''))
-#             print("\033[1;36m  By \n")
-#             if user_data:
-#                 username    = user_data.get('login', 'Guest')
-#                 fullname    = user_data.get('displayname', '')
-#                 # image_url    = user_data.get('image', {}).get('link')  # Adjust based on actual API response    
-#                 # Save user information to the database
-#                 print ('username', username)
-#                 print("\033[1;36m  dubg \n")
-#                 user, created = User_info.objects.get_or_create(username=username)
-#                 user.username = username
-#                 user.fullname = fullname
-#                 # user.image_url = image_url
-#                 user.access_token = access_token
-#                 user.save()
-#                 print("\033[1;40m i am here !\n")
-#                 return JsonResponse({'status': 'success', 'fullname': fullname, 'username': username})
-#                 # redirect('/home/')
-#         else :
-#             print("\033[1;38m Empty Access Token\n")
-#     print ("username = ",  username)
-#     print ("fullname = ", fullname)
-#     return JsonResponse({'username': username})  
 
 def     get_user_info(access_token):
    user_endpoint = 'https://api.intra.42.fr/v2/me'

@@ -8,6 +8,9 @@ import  requests
 from rest_framework.permissions import IsAuthenticated  # Use IsAuthenticated
 from django.contrib.sessions.models import Session
 from django.views.decorators.csrf import csrf_exempt
+from oauth.models     import User_info
+from .models             import RequestFriend
+from .serializer         import RequestFriendSerializer
 # Create your views here.
 
 @api_view(['GET'])
@@ -65,4 +68,27 @@ def     update_user(request):
         else :
             return JsonResponse({'status': 'failed', 'data': 'user is not authenticated'})
     return JsonResponse({'status': 'success', 'data': 'bad request'})
-    
+
+@api_view(['GET'])
+def     users_list(request):
+    print ('Users List \n')
+    current_user = request.user
+    users = User_info.objects.exclude(id = current_user.id)
+    print("\033[1;35m ---> current_user : ", current_user)
+    serialize_users = ProfileSerializer(users, many=True)
+    print("\033[1;35m ---> current_user : ", serialize_users.data)
+    return JsonResponse({'status': 'success', 'data': serialize_users.data})
+
+@api_view(['POST'])
+def     send_friend_request(request, receiver_id): 
+    print("\033[1;35m send friend request handle it  \n")
+    from_user = request.user
+    print("\033[1;35m -------------------------------------------> ", receiver_id)
+    to_user   = User_info.objects.get(id=receiver_id)
+
+    if RequestFriend.objects.filter(from_user = from_user, to_user = to_user).exists():
+        return JsonResponse({'status' : 'failed', 'error':'the request Already exist'})
+    friend_req    = RequestFriend.objects.create(from_user = from_user, to_user = to_user)
+    print("\033[1;35m -------------------------------------------  \n")
+    serialize_req = RequestFriendSerializer(friend_req) 
+    return JsonResponse({'status' : 'success', 'data' : serialize_req.data})
