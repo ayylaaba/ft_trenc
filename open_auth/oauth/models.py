@@ -18,11 +18,9 @@ class User_info(AbstractUser):
     username  = models.CharField(max_length=255, null=True, blank=True, unique=True)
     firstname = models.CharField(max_length=255, null=True, blank=True, unique=True)
     lastname  = models.CharField(max_length=255, null=True, blank=True, unique=True)
-    fullname = models.CharField(max_length=255, null=True, blank=True)
+    fullname  = models.CharField(max_length=255, null=True, blank=True)
     email     = models.EmailField(unique=True, null=True, blank=True)
-    
-    # password = models.CharField(max_length=255)  # Add a field for the hashed password
-    # confirm_password = models.CharField(max_length=255)  # Add a field for the hashed password
+    friends   = models.ManyToManyField('self', blank=True)
 
     # understand this #
  
