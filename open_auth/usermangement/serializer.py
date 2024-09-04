@@ -27,19 +27,12 @@ class   ProfileSerializer(serializers.ModelSerializer):
         ]
 
 class UpdateUserSerializers(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False, min_length=8)
-    confirm_password = serializers.CharField(write_only=True, required=False)
-
     class Meta:
         model = User_info
         fields = [
             'id',
-            'fullname',
-            'username',
             'firstname',
             'lastname',
-            'password',
-            'confirm_password',
             'email'
         ]
     

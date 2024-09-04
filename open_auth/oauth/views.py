@@ -57,6 +57,7 @@ def     register_vu(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def     logout_vu(request):
+    print ("------------------------------------------------------------\n")
     if request.method == 'POST':
         logout(request)
         return (JsonResponse({'status':'success'}))
@@ -89,7 +90,7 @@ def login_vu(request):
     # Serialize user data
     serialize_user = CustmerSerializer(instance=user)
     print('serializer_data = ', serialize_user.data)
-    return Response({"token": token.key, "user": serialize_user.data, "status":"success"})
+    return Response({"token": token.key, "data": serialize_user.data, "status":"success"})
 
 from django.contrib.sessions.models import Session
 

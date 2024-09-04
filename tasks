@@ -9,9 +9,6 @@ Diagram
 |    <*-*> External Server: A web server on the internet, like www.facebook.com. ||
 ---------------------------------------------------------------------------------
 
-username : ykhay
-password : Laabad.123
-
 -- > Reverse Proxy
 
             -> Backend Server 1 (Django App)
@@ -40,10 +37,10 @@ password : Laabad.123
 -------------------------------------------------------------------------------------------------
 ---------------------------------->       Tasks          <---------------------------------------
  -----------------------------------------------------------------------------------------------
-|       - push the project in the githup (take idea about branchs). +                           |
+|       - push the project in the githup (take idea about branchs).                             |
 |       - update it is so easy .                                                                |
 |       - create updateSerializer (update password also make check validition of the fields).   |
-|       - return profile information . +                                                        |
+|       - return profile information .                                                          |
 |       - create a view for profile (get) and also for a update user (post) then save .         |
 |       -  
  -----------------------------------------------------------------------------------------------
@@ -55,12 +52,6 @@ password : Laabad.123
 q :
 
 1- ask about form of django and of front -->
-
-
-
-
-<!--  duplicate a firstname and lastname !! register
- -->
 
 
 
