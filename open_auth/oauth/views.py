@@ -78,12 +78,15 @@ def login_vu(request):
     user = authenticate(username=username, password=password)
     if user is None:
         print("\033[1;46m this User Is Not Found \n")
-        return Response({"status": False, "message": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"status": False, "error": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
     print("\033[1;46m this User Is Found \n")
     print("user == ", user)
 
     # Log the user in
     login(request, user) # from now django will know that this user who make a request and will be update in case other user login 
+
+    # Example: Print session data
+    print(f"Session Data: {request.session.items()}")
 
     # Get or create token
     token, created = Token.objects.get_or_create(user=user)

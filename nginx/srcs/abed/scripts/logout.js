@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const token = await get_csrf_token();
             const response = await fetch('/logout/', {
                 method: 'POST',
+                credentials: 'include',  // Ensure credentials are sent with the request
                 headers: {
                     'X-CSRFToken': token, // Include the CSRF token
                 },
@@ -28,6 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 const showLogin = ()=> {
+    // document.querySelector("#un").value = "";
+    // document.querySelector("#psw").value = "";
+    // foreach method better;
     document.querySelector("#login-parent").style.display = "flex";
     document.querySelector("#nav").style.display = "none";
     document.querySelector("#main").style.display = "none";

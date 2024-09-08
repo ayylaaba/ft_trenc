@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(loginForm);
             const response = await fetch('/login/', {
                 method: 'POST',
+                credentials: 'include',  // Ensure credentials are sent with the request
                 headers: {
                     'X-CSRFToken': token,
                 },

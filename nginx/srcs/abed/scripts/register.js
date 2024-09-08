@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(registerForm);
             const response = await fetch('/register/', {
                 method: 'POST',
+                // credentials: 'include',  // Ensure credentials are sent with the request
                 headers: {
                     'X-CSRFToken': token, // Include the CSRF token
                 },

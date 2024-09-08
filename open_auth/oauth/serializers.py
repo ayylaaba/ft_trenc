@@ -15,6 +15,7 @@ class       CustmerSerializer(serializers.ModelSerializer):
             'firstname',
             'lastname',
             'email',
+            'online_status'
         ]
 
 class       RegisterSerializer(serializers.ModelSerializer):

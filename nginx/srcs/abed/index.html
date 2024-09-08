@@ -326,32 +326,34 @@
                             </div>
                         </div>
                         <div id="second-container">
-                            <input type="file" id="file-input" style="display: none;" accept="image/*">
-                            <button type="button" class="btn btn-outline-primary" id="change-img">Change Image</button>
+                                <input type="file" id="file-input" style="display: none;" accept="image/*">
+                                <button type="button" class="btn btn-outline-primary" id="change-img">Change Image</button>
+                            </div>
+                            <div class="separator">
+                                <p>Account information</p>
+                                <hr>
+                            </div>
+                        <form id="update-form">
+                            <div class="account-info">
+                                <div>
+                                    <label for="formControlInput" class="form-label">First Name</label>
+                                    <input name="firstname" type="text" class="form-control" id="formControlInput" placeholder="Mohammed Abed">
+                                </div>
+                                <div>
+                                    <label for="formControlInput" class="form-label">Last Name</label>
+                                    <input name="lastname" type="text" class="form-control" id="formControlInput" placeholder="Hassani Idrissi">
+                                </div>
+                                <div>
+                                    <label for="formControlInput" class="form-label">Email Adress</label>
+                                    <input name="email" type="email" class="form-control" id="formControlInput" placeholder="name@example.com">
+                                </div>
+                                <div id="save-changes">
+                                    <button type="button" class="btn btn-outline-secondary" id="cancel-btn">Cancel</button>
+                                    <button type="submit" class="btn btn-outline-success" id="save-btn">Save</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="separator">
-                            <p>Account information</p>
-                            <hr>
-                        </div>
-                        <div class="account-info">
-                            <div>
-                                <label for="formControlInput" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="formControlInput" placeholder="Mohammed Abed">
-                            </div>
-                            <div>
-                                <label for="formControlInput" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="formControlInput" placeholder="Hassani Idrissi">
-                            </div>
-                            <div>
-                                <label for="formControlInput" class="form-label">Email Adress</label>
-                                <input type="email" class="form-control" id="formControlInput" placeholder="name@example.com">
-                            </div>
-                            <div id="save-changes">
-                                <button type="button" class="btn btn-outline-secondary" id="cancel-btn">Cancel</button>
-                                <button type="button" class="btn btn-outline-success" id="save-btn">Save</button>
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
                 <div id="log-sec">
                     <div id="log-sec-container">
@@ -1598,6 +1600,10 @@
             </div>
         </div>
     </div>
+        <script>
+            
+        </script>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <script type="module" src="script.js"></script>
         <script type="module" src="scripts/friends.js"></script>
@@ -1610,5 +1616,6 @@
         <script type="module" src="scripts/oauth.js"></script>
         <script type="module" src="scripts/login.js"></script>
         <script type="module" src="scripts/logout.js"></script>
+        <script type="module" src="scripts/update.js"></script>
 </body>
 </html>

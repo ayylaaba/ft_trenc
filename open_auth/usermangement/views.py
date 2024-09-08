@@ -11,6 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 from oauth.models     import User_info
 from .models             import RequestFriend
 from .serializer         import RequestFriendSerializer
+from django.contrib.auth import update_session_auth_hash
+
 # Create your views here.
 
 @api_view(['GET'])
@@ -140,3 +142,38 @@ def reject_request(request, receiver_id):
     except RequestFriend.DoesNotExist:
         return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=404)
     
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Ensure the user is logged in
+def ChangePassword(request):
+    user = request.user
+    data = request.data
+
+    # Get the old password and new password from the request
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+    new_username = data.get('new_username')
+
+    # Check if new_username is provided
+    if new_username:
+        if user.username == new_username:
+            return JsonResponse({"error": "New username cannot be the same as the current one."}, status=400)
+        else:
+            # Check if the new username is already taken by another user
+            if User_info.objects.filter(username=new_username).exists():
+                return JsonResponse({"error": "Username is already taken."}, status=400)
+            else:
+                user.username = new_username  # Update the username
+
+    # Check if old password is correct
+    if not user.check_password(old_password):
+        return JsonResponse({"error": "Old password is incorrect."}, status=400)
+
+    if len(new_password) < 5:
+        return JsonResponse({"error": "New password must be at least 8 characters long."}, status=400)
+    user.set_password(new_password)
+    user.save()
+
+    # Update the session with the new password (to prevent logging out)
+    update_session_auth_hash(request, user)
+
+    return JsonResponse({"status": "Password changed successfully!"}, status=200)

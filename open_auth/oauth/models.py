@@ -21,7 +21,7 @@ class User_info(AbstractUser):
     fullname  = models.CharField(max_length=255, null=True, blank=True)
     email     = models.EmailField(unique=True, null=True, blank=True)
     friends   = models.ManyToManyField('self', blank=True)
-
+    online_status = models.BooleanField(default=False)   
     # understand this #
  
     groups = models.ManyToManyField(
