@@ -1,52 +1,49 @@
 # consumers.py
-from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from django.utils import timezone
-from channels.layers import get_channel_layer
+from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
-from .models import User_info
+from your_app_name.models import User_info  # Import User_info model
 
-class StatusConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.user = self.scope["user"]
-         # Conceptual Structure of online_users Group
-        # Group Name: online_users
-        # Content: A collection of WebSocket connections (one per user)
-        # Purpose: To broadcast messages (like status updates) to all users in the group.
-        # Add user to the group "online_users"
-        await self.channel_layer.group_add("online_users", self.channel_name)
+class StatusConsumer(WebsocketConsumer):
+    # When the user connects to WebSocket (e.g., opens the page)
+    def connect(self):
+        self.user = self.scope["user"]  # Get the user making the connection
         
-        # Mark user as online
-        await self.set_user_status(self.user.id, "online")
-        
-        await self.accept()
+        if self.user.is_authenticated:  # Check if the user is logged in
+            # Update the user status to online
+            self.update_user_status(online=True)
+            # Join the user to a group (to notify other users)
+            async_to_sync(self.channel_layer.group_add)("user_status", self.channel_name)
+            self.accept()  # Accept the WebSocket connection
 
-    async def disconnect(self, close_code):
-        # Remove user from the group
-        await self.channel_layer.group_discard("online_users", self.channel_name)
-        
-        # Mark user as offline
-        await self.set_user_status(self.user.id, "offline")
+    # When the user disconnects (e.g., closes the page)
+    def disconnect(self, close_code):
+        if self.user.is_authenticated:
+            # Update the user status to offline
+            self.update_user_status(online=False)
+            # Remove the user from the group
+            async_to_sync(self.channel_layer.group_discard)("user_status", self.channel_name)
 
-    async def set_user_status(self, user_id, status):
-        # Update user's status in the database
-        user = await sync_to_async(User_info.objects.get)(id=user_id)
-        user.is_online = (status == "online")
-        await sync_to_async(user.save)()
-        
-        # Broadcast the status update to all connected clients
-        await self.channel_layer.group_send(
-            "online_users",
+    # Helper function to update the user status
+    def update_user_status(self, online):
+        user_info = User_info.objects.get(username=self.user.username)
+        user_info.is_online = online  # Set their online status
+        user_info.save()
+
+        # Notify all clients in the group about the status change
+        async_to_sync(self.channel_layer.group_send)(
+            "user_status",
             {
-                "type": "status_update",
-                "user_id": user_id,
-                "status": status
+                "type": "user_status_update",
+                "username": user_info.username,
+                "is_online": user_info.is_online,
             }
         )
-    # i thnk that understand finaly
-    async def status_update(self, event):
-        # Send the status update to the client
-        await self.send(text_data=json.dumps({
-            "user_id": event["user_id"],
-            "status": event["status"]
+
+    # Handle receiving status updates (broadcast to clients)
+    def user_status_update(self, event):
+        # Send a message to the WebSocket client
+        self.send(text_data=json.dumps({
+            "username": event["username"],
+            "is_online": event["is_online"]
         }))

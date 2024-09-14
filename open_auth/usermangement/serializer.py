@@ -4,6 +4,8 @@ from .models            import RequestFriend
 from django.contrib.auth.hashers import make_password
 
 class       RequestFriendSerializer(serializers.ModelSerializer):
+    from_user = serializers.StringRelatedField()  # or use User_infoSerializer if needed
+    to_user = serializers.StringRelatedField()
     class Meta:
         model = RequestFriend
         fields = [
@@ -23,7 +25,21 @@ class   ProfileSerializer(serializers.ModelSerializer):
             'fullname',
             'firstname',
             'lastname',
-            'email'
+            'email',
+            'imageProfile'
+        ]
+
+class   UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User_info
+        fields = [
+            'id',
+            'username',
+            'fullname',
+            'firstname',
+            'lastname',
+            'email',
+            'imageProfile'
         ]
 
 class UpdateUserSerializers(serializers.ModelSerializer):
@@ -33,7 +49,8 @@ class UpdateUserSerializers(serializers.ModelSerializer):
             'id',
             'firstname',
             'lastname',
-            'email'
+            'email',
+            'imageProfile'
         ]
     
     def validate(self, data):
