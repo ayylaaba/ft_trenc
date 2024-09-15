@@ -143,7 +143,7 @@ def callback(request):
         data = response.json()
         access_token = data.get('access_token')
         if access_token:
-            user_data   = get_user_info(access_token)
+            user_data   = get_user_info_api(access_token)
             print ('user_data : ' , user_data)
             username    = user_data.get('login', 'Guest')
             fullname    = user_data.get('displayname', '')
@@ -181,7 +181,7 @@ def callback(request):
     else:
         return JsonResponse({'status': 'error', 'message': 'Failed to exchange token'}, status=response.status_code)
 
-def     get_user_info(access_token):
+def     get_user_info_api(access_token):
    user_endpoint = 'https://api.intra.42.fr/v2/me'
    headers= {
       'Authorization' : f'Bearer {access_token}'

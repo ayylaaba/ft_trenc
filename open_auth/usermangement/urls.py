@@ -9,6 +9,7 @@ urlpatterns=[
     path('accepte_request/<int:receiver_id>/', views.accepte_request), # a dynamic segment <int:receiver_id>
     path('send_friend/<int:receiver_id>/', views.send_friend_request), # a dynamic segment <int:receiver_id>
     path('reject_request/<int:receiver_id>/', views.reject_request), # a dynamic segment <int:receiver_id>
-    path('get_requests/', views.get_request),
-    path('get_user_friends/', views.get_user_friends)
+    path('get_requests/', views.get_request), # user/get_requests/
+    path('get_user_friends/', views.get_user_friends), # user/get_user_friends/
+    path('get_user_info/', views.get_user),
 ]

@@ -1,12 +1,12 @@
 let csrfToken;
-document.addEventListener('DOMContentLoaded', function() {
+// document.addEventListener("DOMContentLoaded", function() {
     get_csrf_token();
     // Function to fetch and set the CSRF token
     function get_csrf_token() {
         fetch('/get_csrf_token/')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('csrf_token').value = data.csrfToken;
+                document.querySelector('.csrf_token').value = data.csrfToken;
                 csrfToken = data.csrfToken;
             })
             .catch(error => console.error('Error fetching CSRF token:', error));
@@ -42,9 +42,9 @@ document.querySelector('.intra').addEventListener('click', function(event){
 // Handle the OAuth callback (after successful login)
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('code');
-console.log('URL Params:', urlParams.toString()); // Log the query string
-console.log('Authorization code:', code);
-console.log('window.location.search:', window.location.search);
+// console.log('URL Params:', urlParams.toString());
+// console.log('Authorization code:', code);
+// console.log('window.location.search:', window.location.search);
 
 if (code) 
 {
@@ -87,4 +87,4 @@ if (code)
         console.error('Error:', error);
     });
 }
-});
+// });

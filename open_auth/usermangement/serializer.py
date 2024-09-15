@@ -3,18 +3,6 @@ from oauth.models     import User_info
 from .models            import RequestFriend
 from django.contrib.auth.hashers import make_password
 
-class       RequestFriendSerializer(serializers.ModelSerializer):
-    from_user = serializers.StringRelatedField()  # or use User_infoSerializer if needed
-    to_user = serializers.StringRelatedField()
-    class Meta:
-        model = RequestFriend
-        fields = [
-            'id',
-            'from_user',
-            'to_user',
-            'accepted', 
-            'timestamp'
-        ]
 
 class   ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,6 +28,19 @@ class   UserInfoSerializer(serializers.ModelSerializer):
             'lastname',
             'email',
             'imageProfile'
+        ]
+
+class       RequestFriendSerializer(serializers.ModelSerializer):
+    from_user   = UserInfoSerializer()  # or use User_infoSerializer if needed
+    to_user     = UserInfoSerializer()
+    class Meta:
+        model = RequestFriend
+        fields = [
+            'id',
+            'from_user',
+            'to_user',
+            'accepted', 
+            'timestamp'
         ]
 
 class UpdateUserSerializers(serializers.ModelSerializer):

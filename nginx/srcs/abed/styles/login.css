@@ -75,6 +75,7 @@ a {
 }
 
 #login-parent {
+    display: none;
     /* margin: 5% auto 0px auto; */
     margin: 3% auto;
     width: 70%;

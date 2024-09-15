@@ -10,7 +10,7 @@ class       CustmerSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'fullname',
-            # 'imageProfile',
+            'imageProfile',
             'username',
             'firstname',
             'lastname',
@@ -26,5 +26,6 @@ class       RegisterSerializer(serializers.ModelSerializer):
             'username',
             'firstname',
             'lastname',
+            'imageProfile',
             'email',
         ]

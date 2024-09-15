@@ -1,4 +1,4 @@
-const homeButton = document.querySelector("#home");
+export const homeButton = document.querySelector("#home");
 export const main = document.querySelector("#main");
 
 import { profileId } from "./profile.js";
@@ -7,15 +7,15 @@ import { chatPage } from "./chat.js";
 import { rankPart } from "./rank.js";
 import { friendsPart } from "./friends.js";
 
-const mainFunction = () => {
+export const mainFunction = (dataObj) => {
     profileId.style.display = "none";
     settingPage.style.display = "none";
     chatPage.style.display = "none";
     rankPart.style.display = "none";
     friendsPart.style.display = "none";
-    main.style.display = "block";
-    // main.style.transition = "all 1s";
-    // document.querySelector("#profile-img").style.display = "block";
+    main.style.display = "flex";
+    document.querySelector("#full-container").style.display = "flex";
+    document.querySelector("#online-friends").style.display = "flex";
 }
 
-homeButton.addEventListener("click", mainFunction);
+// homeButton.addEventListener("click", mainFunction);

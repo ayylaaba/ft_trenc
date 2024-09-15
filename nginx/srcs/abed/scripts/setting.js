@@ -1,4 +1,4 @@
-const settingButton = document.querySelector("#setting");
+export const settingButton = document.querySelector("#setting");
 export const settingPage = document.querySelector("#setting-part");
 
 import { profileId } from "./profile.js";
@@ -7,18 +7,29 @@ import { chatPage } from "./chat.js";
 import { rankPart } from "./rank.js";
 import { friendsPart } from "./friends.js";
 
-const settingFunction = () => {
+export const settingFunction = (dataObj) => {
     profileId.style.display = "none";
     main.style.display = "none";
     chatPage.style.display = "none";
     rankPart.style.display = "none";
     friendsPart.style.display = "none";
     settingPage.style.display = "block";
-    // document.querySelector("#profile-img").style.display = "block";
-    // console.log("test mic..");
+    document.querySelector("#online-friends").style.display = "none";
+    // alert(dataObj);
+    if (dataObj != undefined)
+    {
+        document.querySelector("#first-container h5").innerHTML = `${dataObj.firstname} ${dataObj.lastname}`;
+        if (dataObj.imageProfile != undefined) {
+            document.querySelector("#setting-pic").style.backgroundImage = `url(${dataObj.imageProfile})`;
+        }
+        if (dataObj.email != undefined) {
+            // alert("dont enter.");
+            document.querySelector("#first-container p").innerHTML = `${dataObj.email}`;
+        }
+    }
 }
 
-settingButton.addEventListener("click", settingFunction);
+// settingButton.addEventListener("click", settingFunction);
 
 // nav manipulation style.
 const settingNavBtn = document.querySelectorAll(".setting-nav-btn");
@@ -61,3 +72,4 @@ const fileInput = document.querySelector("#file-input");
 uploadBtn.addEventListener("click", ()=> {
     fileInput.click();
 })
+

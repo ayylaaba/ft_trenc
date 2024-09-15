@@ -18,6 +18,21 @@ from django.contrib.auth import update_session_auth_hash
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
+def     get_user(request):
+    if request.method == 'GET':
+        user = request.user
+        if user.is_authenticated:
+            serialize = ProfileSerializer(instance=user)
+            print("\033[1;38m data ===> ", serialize.data)
+            return JsonResponse ({"status" : "success",
+             "data" : serialize.data})
+        return JsonResponse ({"status" : "failed",
+                "error" : "User Not Authenticated"})
+    return JsonResponse ({"status" : "failed", 
+            "error" : "method Not allowed"})
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def profile(request):
     print("\033[1;38m ----------> inside Profile Function \n")
     print("Session data:", request.COOKIES)
@@ -60,13 +75,13 @@ def update_user(request):
 
     if not user.is_authenticated:
         return JsonResponse({'status': 'failed', 'data': 'User is not authenticated'}, status=401)
+
     print("Request data:", request.data)
     print("Request files:", request.FILES)
     
     # Handle file uploads for imageProfile
     if 'imageProfile' in request.FILES:
         request.data['imageProfile'] = request.FILES['imageProfile']
-
     # Use request.data instead of request.body
     data  = request.data
     
@@ -79,11 +94,14 @@ def update_user(request):
 
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
 
-    if update_serializer.is_valid():
-        update_serializer.save()
-        return JsonResponse({'status': 'success', 'data': update_serializer.data})
-    else:
-        return JsonResponse({'status': 'failed', 'data': update_serializer.errors}, status=400)
+    update_serializer.is_valid()
+    print ('data === ', update_serializer.errors)
+    update_serializer.save()
+    print ('data === ', update_serializer.data)
+    return JsonResponse({'status': 'success', 'data': update_serializer.data})
+    # else:
+    #     print ('data =====')
+    #     return JsonResponse({'status': 'failed', 'data': update_serializer.errors}, status=400)
 
 @api_view(['GET'])
 def get_request(request):
@@ -92,12 +110,12 @@ def get_request(request):
         print("\033[1;37m ---> current_user : ", to_user)
         
         user_requests = RequestFriend.objects.filter(to_user=to_user, accepted=False)
-        
-        print("\033[1;37m ---> Fetched requests : ", user_requests)  # Print fetched requests
-        
+                
         if user_requests.exists():
             serialize_user_requests = RequestFriendSerializer(user_requests, many=True)
+            
             print("\033[1;37m ---> Serialized data : ", serialize_user_requests.data)  # Print serialized data
+            
             return JsonResponse({'status': 'success', 'data': serialize_user_requests.data})
         # If no requests are found
         print("\033[1;37m ---> No requests found")
@@ -114,16 +132,15 @@ def get_user_friends(request):
         'data': serialized_friends.data
     })
 
-@api_view(['GET'])
+# @api_view(['GET'])
 def     users_list(request):
     print ('Users List \n')
     current_user = request.user
     users = User_info.objects.exclude(id = current_user.id)
     print("\033[1;35m ---> current_user : ", current_user)
     serialize_users = ProfileSerializer(users, many=True)
-    print("\033[1;35m ---> current_user : ", serialize_users.data)
+    print("\033[1;35m ---> users : ", serialize_users.data)
     return JsonResponse({'status': 'success', 'data': serialize_users.data})
-
 
 @api_view(['POST'])
 def     send_friend_request(request, receiver_id): 
