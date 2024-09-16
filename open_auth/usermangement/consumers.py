@@ -43,7 +43,7 @@ class StatusConsumer(WebsocketConsumer):
     # Handle receiving status updates (broadcast to clients)
     def user_status_update(self, event):
         # Send a message to the WebSocket client
-        self.send(text_data=json.dumps({
+        self.send(text_data=json.dumps({ # Converts this dictionary into a JSON string 
             "username": event["username"],
             "is_online": event["is_online"]
         }))

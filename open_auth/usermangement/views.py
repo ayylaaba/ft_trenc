@@ -204,27 +204,6 @@ def accepte_request(request, receiver_id):
     except RequestFriend.DoesNotExist:  # Catch the correct exception
         return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=404)
 
-
-# @api_view(['POST'])
-# def     accepte_request(request, receiver_id):
-#     print("\033[1;35m Hi I Enter To accept_request view  \n")
-#     all_requests = RequestFriend.objects.all()
-#     print("All Friend Requests:")
-#     for request in all_requests:
-#         print(f"ID: {request.id}, From: {request.from_user.username}, To: {request.to_user.username}, Accepted: {request.accepted}")
-#     try:
-#         friend_request = RequestFriend.objects.get(id=receiver_id)
-#         print ('************************************************************************ff')
-#         if friend_request.accepted:
-#             return JsonResponse ({'staus':'success', 'data' : 'this request already accepted'})
-#         friend_request.accepted = "True"
-#         friend_request.save()
-#         friend_request.from_user.friends.add(friend_request.from_user)
-#         friend_request.from_user.friends.add(friend_request.to_user)
-#         return JsonResponse ({'status':'success', 'data' : 'the request accepted'})
-#     except friend_request.DoesNotExist:
-#         return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=404)
-
 @api_view(['POST'])
 def reject_request(request, receiver_id):
     print("\033[1;35m Hi I Enter To accept_request view  \n")
