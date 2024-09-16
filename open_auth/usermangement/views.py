@@ -92,17 +92,23 @@ def update_user(request):
     if  not isinstance(data, dict):
         return JsonResponse({'status': 'failed', 'data': 'Expected a JSON object'}, status=400)
 
+    print ('email 1 : ', user.email)
+    print ('email 2 : ', request.data['email'])
+    
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
 
-    update_serializer.is_valid()
-    print ('data === ', update_serializer.errors)
-    update_serializer.save()
+
+    if user.email == request.data['email']:
+        return JsonResponse({'status': 'failed', 'data': 'must to change email'})
+
+    if update_serializer.is_valid():
+        update_serializer.save()
+        print('Updated data === ', update_serializer.data)
+    else:
+        print('Errors === ', update_serializer.errors)
     print ('data === ', update_serializer.data)
     return JsonResponse({'status': 'success', 'data': update_serializer.data})
-    # else:
-    #     print ('data =====')
-    #     return JsonResponse({'status': 'failed', 'data': update_serializer.errors}, status=400)
-
+    
 @api_view(['GET'])
 def get_request(request):
     to_user = request.user
@@ -125,62 +131,99 @@ def get_request(request):
 @api_view(['GET'])
 def get_user_friends(request):
     current_user = request.user  # Assuming the user is authenticated
-    friends = current_user.friends.all()  # Get all friends of the current user
+    friends = current_user.friends.exclude(id=current_user.id).all()  # Get all friends of the current user
     serialized_friends = UserInfoSerializer(friends, many=True)  # Serialize the friends list
+
+    print("\033[1;37m ---> serialized_friends : ", serialized_friends.data)  # Print serialized data
+    # print ("friends of the user")
     return JsonResponse({
         'status': 'success',
         'data': serialized_friends.data
     })
 
 # @api_view(['GET'])
-def     users_list(request):
-    print ('Users List \n')
+@api_view(['GET'])
+def users_list(request):
+    print('Users List \n')
     current_user = request.user
-    users = User_info.objects.exclude(id = current_user.id)
-    print("\033[1;35m ---> current_user : ", current_user)
+    # Get users who have sent or received a request to/from the current user
+    sent_requests = RequestFriend.objects.filter(from_user=current_user).values_list('to_user', flat=True) # flat=True with Output: [2, 3, 5] WITHOUT [(2), (3)]
+    received_requests = RequestFriend.objects.filter(to_user=current_user).values_list('from_user', flat=True)
+    # Combine both sets of users into one list
+    requested_users_ids = list(set(sent_requests) | set(received_requests))
+    users = User_info.objects.exclude(id=current_user.id).exclude(id__in=requested_users_ids)
     serialize_users = ProfileSerializer(users, many=True)
-    print("\033[1;35m ---> users : ", serialize_users.data)
     return JsonResponse({'status': 'success', 'data': serialize_users.data})
 
 @api_view(['POST'])
 def     send_friend_request(request, receiver_id): 
     print("\033[1;37m send friend request method \n")
     from_user = request.user
-    print("\033[1;37m -------------------------------------------> ", receiver_id)
     to_user   = User_info.objects.get(id=receiver_id)
 
     if RequestFriend.objects.filter(from_user = from_user, to_user = to_user).exists():
         return JsonResponse({'status' : 'failed', 'error':'the request Already exist'})
     friend_req    = RequestFriend.objects.create(from_user = from_user, to_user = to_user)
-    friend_req = RequestFriend.objects.create(from_user=from_user, to_user=to_user)
     print("\033[1;35m from_user: ", friend_req.from_user)  # Print the from_user
     print("\033[1;35m to_user: ", friend_req.to_user)      # Print the to_user
     friend_req.save()
     serialize_req = RequestFriendSerializer(friend_req) 
-    all_req = RequestFriend.objects.all()
     print("\033[1;37m ------------------------------> ", serialize_req.data)
-    print("\033[1;37m ------------------------------> ",all_req)
     return JsonResponse({'status' : 'success', 'data' : serialize_req.data})
 
 @api_view(['POST'])
-def     accepte_request(request, receiver_id):
+def accepte_request(request, receiver_id):
     print("\033[1;35m Hi I Enter To accept_request view  \n")
+    
     all_requests = RequestFriend.objects.all()
     print("All Friend Requests:")
-    for request in all_requests:
-        print(f"ID: {request.id}, From: {request.from_user.username}, To: {request.to_user.username}, Accepted: {request.accepted}")
+    for request_obj in all_requests:  # 'request_obj' to avoid conflict with the 'request' parameter
+        print(f"ID: {request_obj.id}, From: {request_obj.from_user.username}, To: {request_obj.to_user.username}, Accepted: {request_obj.accepted}")
+    
     try:
-        friend_request = RequestFriend.objects.get(id=receiver_id)
-        print ('************************************************************************ff')
+        friend_request = RequestFriend.objects.get(id=receiver_id)  # 'receiver_id' refers to the friend request ID
+        
         if friend_request.accepted:
-            return JsonResponse ({'staus':'success', 'data' : 'this request already accepted'})
-        friend_request.accepted = "True"
+            return JsonResponse({'status': 'success', 'data': 'This request is already accepted'})
+        
+        # Set 'accepted' to the correct boolean value True
+        friend_request.accepted = True
         friend_request.save()
-        friend_request.from_user.friends.add(friend_request.from_user)
-        friend_request.from_user.friends.add(friend_request.to_user)
-        return JsonResponse ({'status':'success', 'data' : 'the request accepted'})
-    except friend_request.DoesNotExist:
+
+        # Add each user to the other's friends list
+        from_user = friend_request.from_user
+        to_user = friend_request.to_user
+
+        from_user.friends.add(to_user)
+        to_user.friends.add(from_user)
+
+        print("\033[1;35m From_user's friends: ", from_user.friends.all())
+        print("\033[1;35m To_user's friends: ", to_user.friends.all())
+        return JsonResponse({'status': 'success', 'data': 'The request has been accepted'})
+
+    except RequestFriend.DoesNotExist:  # Catch the correct exception
         return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=404)
+
+
+# @api_view(['POST'])
+# def     accepte_request(request, receiver_id):
+#     print("\033[1;35m Hi I Enter To accept_request view  \n")
+#     all_requests = RequestFriend.objects.all()
+#     print("All Friend Requests:")
+#     for request in all_requests:
+#         print(f"ID: {request.id}, From: {request.from_user.username}, To: {request.to_user.username}, Accepted: {request.accepted}")
+#     try:
+#         friend_request = RequestFriend.objects.get(id=receiver_id)
+#         print ('************************************************************************ff')
+#         if friend_request.accepted:
+#             return JsonResponse ({'staus':'success', 'data' : 'this request already accepted'})
+#         friend_request.accepted = "True"
+#         friend_request.save()
+#         friend_request.from_user.friends.add(friend_request.from_user)
+#         friend_request.from_user.friends.add(friend_request.to_user)
+#         return JsonResponse ({'status':'success', 'data' : 'the request accepted'})
+#     except friend_request.DoesNotExist:
+#         return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=404)
 
 @api_view(['POST'])
 def reject_request(request, receiver_id):
