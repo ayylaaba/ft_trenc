@@ -91,12 +91,8 @@ def update_user(request):
     # check if data is a json form by method isinstance "dict" mean data is a dic or not
     if  not isinstance(data, dict):
         return JsonResponse({'status': 'failed', 'data': 'Expected a JSON object'}, status=400)
-
-    print ('email 1 : ', user.email)
-    print ('email 2 : ', request.data['email'])
     
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
-
 
     if user.email == request.data['email']:
         return JsonResponse({'status': 'failed', 'data': 'must to change email'})
@@ -105,6 +101,7 @@ def update_user(request):
         update_serializer.save()
         print('Updated data === ', update_serializer.data)
     else:
+        return JsonResponse({'status': 'failed', 'data': update_serializer.errors})
         print('Errors === ', update_serializer.errors)
     print ('data === ', update_serializer.data)
     return JsonResponse({'status': 'success', 'data': update_serializer.data})
