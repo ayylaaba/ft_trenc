@@ -49,7 +49,7 @@ registerForm.addEventListener("submit", registrationFunction);
 export const showHome = (dataObj)=> {
     // localStorage.setItem(dataObj.username);
     document.querySelector("#full-container").style.display = "flex";
-    document.querySelector("#online-friends").style.display = "flex";
+    // document.querySelector("#online-friends").style.display = "flex";
     document.querySelector("#login-parent").style.display = "none";
     document.querySelector("#nav").style.display = "flex";
     document.querySelector("#main").style.display = "flex";

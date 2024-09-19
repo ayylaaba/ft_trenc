@@ -41,7 +41,7 @@ def     register_vu(request):
         if form.is_valid():
             print("\033[1;38m This user is valid \n")
             user = form.save()
-            user_token, created = Token.objects.get_or_create(user=user) 
+            user_token, created = Token.objects.get_or_create(user=user)
             seria = RegisterSerializer(instance=user)
             print(f"\033[1;38m This is the user token: {user_token}")
             print(f"\033[1;38m This is the user data ", seria.data)

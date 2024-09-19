@@ -12,4 +12,5 @@ urlpatterns=[
     path('get_requests/', views.get_request), # user/get_requests/
     path('get_user_friends/', views.get_user_friends), # user/get_user_friends/
     path('get_user_info/', views.get_user),
+    path('unfriend/<int:received_id>/', views.unfriend)
 ]

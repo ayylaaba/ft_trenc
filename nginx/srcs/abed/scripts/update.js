@@ -35,20 +35,17 @@ export const update = async (event)=> {
         },
         body: formData
     });
+    const jsonResponse = await response.json();
     if (response.ok) {
-        const jsonResponse = await response.json();
-        if (jsonResponse.status === "success") {
-            document.querySelector("#update-alert").style.display = "block";
-            clearInputs();
-            setTimeout(() => profileAlert("success", jsonResponse.data), 3000);
-        }
-        else {
-            document.querySelector("#update-alert-failed").style.display = "block";
-            // clearInputs();
-            setTimeout(() => profileAlert("failed", jsonResponse.data), 3000);
-        }
-        return jsonResponse.data;
+        document.querySelector("#update-alert").style.display = "block";
+        clearInputs();
+        setTimeout(() => profileAlert("success", jsonResponse.data), 3000);
     }
+    else {
+        document.querySelector("#update-alert-failed").style.display = "block";
+        setTimeout(() => profileAlert("failed", jsonResponse.data), 3000);
+    }
+    return jsonResponse.data;
 };
 
 updateForm.addEventListener("submit", update);

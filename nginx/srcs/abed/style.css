@@ -55,25 +55,74 @@ visibility */
 } */
 
 @media (min-width: 0px) and (max-width: 575px) {
-    /* Your CSS styles for Extra Small devices */
-    #main {
-        width: 277px;
-        margin: auto;
-        height: 90vh;
+    .match-block {
+        left: 1% !important;
+        top: 15vh !important;
     }
-    #profile-img {
-        width: 46px !important;
-        height: 46px !important;
+    .main_Xo {
+        width: 90% !important;
     }
-    #design {
-        margin-top: 10px;
-        height: 40% !important;
+    .search-icons {
+        width: 100px !important;
+    }
+    #search-bar input {
+        width: 76% !important;
+    }
+    #search-bar {
+        gap: 5px !important;
+        width: 60% !important;
+        height: 50% !important;
     }
     #play-block {
-        display: none;
+        width: fit-content !important;
+        height: fit-content !important;
+    }
+    #play-button {
+        font-size: 14px !important;
+    }
+    #play-icon {
+        font-size: 22px !important;
+    }
+    #description {
+        justify-content: space-evenly !important;
+        gap: 0 !important;
+        margin: auto 5px !important;
+    }
+    .search-icons div {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    #home-navbar i:not(#search-bar i) {
+        font-size: 18px !important;
+    }
+    #main {
+        width: 100% !important;
+        min-height: 640px !important;
+    }
+    #full-container {
+        min-height: 700px;
+        flex-direction: column;
     }
     #main-img {
-      display: none;
+        min-width: 0px !important;
+        width: 62% !important;
+        height: 60% !important;
+    }
+    #design {
+        height: 35% !important;
+        width: 100vw !important;
+        min-width: 0 !important;
+    }
+    #home-navbar {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+    #games {
+        min-height: 180px !important;
+        max-height: 220px !important;
+        height: 200px !important;
+        min-width: 0 !important;
+        width: 100% !important;
     }
     #logout {
         display: none;
@@ -115,13 +164,9 @@ visibility */
     }
     #nav {
         flex-direction: row !important;
-        height: 7vh !important;
+        height: 60px !important;
         max-width: 100% !important;
         justify-content: center;
-        /* align-items: center; */
-    }
-    #description {
-        margin-top: 3% !important;
     }
     h1 {
         font-size: 22px !important;
@@ -129,33 +174,59 @@ visibility */
     p {
         font-size: 12px !important;
     }
-    #games {
-        height: 75% !important;
-        position: relative;
-        bottom: 50px;
+    #ping-pong, #XO {
+        width: 150px !important;
+        height: 120px !important;
+    }
+    #img1, #img2 {
+        width: 150px !important;
+        height: 120px !important;
+    }
+    #speech h3 {
+        font-size: 14px !important;
     }
 }
 
 @media (min-width:576px) and (max-width:767px) {
-    /* Your CSS styles for small devices */
-    #main {
-        width: 293px;
-        margin: 25px auto;
-        height: 50vh;
-    }
     #description {
-        margin-top: 3% !important;
-        width: 100%;
+        margin: auto 10px !important;
+    }
+    #play-button {
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffffff00;
+    }
+    #play-block {
+        height: 37px !important;
+        width: 160px !important;
+    }
+    #play-icon {
+        font-size: 33px !important;
+    }
+    #main {
+        width: 80% !important;
+        margin: auto;
+    }
+    #main-img {
+        min-width: 0px !important;
+        width: 62% !important;
+        height: 70% !important;
     }
     #design {
-        margin-top: 10px;
+        width: 100% !important;
         height: 40% !important;
+        min-width: 0 !important;
+    }
+    #home-navbar {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+    #games {
+        min-width: 0 !important;
+        width: 100% !important;
     }
     #play-block {
         display: none;
-    }
-    #main-img {
-      display: none;
     }
     .ll h3 {
         display: none !important;
@@ -174,9 +245,8 @@ visibility */
         max-width: 16.66666667% !important;
     }
     #icon > img {
-        height: 80px !important;
-        width: 100px !important;
-        margin-bottom: 30% !important;
+        height: 70px !important;
+        width: 80px !important;
     }
     h1 {
         font-size: 25px !important;
@@ -184,49 +254,64 @@ visibility */
     p {
         font-size: 12px !important;
     }
-    #games {
-        height: 80% !important;
+    #ping-pong, #XO {
+        width: 200px !important;
+    }
+    #img1, #img2 {
+        width: 200px !important;
+    }
+    #speech h3 {
+        font-size: 20px !important;
     }
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
-    /* Your CSS styles for medium devices */
+    #play-block {
+        height: 37px !important;
+        width: 160px !important;
+    }
+    #play-icon {
+        font-size: 33px !important;
+    }
+    #play-button {
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffffff00;
+    }
     #description {
-        width: 100%;
-        margin-top: 5%;
+        margin: auto 10px !important;
     }
     #main-img {
-        display: none; /* Example adjustment for readability on tablets */
+        min-width: 0px !important;
+        width: 62% !important;
+        height: 70% !important;
     }
-    #ping-pong, #XO {
-        margin-left: 0px;
-        height: 170px !important;
-        width: 250px !important;
-        margin-right: 4%;
+    #search-bar {
+        height: 52% !important;
     }
-    #play-block {
-        display: none;
-    }
-    #games {
-        position: relative;
-        bottom: 30%;
-        height: 30% !important;
-        width: fit-content;
-    }
-    #img1, #img2 {
-        position: relative;
-        right: 11px;
-        height: 100% !important;
-        width: 240px !important;
-        margin-bottom: 0 !important;
-        box-shadow: 0px 0px 10px 0px violet;
-        border-radius: 10%;
+    #design {
+        width: 100% !important;
+        height: 40% !important;
+        min-width: 0 !important;
     }
     #main {
-        width: 72%;
-        margin: 3% auto;
+        width: 80% !important;
+        margin: auto;
     }
-
+    #home-navbar {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+    #games {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+    #ping-pong, #XO {
+        width: 200px !important;
+    }
+    #img1, #img2 {
+        width: 200px !important;
+    }
     .ll h3 {
         display: none !important;
     }
@@ -245,41 +330,105 @@ visibility */
     #icon > img {
         height: 80px !important;
         width: 100px !important;
-        margin-bottom: 30% !important;
     }
     h1 {
         font-size: 3.5vw;
     }
+    #speech h3 {
+        font-size: 25px !important;
+    }
+    .match-block {
+        left: 0 !important;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+    #design {
+        height: 40% !important;
+        width: 95% !important;
+    }
+    #home-navbar {
+        height: 9% !important;
+        width: 95% !important;
+    }
+    #speech h3 {
+        font-size: 25px !important;
+    }
+    .match-block {
+        left: 3% !important;
+    }
+}
+
+.match-block {
+    position: absolute;
+    gap: 12px;
+    top: 14vh !important;
+    left: 5%;
+    z-index: 1;
+    width: 280px;
+    background-color: rgb(31 42 87 / 80%);
+    height: fit-content;
+    max-height: 120px;
+    padding: 10px;
+    overflow-y: auto;
+    box-shadow: 0 0 5px black;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.match-element {
+    display: flex;
+    cursor: pointer;
+    font-family: sans-serif;
+    color: gray;
+    gap: 10px;
+    font-size: 20px;
+    height: 60px;
+    align-items: center;
+    padding: 10px;
+}
+
+.match-element:hover {
+    opacity: 0.9;
+    border-radius: 10px;
+    background-color: rgb(10, 19, 57, 27%);
 }
 
 .btn i {
     font-size: 20px;
 }
 
-/* #linkk {
-    font-size: 100px;
-} */
-
 ::selection { /* pseudo element */
     background-color: rgb(136, 67, 136);
     color: rgb(214, 214, 236);
 }
 
-/* overflow: hidden; */ /* auto is better than scroll option, and there is x and y */
+.row {
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.container-fluid {
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    padding-right: 0;
+    padding-left: 0;
+    margin-right: 0;
+    margin-left: 0;
+}
+
 body {
     margin: 0;
     background-color: rgb(0, 21, 52);
 }
 
-/* #contain {
-    position: relative;
-    top: 20%;
-} */
-
 i {
     color: whitesmoke;
-    /* font-size: 1.5vw; */
-    /* filter: drop-shadow(-4px 3px 5px blueviolet); */
 }
 
 h1 {
@@ -300,8 +449,9 @@ h1 {
     margin-top: 0;
     background-color: rgb(10 19 57);
     color: whitesmoke !important;
-    box-shadow: inset 0 0 3px 0px whitesmoke;
+    /* box-shadow: 0 0 3px 0px whitesmoke; */
     height: 100vh;
+    border: 1px solid #f5f5f58c;
     max-width: 215px;
 }
 
@@ -311,18 +461,19 @@ h1 {
 }
 
 #main {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
     width: calc(100% - 215px);
-    gap: 20px;
     height: 100vh;
+    min-height: 600px;
     background-color: rgb(0, 21, 52);
     transition: all 0.5s;
 }
 
-#online-friends {
+/* #online-friends {
     background-color: rgb(10 19 57);
     border: 2px solid white;
     border-radius: 20px;
@@ -334,7 +485,7 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
+} */
 
 #full-container {
     width: 100%;
@@ -342,13 +493,13 @@ h1 {
     display: flex;
 }
 
-#online-container {
+/* #online-container {
     overflow-y: auto;
     width: 95%;
     height: 90%;
     border: 2px solid white;
     border-radius: 10px;
-}
+} */
 
 #icon > img {
     height: 100px;
@@ -356,9 +507,6 @@ h1 {
     border: 2px solid #9477fa;      /* border can be modified in every side; */
     box-shadow: 0px 0px 10px #9477fa;
     border-radius: 50%;
-    /* margin: auto; */
-    /* keep if good */
-    /* animation: logo 3s infinite;  */
 }
 
 .unclick {
@@ -384,7 +532,7 @@ h1 {
     display: flex;
     align-items: center;
     height: 10%;
-    width: 95%;
+    width: 90%;
     min-width: 600px;
     justify-content: space-evenly;
 }
@@ -408,11 +556,11 @@ h1 {
     justify-content: center;
     gap: 10px;
     align-items: center;
-    background-color: white;
-    width: 67%;
+    width: 65%;
     height: 60%;
     box-shadow: 0 0 3px white;
     border-radius: 10px;
+    border: 1px solid gray;
 }
 
 #search-bar input {
@@ -456,8 +604,9 @@ h1 {
     display: flex;
     position: relative;
     height: 50%;
-    width: 95%;
-    background-color: rgb(10 19 57);
+    width: 90%;
+    background: rgb(10, 19, 57);
+    background: linear-gradient(90deg, rgba(10, 19, 57, 1) 0%, rgba(10, 19, 57, 1) 35%, rgb(80 95 158 / 70%) 100%);
     border-radius: 20px;
     box-shadow: 0 0 6px black;
 }
@@ -469,7 +618,6 @@ h1 {
     background-image: url(images/design3.png);
     background-size: cover;
     margin: auto;
-    /* filter: drop-shadow(0px 0px 5px black); */
 }
 
 #ping-pong, #XO {
@@ -482,17 +630,13 @@ h1 {
 #img1, #img2 {
     height: 170px;
     width: 250px;
-    margin-bottom: 20px;
-    box-shadow: 0px 0px 10px 0px violet;
+    box-shadow: 0px 0px 10px 0px black;
     border-radius: 10%;
     transition: all 0.2s;
-    opacity: 1;
 }
 
 #img1:hover, #img2:hover {
     border: 1px solid white !important;
-    /* width: 255px;
-    height: 175px; */
     opacity: 0.7;
 }
 
@@ -501,13 +645,16 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    min-height: 250px;
+    max-height: 300px;
     height: 30%;
     width: 75%;
     margin: 0;
     min-width: 700px;
-    background-color: rgb(10 19 57);
+    background: rgb(2, 0, 36);
+    background: linear-gradient(180deg, rgb(20 17 54) 0%, rgb(21 29 63) 35%, rgb(28 49 142) 100%);
     border-radius: 20px;
-    box-shadow: 0 0 2px black;
+    box-shadow: 0 0 4px black;
 }
 
 #games-cont {
@@ -526,8 +673,6 @@ h1 {
 }
 
 #games h1 {
-    color: whitesmoke;
-    margin-left: 55px;
     text-align: center;
 }
 
@@ -540,7 +685,7 @@ p {
     font-family: 'Games', sans-serif;
     display: flex;
     flex-direction: column;
-    gap: 60px;
+    gap: 30px;
     width: 35%;
     height: 90%;
     margin: auto 30px;
@@ -589,9 +734,9 @@ p {
 
 /* end of button */
 
-span {
+/* span {
     color: blueviolet;
-}
+} */
 
 a, button {
     text-decoration: none;
@@ -602,7 +747,7 @@ a, button {
 .btn {
     border: none;
 }
-/*hover effect for buttons without 'link' */
+
 .btn:not(.link, .accept, .refuse):hover {
     background-color: rgba(83, 83, 83, 0.473);
     box-shadow: 0px 0px 8px 2px rgba(83, 83, 83, 0.473);
@@ -610,7 +755,6 @@ a, button {
 
 .ll {
     display: flex;
-    /* justify-content: center; */
     gap: 6%;
 }
 
@@ -618,11 +762,6 @@ a, button {
     font-size: 20px;
     color: white;
 }
-
-/* .btn {
-    color: whitesmoke;
-    border: none;
-} */
 
 .link {
     background-color: #6d349c8a;
@@ -643,4 +782,9 @@ a, button {
     border-radius: 50%;
     width: 64px;
     height: 64px;
+}
+
+#speech h3 {
+    font-size: 30px;
+    filter: drop-shadow(0px 0px 10px whitesmoke);
 }

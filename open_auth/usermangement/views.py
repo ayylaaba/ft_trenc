@@ -91,21 +91,65 @@ def update_user(request):
     # check if data is a json form by method isinstance "dict" mean data is a dic or not
     if  not isinstance(data, dict):
         return JsonResponse({'status': 'failed', 'data': 'Expected a JSON object'}, status=400)
+
+    print ('email 1 : ', user.email)
+    print ('email 2 : ', request.data['email'])
+    
+    if user.email == request.data['email']:
+        print("\033[1;38m Error ----> must to change email \n")
+        return JsonResponse({'status': 'failed', 'data': 'must to change email'})
     
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
 
-    if user.email == request.data['email']:
-        return JsonResponse({'status': 'failed', 'data': 'must to change email'})
-
     if update_serializer.is_valid():
         update_serializer.save()
-        print('Updated data === ', update_serializer.data)
-    else:
-        return JsonResponse({'status': 'failed', 'data': update_serializer.errors})
-        print('Errors === ', update_serializer.errors)
-    print ('data === ', update_serializer.data)
+        print("\033[1;38m ----------> done Saved \n")
+    print('Updated data === ', update_serializer.data)
     return JsonResponse({'status': 'success', 'data': update_serializer.data})
+
     
+# @api_view(['POST'])
+# def     unfirend(request, received_id):
+#     current_user   = User_info.objects.get(id=request.id)
+#     friend_removed = User_info.objects.get(id=received_id)
+
+#     if current_user.friend.filter(friend_removed).exists():
+#         current_user.friend.remove(friend_removed)
+#         friend_removed.friend.remove(current_user)
+
+#         # i think should remove request also .
+
+#         # RequestFriend.objects.filter(
+#         #         from_user=current_user, to_user=friend_to_remove, accepted=True
+#         #     ).delete()
+#         #     RequestFriend.objects.filter(
+#         #         from_user=friend_to_remove, to_user=current_user, accepted=True
+#         #     ).delete()
+#         return JsonResponse({'status': 'success', 'data': f'{friend_removed} is not your friend anymore'}, status=200)
+#     return JsonResponse({'status': 'failed', 'data': f'{friend_removed} is not exist in your friends db'}, status=400)    
+
+from django.db.models import Q  # Add this import
+
+@api_view(['POST'])
+def         unfriend(request, received_id):
+    current_user   = request.user
+    friend_removed = User_info.objects.get(id = received_id)
+    if current_user.is_authenticated:
+        print('Updated data <===> ')
+        if current_user.friends.filter(id=received_id).exists():
+            print(' 2 Updated data <===> ')
+            current_user.friends.remove(friend_removed)
+            friend_removed.friends.remove(current_user)
+
+            RequestFriend.objects.filter(
+            (Q(from_user=current_user) & Q(to_user=friend_removed)) |
+            (Q(from_user=friend_removed) & Q(to_user=current_user))
+            ).delete()
+
+            return JsonResponse({'status': 'success', 'data': 'is not your friend anymore'}, status=200)
+        return JsonResponse({'status': 'failed', 'data': 'is not your friend'}, status=400)
+    return JsonResponse({'status': 'failed', 'data': ' is not authenticated'}, status=400)
+
 @api_view(['GET'])
 def get_request(request):
     to_user = request.user
@@ -219,26 +263,6 @@ def reject_request(request, receiver_id):
     except RequestFriend.DoesNotExist:
         return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=404)
     
-@api_view(['POST'])
-def     unfirend(request, received_id):
-    current_user   = User_info.get(id=request.id)
-    friend_removed = User_info.get(id=received_id)
-
-    if current_user.friend.filter(friend_removed).exists():
-        current_user.friend.remove(friend_removed)
-        friend_removed.friend.remove(current_user)
-
-        # i think should remove request also .
-
-        # RequestFriend.objects.filter(
-        #         from_user=current_user, to_user=friend_to_remove, accepted=True
-        #     ).delete()
-        #     RequestFriend.objects.filter(
-        #         from_user=friend_to_remove, to_user=current_user, accepted=True
-        #     ).delete()
-        return JsonResponse({'status': 'success', 'data': f'{friend_removed} is not your friend anymore'}, status=200)
-    return JsonResponse({'status': 'failed', 'data': f'{friend_removed} is not exist in your friends db'}, status=400)
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Ensure the user is logged in
 def ChangePassword(request):

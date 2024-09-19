@@ -8,20 +8,27 @@ import { profileId } from "./profile.js";
 import { rankPart } from "./rank.js";
 import { get_csrf_token } from "./register.js";
 
-export const friendsFunc = (dataObj) => {
-    document.querySelector("#online-friends").style.display = "none";
+const frdNavBtns = document.querySelectorAll(".frd-nav-btn");
+export const friendsFunc = () => {
+    // document.querySelector("#online-friends").style.display = "none";
     main.style.display = "none";
     settingPage.style.display = "none";
     chatPage.style.display = "none";
     profileId.style.display = "none";
     rankPart.style.display = "none";
-    friendsPart.style.display = "block";
+    friendsPart.style.display = "flex";
+    document.querySelector("#suggestions").style.display = "none";
+    document.querySelector("#requests").style.display = "none";
+    document.querySelector("#my-friends").style.display = "flex";
+    frdNavBtns[1].classList.remove('styled-nav-btn');
+    frdNavBtns[2].classList.remove('styled-nav-btn');
+    frdNavBtns[0].classList.add('styled-nav-btn');
+    friendsFunction();
 }
 
 // friendsBtn.addEventListener("click", friendsFunc);
 
 // nav manipulation style.
-const frdNavBtns = document.querySelectorAll(".frd-nav-btn");
 frdNavBtns[0].classList.add('styled-nav-btn');
 
 frdNavBtns.forEach ((frdNavBtn)=> {
@@ -126,11 +133,12 @@ const createSuggestionCard = (jsonObject, i) => {
     document.querySelector("#suggestions").append(element);
 }
 
-const suggestionsFunction = async ()=> {
+export const suggestionsFunction = async ()=> {
     const response = await fetch("/user/list/");
     if (response.ok) {
         const jsonResponse = await response.json();
         if (jsonResponse.status === "success") {
+            document.querySelector("#suggestions").innerHTML = "";
             for (let i = 0; i < jsonResponse.data.length; i++) {
                 createSuggestionCard(jsonResponse.data, i);
             }
@@ -140,40 +148,53 @@ const suggestionsFunction = async ()=> {
                 addBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "add"));
             }
     
-            const deleteBtnsListen = document.querySelectorAll(".delete .btn");
-            for(let i = 0; i < deleteBtnsListen.length; i++) {
-                deleteBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "delete"));
-            }
+            // const deleteBtnsListen = document.querySelectorAll(".delete .btn");
+            // for(let i = 0; i < deleteBtnsListen.length; i++) {
+            //     deleteBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "delete"));
+            // }
         }
         return jsonResponse.data;
     }
 }
 
 const sendIdToBackend = async (id, action) => {
-    console.log(id);
     const token = await get_csrf_token();
     if (action === "add") {
+        console.log("Add with id: ", id);
         const response = await fetch(`/user/send_friend/${id}/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': token,
             },
         });
+        suggestionsFunction();
         if (response.ok) {
             const jsonResponse = await response.json();
             if (jsonResponse.status === "success") {
-                console.log("success response...");
+                alert("succesfully sent to the backend");
             } else {
-                console.log("failed response...");
+                alert("already sent to the backend");
             }
         }
+    }
+    else if (action === "accept") {
+        console.log("Accpet with id: ", id);
+        const response = await fetch(`/user/accepte_request/${id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': token,
+            },
+        });
+        requestsFunction();
     }
     // else {
     //     waiting for backend in case of delete.
     // }
 }
 
-document.addEventListener("DOMContentLoaded", suggestionsFunction);
+const sugBtn = document.querySelector("#suggestion-btn");
+
+sugBtn.addEventListener("click", suggestionsFunction);
 
 
 
@@ -241,7 +262,7 @@ const createRequestCards = (name, image) => {
 
     const addBtn = document.createElement("button");
     addBtn.innerHTML = "Accept";
-    addBtn.classList.add("btn", "btn-lg");
+    addBtn.classList.add("btn", "btn-lg", "accept");
     addBtnDiv.append(addBtn);
     const deleteBtn = document.createElement("button");
     deleteBtn.innerHTML = "Refuse";
@@ -252,19 +273,28 @@ const createRequestCards = (name, image) => {
 }
 
 const requestsFunction = async ()=> {
-    const response = await fetch("https://dattebayo-api.onrender.com/characters");
+    const response = await fetch("/user/get_requests/");
     if (response.ok) {
         const jsonResponse = await response.json();
-        // if (jsonResponse.status === "success") {
-        // console.log(jsonResponse.characters);
-        for (let i = 0; i <jsonResponse.characters.length; i++) {
-            createRequestCards(jsonResponse.characters[i].name, jsonResponse.characters[i].images[0]);
+        if (jsonResponse.status === "success") {
+            console.log(jsonResponse.data);
+            document.querySelector("#requests").innerHTML = "";
+            for (let i = 0; i < jsonResponse.data.length; i++) {
+                createRequestCards(jsonResponse.data[i].from_user.username, jsonResponse.data[i].from_user.imageProfile);
+            }
+            const acceptBtnsListen = document.querySelectorAll(".add .accept");
+            for(let i = 0; i < acceptBtnsListen.length; i++) {
+                // listen for add-friend button click event to send the id for the backend;
+                acceptBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "accept"));
+            }
         }
+        // else if (jsonResponse.status === "failed") {
+        //     alert("you already sent a request to this user.");
         // }
     }
 }
-
-document.addEventListener("DOMContentLoaded", requestsFunction);
+const reqBtn = document.querySelector("#requests-btn");
+reqBtn.addEventListener("click", requestsFunction);
 
 // -------------- Display Friends --------------------
 
@@ -335,20 +365,24 @@ const createFriendCards = (name, image) => {
     document.querySelector("#my-friends").append(element);
 }
 
-const friendsFunction = async() => {
-    const response = await fetch("https://dattebayo-api.onrender.com/characters");
+export const friendsFunction = async() => {
+    const response = await fetch("/user/get_user_friends/");
     if (response.ok) {
         const jsonResponse = await response.json();
-        // if (jsonResponse.status === "success") {
-        // console.log(jsonResponse.characters);
-        for (let i = 0; i < jsonResponse.characters.length; i++) {
-            createFriendCards(jsonResponse.characters[i].name, jsonResponse.characters[i].images[0]);
+        if (jsonResponse.status === "success") {
+            document.querySelector("#my-friends").innerHTML = ""; // main parent.
+            // console.log(jsonResponse.data);
+            for (let i = 0; i < jsonResponse.data.length; i++) {
+                createFriendCards(jsonResponse.data[i].username, jsonResponse.data[i].imageProfile);
+            }
         }
-        // }
+        return jsonResponse.data;
     }
 }
 
-document.addEventListener("DOMContentLoaded", friendsFunction);
+const friendBtn = document.querySelector("#friend-btn");
+
+friendBtn.addEventListener("click", friendsFunction);
 
 
 

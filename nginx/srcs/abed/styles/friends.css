@@ -1,7 +1,12 @@
 @media (min-width: 0px) and (max-width: 575px) {
     #friends-part {
-        /* margin-top: 10% !important; */
-        width: 100vw !important;
+        display: flex;
+        justify-content: space-evenly !important;
+        width: 100% !important;
+    }
+    #nav-bar {
+        width: 100%;
+        margin: 0 !important;
     }
     #profile-img {
         display: none;
@@ -16,6 +21,8 @@
 
 #friends-part {
     display: none;
+    flex-direction: column;
+    justify-content: space-between;
     height: 100vh;
     width: calc(100% - 215px);
     min-width: calc(100% - 16.66666667%);
@@ -38,7 +45,6 @@
     border: 1px solid rgb(96 102 125);
     gap: 3%;
     height: 50px;
-    margin: 0 auto 20px auto;
 }
 
 #nav-bar .btn {

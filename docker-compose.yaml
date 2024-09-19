@@ -15,19 +15,7 @@ services:
     depends_on:
       - postgreDB
     restart: on-failure  # Ensures container restarts if it fails
-
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   container_name: pgadmin
-  #   environment:
-  #     - PGADMIN_DEFAULT_EMAIL=admin@gmail.com
-  #     - PGADMIN_DEFAULT_PASSWORD=123
-  #     - PGADMIN_LISTENT_PORT=5050
-  #   ports:
-  #     - "5050:5050"
-  #   networks:
-  #     - nw
-  
+    
   postgreDB:
     image: postgres:latest
     container_name: postgreDB

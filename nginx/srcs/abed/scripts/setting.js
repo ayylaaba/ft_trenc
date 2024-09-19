@@ -14,7 +14,7 @@ export const settingFunction = (dataObj) => {
     rankPart.style.display = "none";
     friendsPart.style.display = "none";
     settingPage.style.display = "block";
-    document.querySelector("#online-friends").style.display = "none";
+    // document.querySelector("#online-friends").style.display = "none";
     // alert(dataObj);
     if (dataObj != undefined)
     {

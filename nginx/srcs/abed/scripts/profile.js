@@ -14,7 +14,7 @@ export const profileFunction = (dataObj) => {
     rankPart.style.display = "none";
     friendsPart.style.display = "none";
     profileId.style.display = "flex";
-    document.querySelector("#online-friends").style.display = "none";
+    // document.querySelector("#online-friends").style.display = "none";
     if (dataObj != undefined)
     {
         if (dataObj.username != undefined) {

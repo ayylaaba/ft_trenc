@@ -11,7 +11,7 @@ import { settingButton, settingFunction} from "./scripts/setting.js";
 import { logoutBtn, showLogin } from "./scripts/logout.js";
 import { dataObject } from "./scripts/login.js";
 
-const newDataFunc = async ()=> {
+export const newDataFunc = async ()=> {
     const response = await fetch('/user/get_user_info/');
     if (response.ok) {
         const jsonResponse = await response.json();
@@ -39,33 +39,35 @@ const showError = ()=> {
 
 const sideBtns = document.querySelectorAll(".nav-button");
 
-export const reloadFunction = (jsonData)=> {
+export const reloadFunction = async ()=> {
     document.querySelector("#full-container").style.display = "flex";
     sideBtns.forEach (sideBtn => {sideBtn.classList.remove('link')});
     if (location.pathname === "/home" || location.pathname === "/") {
         sideBtns[0].classList.add('link');
-        mainFunction(jsonData);
+        mainFunction();
     } else if (location.pathname === "/profile") {
+        const updateDataObj = await newDataFunc();
         sideBtns[1].classList.add('link');
-        profileFunction(jsonData);
+        profileFunction(updateDataObj);
     } else if (location.pathname === "/friends") {
         sideBtns[2].classList.add('link');
-        friendsFunc(jsonData);
+        friendsFunc();
     } else if (location.pathname === "/rank") {
         sideBtns[3].classList.add('link');
-        rankFunct(jsonData);
+        rankFunct();
     } else if (location.pathname === "/chat") {
         sideBtns[4].classList.add('link');
-        chatFunction(jsonData);
+        chatFunction();
     } else if (location.pathname === "/setting") {
+        const updateDataObj = await newDataFunc();
         sideBtns[5].classList.add('link');
-        settingFunction(jsonData);
+        settingFunction(updateDataObj);
     } else {
         showError() // need to implemet better front.
     }
 }
 
-export const navigateTo = async (path) => {
+export const navigateTo = (path) => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (path != "forback" && path != "current")
     {
@@ -73,19 +75,15 @@ export const navigateTo = async (path) => {
     }
     else {
         console.log("enter here please..");
-        // when the user reload the page or navigate backword or forward;
     }
-    
     document.querySelector("#nav").style.display = "flex";
     document.querySelector("#login-parent").style.display = "none";
     if (isLoggedIn) {
-        const updateDataObj = await newDataFunc();
-        reloadFunction(updateDataObj);
+        reloadFunction();
     } else {
         showLogin();
     }
 }
-
 
 homeButton.addEventListener("click", () => {
     navigateTo("/home");
