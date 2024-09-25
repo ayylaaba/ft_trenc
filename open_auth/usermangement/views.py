@@ -8,14 +8,15 @@ import  requests
 from rest_framework.permissions import IsAuthenticated  # Use IsAuthenticated
 from django.contrib.sessions.models import Session
 from django.views.decorators.csrf import csrf_exempt
-from oauth.models     import User_info
+from oauth.models        import User_info
 from .models             import RequestFriend
 from .serializer         import RequestFriendSerializer
 from .serializer         import UserInfoSerializer
 from django.contrib.auth import update_session_auth_hash
+from channels.layers     import get_channel_layer
+from asgiref.sync        import async_to_sync
 
 # Create your views here.
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def     get_user(request):
@@ -82,6 +83,8 @@ def update_user(request):
     # Handle file uploads for imageProfile
     if 'imageProfile' in request.FILES:
         request.data['imageProfile'] = request.FILES['imageProfile']
+
+    print ('----------- image --------------- ', request.data['imageProfile'])   
     # Use request.data instead of request.body
     data  = request.data
     
@@ -97,7 +100,7 @@ def update_user(request):
     
     if user.email == request.data['email']:
         print("\033[1;38m Error ----> must to change email \n")
-        return JsonResponse({'status': 'failed', 'data': 'must to change email'})
+        return JsonResponse({'status': 'failed', 'data': 'must to change email'}, status=400)
     
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
 
@@ -105,47 +108,35 @@ def update_user(request):
         update_serializer.save()
         print("\033[1;38m ----------> done Saved \n")
     print('Updated data === ', update_serializer.data)
-    return JsonResponse({'status': 'success', 'data': update_serializer.data})
-
-    
-# @api_view(['POST'])
-# def     unfirend(request, received_id):
-#     current_user   = User_info.objects.get(id=request.id)
-#     friend_removed = User_info.objects.get(id=received_id)
-
-#     if current_user.friend.filter(friend_removed).exists():
-#         current_user.friend.remove(friend_removed)
-#         friend_removed.friend.remove(current_user)
-
-#         # i think should remove request also .
-
-#         # RequestFriend.objects.filter(
-#         #         from_user=current_user, to_user=friend_to_remove, accepted=True
-#         #     ).delete()
-#         #     RequestFriend.objects.filter(
-#         #         from_user=friend_to_remove, to_user=current_user, accepted=True
-#         #     ).delete()
-#         return JsonResponse({'status': 'success', 'data': f'{friend_removed} is not your friend anymore'}, status=200)
-#     return JsonResponse({'status': 'failed', 'data': f'{friend_removed} is not exist in your friends db'}, status=400)    
+    return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200) 
 
 from django.db.models import Q  # Add this import
 
 @api_view(['POST'])
 def         unfriend(request, received_id):
-    current_user   = request.user
-    friend_removed = User_info.objects.get(id = received_id)
-    if current_user.is_authenticated:
+    print("enter here....")
+    from_user   = request.user
+    to_user = User_info.objects.get(id = received_id)
+    if from_user.is_authenticated:
         print('Updated data <===> ')
-        if current_user.friends.filter(id=received_id).exists():
+        if from_user.friends.filter(id=received_id).exists():
             print(' 2 Updated data <===> ')
-            current_user.friends.remove(friend_removed)
-            friend_removed.friends.remove(current_user)
+            from_user.friends.remove(to_user)
+            to_user.friends.remove(from_user)
 
             RequestFriend.objects.filter(
-            (Q(from_user=current_user) & Q(to_user=friend_removed)) |
-            (Q(from_user=friend_removed) & Q(to_user=current_user))
+                Q(from_user=current_user, to_user=friend_removed) |
+                Q(from_user=friend_removed, to_user=current_user)
             ).delete()
-
+            # Send a message to the WebSocket group
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'user_{receiver_id}',
+                {
+                    'type': 'notify_unfriend_id',
+                    'data': 'unfriend done'
+                }
+            )
             return JsonResponse({'status': 'success', 'data': 'is not your friend anymore'}, status=200)
         return JsonResponse({'status': 'failed', 'data': 'is not your friend'}, status=400)
     return JsonResponse({'status': 'failed', 'data': ' is not authenticated'}, status=400)
@@ -201,14 +192,27 @@ def     send_friend_request(request, receiver_id):
     print("\033[1;37m send friend request method \n")
     from_user = request.user
     to_user   = User_info.objects.get(id=receiver_id)
-
     if RequestFriend.objects.filter(from_user = from_user, to_user = to_user).exists():
         return JsonResponse({'status' : 'failed', 'error':'the request Already exist'})
     friend_req    = RequestFriend.objects.create(from_user = from_user, to_user = to_user)
+
+    # channel = get_channel()
     print("\033[1;35m from_user: ", friend_req.from_user)  # Print the from_user
     print("\033[1;35m to_user: ", friend_req.to_user)      # Print the to_user
     friend_req.save()
     serialize_req = RequestFriendSerializer(friend_req) 
+
+     # Send a message to the WebSocket group
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f'user_{receiver_id}',
+        {
+            'type': 'notify_receive_id',
+            'data': serialize_req.data
+        }
+    )
+
+    # This gets the channel layer instance, which allows the backend to send messages. get_channel()
     print("\033[1;37m ------------------------------> ", serialize_req.data)
     return JsonResponse({'status' : 'success', 'data' : serialize_req.data})
 
@@ -238,6 +242,33 @@ def accepte_request(request, receiver_id):
         from_user.friends.add(to_user)
         to_user.friends.add(from_user)
 
+        # Notify the sender
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'user_{friend_request.from_user.id}',
+            {
+                'type': 'Notify_friend_state',
+                'data': {
+                    'from_user_id': from_user.id,
+                    'to_user_id': friend_request.from_user.id,
+                    'message': f'Your friend request has been accepted by {from_user.username}.'
+                }
+            }
+        )
+
+        # Notify the receiver (current user)
+        async_to_sync(channel_layer.group_send)(
+            f'user_{from_user.id}',
+            {
+                'type': 'notify_friend_id',
+                'data': {
+                    'from_user_id': from_user.id,
+                    'to_user_id': friend_request.from_user.id,
+                    'message': f'You are now friends with {friend_request.from_user.username}.'
+                }
+            }
+        )
+
         print("\033[1;35m From_user's friends: ", from_user.friends.all())
         print("\033[1;35m To_user's friends: ", to_user.friends.all())
         return JsonResponse({'status': 'success', 'data': 'The request has been accepted'})
@@ -256,12 +287,22 @@ def reject_request(request, receiver_id):
         friend_request = RequestFriend.objects.get(id=receiver_id)
         # Check if the request is already accepted
         if friend_request.accepted:
-            return JsonResponse({'status': 'failed', 'data': 'This request is already accepted and cannot be rejected'})
+            return JsonResponse({'status': 'failed', 'data': 'This request is already accepted and cannot be rejected'}, status=400)
         # Delete the friend request
         friend_request.delete()
-        return JsonResponse({'status': 'success', 'data': 'The request has been rejected'})
+         # Send a message to the WebSocket group
+        print ('1 : eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'user_{friend_request.from_user.id}',
+            {
+                'type': 'notify_refuse_id',
+                'data': f'{receiver_id} is refused'
+            }
+        )
+        return JsonResponse({'status': 'success', 'data': 'The request has been rejected'}, status=200)
     except RequestFriend.DoesNotExist:
-        return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=404)
+        return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=400)
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Ensure the user is logged in

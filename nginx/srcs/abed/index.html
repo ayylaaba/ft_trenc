@@ -30,7 +30,7 @@
     <div class="container-fluid">
         <div class="row">
             <!-- login part -->
-            <div class="col-12" id="login-parent"> <!--  style="display: flex;" -->
+            <div class="col-12" id="login-parent">
                 <div class="col-12 col-md-12 col-lg-6" id="one">
                     <form id="login-form">
                         <input type="hidden" class="csrf_token" name="csrfmiddlewaretoken">
@@ -851,8 +851,33 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+            </div>
+            </div>
+            <script>
+                const socket = new WebSocket('ws://localhost:8000/ws/friend_requests/');
+                socket.onopen = function() {
+                    console.log('WebSocket connection established');
+                    };
+                    socket.onerror = function(error) {
+                    console.log(' ---| WEBSOCKET IS NOT CONNECTE |----------', error);
+                    console.error('WebSocket error:', error);
+                };
+                // When a message is received
+                socket.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    if (data.status === 'success') {
+                        // Handle the incoming friend request data
+                        alert('hi you received request ->')
+                        console.log('Friend request received:', data.data);
+                        // Update the UI to show the new friend request
+                    }
+                };
+
+                // When the socket connection is closed
+                socket.onclose = function() {
+                    console.log('WebSocket connection closed');
+                };
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <script type="module" src="script.js"></script>
         <script type="module" src="scripts/xo.js"></script>

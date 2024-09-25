@@ -76,12 +76,6 @@
 }
 
 .friend-header, .frd-sug-header, .frd-req-header {
-    /* height: 30%;
-    border-bottom: 1px solid #0dcaf01f;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    padding-left: 50px; */
     height: 30%;
     border-bottom: 1px solid #0dcaf01f;
     display: flex;
@@ -91,12 +85,21 @@
 }
 
 .friend-img, .frd-sug-img, .frd-req-img {
+    position: relative;
     width:64px;
     height: 64px;
     border-radius: 50%;
     border: 2px white solid;
     /* background-image: url(../images/me.jpg); */
     background-size: cover;
+}
+
+.frd-sug-img i {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    color: red;
+    filter: drop-shadow(0 0 1px red);
 }
 
 .friend-infos, .frd-sug-infos, .frd-req-infos {

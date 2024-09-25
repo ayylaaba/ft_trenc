@@ -40,16 +40,13 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-# ASGI_APPLICATION
-ASGI_APPLICATION = "open_auth.asgi.application"
-
-
 INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'oauth.apps.OauthConfig',
     'usermangement.apps.UserMangementConfig',
     'channels',
+    "daphne",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,15 +56,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # 'django.middleware.security.SecurityMiddleware',
-    # 'django.contrib.sessions.middleware.SessionMiddleware',
-    # 'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
-
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # 'django.contrib.messages.middleware.MessageMiddleware',
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -113,11 +101,18 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'open_auth.wsgi.application'
+WSGI_APPLICATION = 'open_auth.wsgi.application' #   for HTTP request.
 
+ASGI_APPLICATION = 'open_auth.asgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],  # Ensure Redis service name matches docker-compose
+        },
+    },
+}
 
 DATABASES = {
     'default': {
@@ -129,26 +124,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']  # Add 127.0.0.1 here
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'users_42',
-#         'USER': 'ayylaaba',
-#         'PASSWORD': 'password',
-#         'HOST': 'postgreDB',
-#         'PORT': '5432',
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
