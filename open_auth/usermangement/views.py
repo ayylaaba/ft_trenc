@@ -125,16 +125,17 @@ def         unfriend(request, received_id):
             to_user.friends.remove(from_user)
 
             RequestFriend.objects.filter(
-                Q(from_user=current_user, to_user=friend_removed) |
-                Q(from_user=friend_removed, to_user=current_user)
+                Q(from_user=from_user, to_user=to_user) |
+                Q(from_user=to_user, to_user=from_user)
             ).delete()
             # Send a message to the WebSocket group
+
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
-                f'user_{receiver_id}',
+                f'user_{received_id}',
                 {
                     'type': 'notify_unfriend_id',
-                    'data': 'unfriend done'
+                    'data': f'you and {from_user} are not friends anymore !'
                 }
             )
             return JsonResponse({'status': 'success', 'data': 'is not your friend anymore'}, status=200)
@@ -185,6 +186,7 @@ def users_list(request):
     requested_users_ids = list(set(sent_requests) | set(received_requests))
     users = User_info.objects.exclude(id=current_user.id).exclude(id__in=requested_users_ids)
     serialize_users = ProfileSerializer(users, many=True)
+    print ('users : ', serialize_users.data)
     return JsonResponse({'status': 'success', 'data': serialize_users.data})
 
 @api_view(['POST'])
@@ -202,7 +204,8 @@ def     send_friend_request(request, receiver_id):
     friend_req.save()
     serialize_req = RequestFriendSerializer(friend_req) 
 
-     # Send a message to the WebSocket group
+    print ('brodcast the receiver that has a request\n')
+    # Send a message to the WebSocket group
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         f'user_{receiver_id}',
@@ -242,6 +245,9 @@ def accepte_request(request, receiver_id):
         from_user.friends.add(to_user)
         to_user.friends.add(from_user)
 
+        print ('\033[1;32m ----------------------------------------\n')
+        print ('brodcast the user that its req accepted\n')
+        print ('\033[1;25m ----------------------------------------\n')
         # Notify the sender
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
@@ -260,7 +266,7 @@ def accepte_request(request, receiver_id):
         async_to_sync(channel_layer.group_send)(
             f'user_{from_user.id}',
             {
-                'type': 'notify_friend_id',
+                'type': 'Notify_friend_state',
                 'data': {
                     'from_user_id': from_user.id,
                     'to_user_id': friend_request.from_user.id,

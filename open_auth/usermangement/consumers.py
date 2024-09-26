@@ -24,25 +24,28 @@ class FriendRequestConsumer(WebsocketConsumer):
     # Handle receiving status updates (broadcast to clients)
     def notify_receive_id(self, event):
         # Send a message to the WebSocket client
+        print ('2 : notify_receive_id')
         self.send(text_data=json.dumps({
             'status': 'success',
             'data': event['data']
         }))
     def  notify_refuse_id(self, event):
         # Send a message to the WebSocket client
-        print ('2 : eeeeereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+        print ('2 : notify_refuse_id')
         self.send(text_data=json.dumps({
             'status': 'success',
             'data': event['data']
         }))
     def notify_unfriend_id(self, event):
         # Send a message to the WebSocket client
+        print ('2 : notify_unfriend_id')
         self.send(text_data=json.dumps({
             'status': 'success',
             'data': event['data']
         }))
-    def notify_friend_id(self, event):
+    def Notify_friend_state(self, event):
         # Send a message to the WebSocket client
+        print ('2 : Notify_friend_state')
         self.send(text_data=json.dumps({
             'status': 'success',
             'data': event['data']
