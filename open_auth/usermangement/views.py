@@ -142,6 +142,24 @@ def         unfriend(request, received_id):
         return JsonResponse({'status': 'failed', 'data': 'is not your friend'}, status=400)
     return JsonResponse({'status': 'failed', 'data': ' is not authenticated'}, status=400)
 
+@api_view(['POST'])
+def cancel_friend_req(request, received_id):
+    from_user = request.user
+    to_user   = User_info.objects.get(id=received_id)
+    if curr_user.is_authenticated:
+        RequestFriend.objects.filter(from_user=from_user, to_user=to_user).delete()
+        #notify the friend you are not friend with me !
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'user_{received_id}',
+            {
+                'type': 'notify_canelfriend',
+                'data': f'{curr_user} cancel your friend req  ^_^ don\'t be angry'
+            }
+        )
+        return JsonResponse({'status': 'success', 'data': 'Friend request canceled'}, status=200)
+    return JsonResponse({'status': 'failed', 'data': 'User not authenticated'}, status=400)
+
 @api_view(['GET'])
 def get_request(request):
     to_user = request.user

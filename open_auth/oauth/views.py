@@ -21,9 +21,8 @@ from rest_framework.response            import Response
 from rest_framework                     import status
 from django.core.files.base import ContentFile
 
-
 client_id       = "u-s4t2ud-fa7692872a0200db78dfe687567cc55dd2a444234c7720f33c53e0a4286a7301"
-client_secret   = "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"
+client_secret   = "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"
 redirect_url    = "http://localhost/"
 authorization_url = "https://api.intra.42.fr/oauth/authorize"
 token_url = "https://api.intra.42.fr/oauth/token"
@@ -99,8 +98,7 @@ from django.contrib.sessions.models import Session
 
 def     oauth_authorize(request): 
     print("\033[1;32m oauth_authorize \n")
-    print("Session Key in /oauth/:", request.session.session_key)
-    print("Session Data in /oauth/:", request.session.items()) 
+
     full_authoriztion_url = authorization_url + \
         f'?client_id={client_id}&redirect_uri={redirect_url}&response_type=code'
     return JsonResponse({'status' : 'success','full_authoriztion_url' : full_authoriztion_url})
@@ -116,11 +114,13 @@ def get_csrf_token(request):
 
 import json, os
 # @csrf_exempt
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @permission_classes([AllowAny])
 
 def callback(request):
     print ('============================ callback is called ============================\n')
+    # print("Request Body: ", request.body)
+    
     data = json.loads(request.body)
     code = data.get('code')
 
@@ -129,6 +129,12 @@ def callback(request):
         return JsonResponse({'status': 'error', 'message': 'No code provided'}, status=400)
 
     # Exchange the code for an access token
+    # print("\033[1;35m ---> token **--** ", token_url, "\n")
+    # print("\033[1;35m ---> code  **--** ", code, "\n")
+    # print("\033[1;35m --->  redirect_url **--** ", redirect_url, "\n")
+    # print("\033[1;35m ---> client_id  **--** ", client_id, "\n")
+    # print("\033[1;35m ---> client_secret  **--** ", client_secret, "\n")
+    print ("\033[1;35m -----------------------------------------------------------")
     necessary_info = {
         'grant_type': grant_type,
         'client_id': client_id,
@@ -136,15 +142,15 @@ def callback(request):
         'code': code,
         'redirect_uri': redirect_url
     }
-    print("\033[1;35m ---> token **--** ", token_url)
     response = requests.post(token_url, data=necessary_info)
-    print("Response Content: ", response.content)
+    # print("Response Content: ", response.content)
+
     if response.status_code == 200:
         data = response.json()
         access_token = data.get('access_token')
         if access_token:
             user_data   = get_user_info_api(access_token)
-            print ('user_data : ' , user_data)
+            # print ('user_data : ' , user_data)
             username    = user_data.get('login', 'Guest')
             fullname    = user_data.get('displayname', '')
             firstname = user_data.get('first_name', '')
@@ -160,7 +166,7 @@ def callback(request):
             user.lastname       = lastname
             user.email          = email
             user.access_token   = access_token
-            print ('image_url : ', image_url)
+            # print ('image_url : ', image_url)
             if image_url:
                 image_name = f'{username}.jpg'
                 if not user.imageProfile or not os.path.exists(user.imageProfile.path):
@@ -172,7 +178,7 @@ def callback(request):
                         print('Image already exists, not downloading again.')
             user.save()
             login(request, user)
-            print("\033[1;39m ---> user = ", user) 
+            # print("\033[1;39m ---> user = ", user) 
             # Return user data as JSON
             seria = CustmerSerializer(instance=user)
             return JsonResponse({'status': 'success','data': seria.data})
