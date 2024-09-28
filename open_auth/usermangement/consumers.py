@@ -11,10 +11,9 @@ class FriendRequestConsumer(WebsocketConsumer):
 
         print ('------------- enter -------------\n')
         print ('is_authenticated : ', self.user.is_authenticated)
-        if self.user.is_authenticated:  # Check if the user is logged in
-            print ('group name : ',   self.group_name )
-            print ('channel_name : ', self.channel_name)
-            async_to_sync(self.channel_layer.group_add)(f"user_{self.user.id}", self.channel_name)
+        print ('group name : ',   self.group_name )
+        print ('channel_name : ', self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(f"user_{self.user.id}", self.channel_name)
         self.update_user_status(True)
         self.accept()  # Accept the WebSocket connection
 
@@ -25,17 +24,18 @@ class FriendRequestConsumer(WebsocketConsumer):
         async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
 
     def update_user_status(self, user_status):
-        friends = self.user.friends.all()
         # channel_layer = get_channel_layer()
-        for friend in friends :
-            async_sync(channel.group_send)(
-                f'user_{friend.id}',
-                {
-                    'type'           : 'notify_user_status',
-                    'username'       : user.username,
-                    'online_status'  : user_status 
-                }
-            )
+        if self.user.is_authenticated:  # Check if the user is logged in
+            friends = self.user.friends.all()
+            for friend in friends :
+                async_sync(channel.group_send)(
+                    f'user_{friend.id}',
+                    {
+                        'type'           : 'notify_user_status',
+                        'username'       : user.username,
+                        'online_status'  : user_status 
+                    }
+                )
 
     def notify_user_status(self, event):
         # Send a message to the WebSocket client
