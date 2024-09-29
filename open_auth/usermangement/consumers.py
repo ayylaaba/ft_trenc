@@ -5,43 +5,49 @@ from asgiref.sync import async_to_sync
 from oauth.models        import User_info
 
 class FriendRequestConsumer(WebsocketConsumer):
-    def connect(self):
-        self.user = self.scope["user"]  # Get the user making the connection
-        self.group_name = f'friend_requests_{self.user.id}'
 
-        print ('------------- enter -------------\n')
-        print ('is_authenticated : ', self.user.is_authenticated)
-        print ('group name : ',   self.group_name )
-        print ('channel_name : ', self.channel_name)
-        async_to_sync(self.channel_layer.group_add)(f"user_{self.user.id}", self.channel_name)
-        self.update_user_status(True)
-        self.accept()  # Accept the WebSocket connection
+    def connect(self):
+        self.user = self.scope["user"]
+        print(f"Connected user: {self.user}")
+        if self.user.is_authenticated and isinstance(self.user, User_info):
+            self.group_name = f'user_{self.user.id}'
+            async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+            self.update_user_status(True)
+            self.accept()
+        else:
+            print("Anonymous user connected")
+            self.close()
 
     def disconnect(self, close_code):
-        self.user  = self.scope["user"]
-        update_user_status(False)
-        group_name = self.channel_layer.group_name
-        async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
+        print ('\033[1;32m Disconnect it \n')
+        self.update_user_status(False)
+        async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
 
     def update_user_status(self, user_status):
         # channel_layer = get_channel_layer()
-        if self.user.is_authenticated:  # Check if the user is logged in
-            friends = self.user.friends.all()
-            for friend in friends :
-                async_sync(channel.group_send)(
-                    f'user_{friend.id}',
-                    {
-                        'type'           : 'notify_user_status',
-                        'username'       : user.username,
-                        'online_status'  : user_status 
-                    }
-                )
+        print ('\033[1;32m ready to notify them \n')
+        print ('\033[1;32m status_user : \n', self.user.is_authenticated)
+        print ('\033[1;32m notify all your friends \n')
+        friends = self.user.friends.all()
+        i = 0
+        for friend in friends :
+            print ('\033[1;22m count friend = ', i + 1)
+            async_to_sync(self.channel_layer.group_send)(
+                f'user_{friend.id}',
+                {
+                    'type'           : 'notify_user_status',
+                    'username'       : self.user.username,
+                    'online_status'  : user_status 
+                }
+            )
 
     def notify_user_status(self, event):
         # Send a message to the WebSocket client
-        print ('2 : notify_user_status')
+        print ('2 : notify_user_status\n')
+        print ('2222222222222222222222222222222222222222222222222222222222222222\n')
         self.send(text_data=json.dumps({
             'status'       : 'success',
+            'option'       : 'is_online',
             'username'     : event['username'],
             'online_status': event['online_status']
         }))
