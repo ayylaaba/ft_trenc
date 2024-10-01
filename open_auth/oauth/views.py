@@ -20,6 +20,11 @@ from django.utils.decorators            import method_decorator
 from rest_framework.response            import Response
 from rest_framework                     import status
 from django.core.files.base import ContentFile
+from django.conf import settings
+from django.core.files import File
+import os
+
+
 
 client_id       = "u-s4t2ud-fa7692872a0200db78dfe687567cc55dd2a444234c7720f33c53e0a4286a7301"
 client_secret   = "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"
@@ -36,10 +41,17 @@ def     register_vu(request):
     if request.method == 'POST':
         # form = CustmerSerializer(data=request.data) #request.data = post data from client
         form = CustomerForm(data=request.data) #request.data = post data from client
+
         print(f"Form Data: {request.data}")
         if form.is_valid():
             print("\033[1;38m This user is valid \n")
             user = form.save()
+            if not user.imageProfile:  # Assuming 'imageProfile' is the field name for profile images
+                # Path to the default avatar
+                default_avatar_path = os.path.join(settings.MEDIA_ROOT, 'profile_image/a2.jpg')
+                # Open the default avatar and assign it as the profile image
+                with open(default_avatar_path, 'rb') as avatar_file:
+                    user.imageProfile.save('default_avatar.jpg', File(avatar_file))
             user_token, created = Token.objects.get_or_create(user=user)
             seria = RegisterSerializer(instance=user)
             print(f"\033[1;38m This is the user token: {user_token}")
@@ -82,8 +94,8 @@ def login_vu(request):
     print("user == ", user)
 
     # Log the user in
-    login(request, user) # from now django will know that this user who make a request and will be update in case other user login 
-
+    login(request, user)
+    # from now django will know that this user who make a request and will be update in case other user login 
     # Example: Print session data
     print(f"Session Data: {request.session.items()}")
 
@@ -129,11 +141,7 @@ def callback(request):
         return JsonResponse({'status': 'error', 'message': 'No code provided'}, status=400)
 
     # Exchange the code for an access token
-    # print("\033[1;35m ---> token **--** ", token_url, "\n")
-    # print("\033[1;35m ---> code  **--** ", code, "\n")
-    # print("\033[1;35m --->  redirect_url **--** ", redirect_url, "\n")
-    # print("\033[1;35m ---> client_id  **--** ", client_id, "\n")
-    # print("\033[1;35m ---> client_secret  **--** ", client_secret, "\n")
+
     print ("\033[1;35m -----------------------------------------------------------")
     necessary_info = {
         'grant_type': grant_type,

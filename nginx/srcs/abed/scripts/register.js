@@ -58,23 +58,44 @@ export const showHome = (dataObj)=> {
     // When a message is received
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        if (data.option === 'is_online'){
-            alert('cho halto maskin kidayra')
-            console.log('username : ', data.username)
-            console.log('online_status : ', data.online_status)
+        alert('check -----> ', data.option)
+        if (data.option === 'refuse_frd_req'){
+            alert('refuse request')
+            console.log('data : ', data.data)
+            // console.log('online_status : ', data.online_status)
+        }
+        if (data.option === 'receive_frd_req'){
+            alert('receive request accept/refuse')
+            console.log('data : ', data.data)
+            // console.log('online_status : ', data.online_status)
+        }
+        if (data.option === 'unfriend'){
+            alert('remove the friendship with you')
+            console.log('data : ', data.data)
+            // console.log('online_status : ', data.online_status)
         }
         if (data.option === 'is_online'){
             alert('cho halto maskin kidayra')
-            console.log('username : ', data.username)
-            console.log('online_status : ', data.online_status)
+            console.log('data : ', data.data)
+            // console.log('online_status : ', data.online_status)
         }
-        if (data.status === 'success') {
-            // Handle the incoming friend request data
-            alert('hi you received request ->')
-            // console.log('Friend request received:', data.data);
-            console.log('receive req:', data.data);
-            // Update the UI to show the new friend request
+        if (data.option === 'accepte_request'){
+            alert('accepte request \'{+_+}\'')
+            console.log('data : ', data.data)
+            // console.log('online_status : ', data.online_status)
         }
+        // if (data.option === 'is_online'){
+        //     alert('cho halto maskin kidayra')
+        //     console.log('username : ', data.username)
+        //     console.log('online_status : ', data.online_status)
+        // }
+        // if (data.status === 'success') {
+        //     // Handle the incoming friend request data
+        //     alert('hi you received request ->')
+        //     // console.log('Friend request received:', data.data);
+        //     console.log('receive req:', data.data);
+        //     // Update the UI to show the new friend request
+        // }
     };
 
     // When the socket connection is closed
