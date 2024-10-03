@@ -1,6 +1,7 @@
 // export let dataObjectt = null;
 
 import { showLogin } from "./logout.js";
+import { createRequestCards, createSuggestionCard, createFriendCards, friendsFunction,  sendIdToBackend } from "./friends.js";
 
 export const get_csrf_token = async () => {
     const response = await fetch('/get_csrf_token/');
@@ -47,7 +48,7 @@ const registrationFunction = async (event) => {
 registerForm.addEventListener("submit", registrationFunction);
 
 export const showHome = (dataObj)=> {
-    const socket = new WebSocket('ws://localhost:8000/ws/friend_requests/');
+    const socket = new WebSocket('wss://localhost/wss/friend_requests/');
     socket.onopen = function() {
         console.log('WebSocket connection established');
         };
@@ -58,44 +59,61 @@ export const showHome = (dataObj)=> {
     // When a message is received
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        alert('check -----> ', data.option)
-        if (data.option === 'refuse_frd_req'){
-            alert('refuse request')
-            console.log('data : ', data.data)
-            // console.log('online_status : ', data.online_status)
+        // alert('check -----> ', data.option)
+        if (data.status === 'success') {
+            if (data.option === 'receive_frd_req'){
+                // alert("receive");
+                // console.log("received data infos: ", data.data.from_user);
+                createRequestCards(data.data.from_user.username, data.data.from_user.imageProfile)
+                const acceptBtnsListen = document.querySelectorAll(".add .accept");
+                for(let i = 0; i < acceptBtnsListen.length; i++) {
+                    // listen for add-friend button click event to send the id for the backend;
+                    acceptBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "accept"));
+                }
+                const refuseBtnsListen = document.querySelectorAll(".delete .refuse");
+                for(let i = 0; i < refuseBtnsListen.length; i++) {
+                    // listen for add-friend button click event to send the id for the backend;
+                    refuseBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "refuse"));
+                }
+            }
+            if (data.option === 'accepte_request'){
+                // alert('accepte request \'{+_+}\'')
+                // ------------------- wrong data here -------------------
+                console.log('data : ', data.data)
+                createFriendCards(data.data.username, data.data.imageProfile);
+                const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
+                for(let i = 0; i < unfriendBtns.length; i++) {
+                    // listen for add-friend button click event to send the id for the backend;
+                    unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "unfriend"));
+                }
+            }
+            if (data.option === 'refuse_frd_req'){
+                // alert("refuse");
+                // console.log("refused data infos: ", data.data);
+                createSuggestionCard(data.data.username, data.data.imageProfile);
+                const addBtnsListen = document.querySelectorAll(".add .btn");
+                for(let i = 0; i < addBtnsListen.length; i++) {
+                    // listen for add-friend button click event to send the id for the backend;
+                    addBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.from_user_id, "add"));
+                }
+            }
+            if (data.option === 'unfriend'){
+                friendsFunction();
+                // alert('remove the friendship with you')
+                console.log('data222 : ', data.data)
+                const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
+                for(let i = 0; i < unfriendBtns.length; i++) {
+                    // listen for add-friend button click event to send the id for the backend;
+                    unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "unfriend"));
+                }
+                // console.log('online_status : ', data.online_status)
+            }
+            if (data.option === 'is_online'){
+                alert('cho halto maskin kidayra')
+                console.log('data : ', data.data)
+                // console.log('online_status : ', data.online_status)
+            }
         }
-        if (data.option === 'receive_frd_req'){
-            alert('receive request accept/refuse')
-            console.log('data : ', data.data)
-            // console.log('online_status : ', data.online_status)
-        }
-        if (data.option === 'unfriend'){
-            alert('remove the friendship with you')
-            console.log('data : ', data.data)
-            // console.log('online_status : ', data.online_status)
-        }
-        if (data.option === 'is_online'){
-            alert('cho halto maskin kidayra')
-            console.log('data : ', data.data)
-            // console.log('online_status : ', data.online_status)
-        }
-        if (data.option === 'accepte_request'){
-            alert('accepte request \'{+_+}\'')
-            console.log('data : ', data.data)
-            // console.log('online_status : ', data.online_status)
-        }
-        // if (data.option === 'is_online'){
-        //     alert('cho halto maskin kidayra')
-        //     console.log('username : ', data.username)
-        //     console.log('online_status : ', data.online_status)
-        // }
-        // if (data.status === 'success') {
-        //     // Handle the incoming friend request data
-        //     alert('hi you received request ->')
-        //     // console.log('Friend request received:', data.data);
-        //     console.log('receive req:', data.data);
-        //     // Update the UI to show the new friend request
-        // }
     };
 
     // When the socket connection is closed

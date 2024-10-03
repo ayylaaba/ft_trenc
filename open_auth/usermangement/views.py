@@ -258,27 +258,27 @@ def accepte_request(request, receiver_id):
             {
                 'type': 'Notify_UserIsAccepted',
                 'data': {
-                    'id':           friend_request.from_user.id,
-                    'username':     friend_request.from_user.username,
-                    'imageProfile': friend_request.from_user.imageProfile.url,
-                    'message' : f' request accepted {friend_request.from_user.username}'
+                    'id':           friend_request.to_user.id,
+                    'username':     friend_request.to_user.username,
+                    'imageProfile': friend_request.to_user.imageProfile.url,
+                    'message' : f' request accepted {friend_request.to_user.username}'
                 }
             }
         )
-        # Notify the receiver (to_user = current user)
+        print ("1\n")
         # async_to_sync(channel_layer.group_send)(
-        #     f'user_{friend_request.to_user.id}',
+        #     f'user_{friend_request.from_user.id}',
         #     {
-        #         'type': 'Notify_friend_state',
+        #         'type': 'notify_user_status',
         #         'data': {
-        #             'id':           friend_request.to_user.id,
-        #             'username':     friend_request.to_user.username,
-        #             'imageProfile': friend_request.to_user.imageProfile,
-        #             'message' : f' request accepted {friend_request.to_user.username}'
+        #             'id'             : friend_request.to_user.id,
+        #             'username'       : friend_request.to_user.username,
+        #             'imageProfile'   : friend_request.to_user.imageProfile.url,
+        #             'online_status'  :  True
         #         }
         #     }
         # )
-      
+        print ("2\n")
         print("\033[1;35m From_user's friends: ", from_user.friends.all())
         print("\033[1;35m To_user's friends: ", to_user.friends.all())
         return JsonResponse({'status': 'success', 'data': 'The request has been accepted'})

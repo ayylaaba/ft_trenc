@@ -60,7 +60,7 @@ frdNavBtns[2].addEventListener("click", ()=> {
     requestsDiv.style.display = "none";
 })
 
-const createSuggestionCard = (jsonObject, i) => {
+export const createSuggestionCard = (username, image) => {
     const element = document.createElement("div");
     element.classList.add("friend-suggestion-card");
     const secondElement = document.createElement("div");
@@ -73,7 +73,7 @@ const createSuggestionCard = (jsonObject, i) => {
 
     const imageElement = document.createElement("div");
     imageElement.classList.add("frd-sug-img");
-    imageElement.style.backgroundImage = `url(${jsonObject[i].imageProfile})`;
+    imageElement.style.backgroundImage = `url(${image})`;
     // imageElement.style.backgroundSize= "cover";
 
     const sugInfos = document.createElement("div");
@@ -129,7 +129,7 @@ const createSuggestionCard = (jsonObject, i) => {
     deleteBtn.innerHTML = "Delete";
     deleteBtn.classList.add("btn", "btn-lg");
     deleteBtnDiv.append(deleteBtn);
-    userName.innerHTML = jsonObject[i].username;
+    userName.innerHTML = username;
     document.querySelector("#suggestions").append(element);
 }
 
@@ -140,7 +140,7 @@ export const suggestionsFunction = async ()=> {
         if (jsonResponse.status === "success") {
             document.querySelector("#suggestions").innerHTML = "";
             for (let i = 0; i < jsonResponse.data.length; i++) {
-                createSuggestionCard(jsonResponse.data, i);
+                createSuggestionCard(jsonResponse.data[i].username, jsonResponse.data[i].imageProfile);
             }
             const addBtnsListen = document.querySelectorAll(".add .btn");
             for(let i = 0; i < addBtnsListen.length; i++) {
@@ -157,7 +157,7 @@ export const suggestionsFunction = async ()=> {
     }
 }
 
-const sendIdToBackend = async (id, action) => {
+export const sendIdToBackend = async (id, action) => {
     const token = await get_csrf_token();
     if (action === "add") {
         console.log("Add with id: ", id);
@@ -206,6 +206,7 @@ const sendIdToBackend = async (id, action) => {
                 'X-CSRFToken': token,
             },
         });
+        friendsFunction();
     }
     // delete if handled in backend.
 }
@@ -219,7 +220,7 @@ sugBtn.addEventListener("click", suggestionsFunction);
 // --------------------- display requests --------------------------//
 
 
-const createRequestCards = (name, image) => {
+export const createRequestCards = (name, image) => {
     const element = document.createElement("div");
     element.classList.add("friend-suggestion-card");
     const secondElement = document.createElement("div");
@@ -290,27 +291,26 @@ const createRequestCards = (name, image) => {
     document.querySelector("#requests").append(element);
 }
 
-const requestsFunction = async ()=> {
+export const requestsFunction = async ()=> {
     const response = await fetch("/user/get_requests/");
     if (response.ok) {
         const jsonResponse = await response.json();
-        console.log("response: ", jsonResponse.data);
         if (jsonResponse.status === "success") {
+            // console.log(jsonResponse.data);
             document.querySelector("#requests").innerHTML = "";
             for (let i = 0; i < jsonResponse.data.length; i++) {
                 createRequestCards(jsonResponse.data[i].from_user.username, jsonResponse.data[i].from_user.imageProfile);
-                }
-                const acceptBtnsListen = document.querySelectorAll(".add .accept");
-                for(let i = 0; i < acceptBtnsListen.length; i++) {
-                    // listen for add-friend button click event to send the id for the backend;
-                    acceptBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "accept"));
-                    }
-                const refuseBtnsListen = document.querySelectorAll(".delete .refuse");
-                for(let i = 0; i < refuseBtnsListen.length; i++) {
-                    console.log("id: ", jsonResponse.data[i].id);
-                    // listen for add-friend button click event to send the id for the backend;
-                    refuseBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "refuse"));
-                }
+            }
+            const acceptBtnsListen = document.querySelectorAll(".add .accept");
+            for(let i = 0; i < acceptBtnsListen.length; i++) {
+                // listen for add-friend button click event to send the id for the backend;
+                acceptBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "accept"));
+            }
+            const refuseBtnsListen = document.querySelectorAll(".delete .refuse");
+            for(let i = 0; i < refuseBtnsListen.length; i++) {
+                // listen for add-friend button click event to send the id for the backend;
+                refuseBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "refuse"));
+            }
         }
         // else if (jsonResponse.status === "failed") {
         //     alert("you already sent a request to this user.");
@@ -322,7 +322,7 @@ reqBtn.addEventListener("click", requestsFunction);
 
 // -------------- Display Friends --------------------
 
-const createFriendCards = (name, image) => {
+export const createFriendCards = (name, image) => {
     const element = document.createElement("div");
     element.classList.add("friend-suggestion-card");
     const secondElement = document.createElement("div");

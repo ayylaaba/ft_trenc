@@ -16,9 +16,8 @@ services:
       - postgreDB
     restart: on-failure  # Ensures container restarts if it fails
     
-
   postgreDB:
-    image: postgres:latest
+    image: postgres:16
     container_name: postgreDB
     environment:
       POSTGRES_DB: users_42
@@ -34,6 +33,7 @@ services:
     build: ./nginx  # Ensure this points to your Nginx directory with the Dockerfile and nginx.conf
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - remote_auth
     volumes:
@@ -45,6 +45,14 @@ services:
     container_name: redis
     ports:
       - 6379:6379
+    networks:
+      - nw
+  xo_gmae:
+    build: ./Xo_Game/xo_game/
+    ports:
+      - 8001:8001
+    depends_on:
+      - postgreDB
     networks:
       - nw
 volumes:

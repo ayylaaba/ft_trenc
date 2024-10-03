@@ -25,10 +25,9 @@ from django.core.files import File
 import os
 
 
-
 client_id       = "u-s4t2ud-fa7692872a0200db78dfe687567cc55dd2a444234c7720f33c53e0a4286a7301"
 client_secret   = "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"
-redirect_url    = "http://localhost/"
+redirect_url    = "https://localhost/"
 authorization_url = "https://api.intra.42.fr/oauth/authorize"
 token_url = "https://api.intra.42.fr/oauth/token"
 grant_type = "authorization_code"
@@ -126,8 +125,8 @@ def get_csrf_token(request):
 
 import json, os
 # @csrf_exempt
-@api_view(['POST', 'GET'])
-@permission_classes([AllowAny])
+# @api_view(['POST', 'GET'])
+# @permission_classes([AllowAny])
 
 def callback(request):
     print ('============================ callback is called ============================\n')
@@ -141,8 +140,11 @@ def callback(request):
         return JsonResponse({'status': 'error', 'message': 'No code provided'}, status=400)
 
     # Exchange the code for an access token
-
-    print ("\033[1;35m -----------------------------------------------------------")
+    # print("\033[1;35m ---> token **--** ", token_url, "\n")
+    # print("\033[1;35m ---> code  **--** ", code, "\n")
+    # print("\033[1;35m --->  redirect_url **--** ", redirect_url, "\n")
+    # print("\033[1;35m ---> client_id  **--** ", client_id, "\n")
+    # print("\033[1;35m ---> client_secret  **--** ", client_secret, "\n")
     necessary_info = {
         'grant_type': grant_type,
         'client_id': client_id,
@@ -165,6 +167,8 @@ def callback(request):
             lastname = user_data.get('last_name', '')
             email = user_data.get('email', '')
             image_url   = user_data.get('image', {}).get('link', '')
+            print ('username : ', username) 
+            print ('image_url : ', image_url) 
             
             # Save or update user info
             user, created       = User_info.objects.get_or_create(username=username)
@@ -174,16 +178,23 @@ def callback(request):
             user.lastname       = lastname
             user.email          = email
             user.access_token   = access_token
-            # print ('image_url : ', image_url)
+
+            print ("\033[1;35m -----------------------------------------------------------")
+            print ('image_url : ', image_url)
             if image_url:
                 image_name = f'{username}.jpg'
                 if not user.imageProfile or not os.path.exists(user.imageProfile.path):
                     # Image doesn't exist locally, download and save it
+                    print ('< ---------------- >image_name : ', image_name)
+                    print ('< ---------------- >image_url  : ', image_url)
                     imageResponse = requests.get(image_url)
+                    print ('< ---------------- >status_code  : ',  imageResponse.status_code)
                     if imageResponse.status_code == 200:
                         user.imageProfile.save(image_name, ContentFile(imageResponse.content), save=True)
                     else:
                         print('Image already exists, not downloading again.')
+                    
+            print ("\033[1;35m -----------------------------------------------------------")
             user.save()
             login(request, user)
             # print("\033[1;39m ---> user = ", user) 

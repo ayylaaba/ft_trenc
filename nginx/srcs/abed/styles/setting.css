@@ -78,6 +78,18 @@
     width: fit-content !important;
 }
 
+#second-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.img-err {
+    display: none;
+    color: red;
+    font-size: small;
+}
+
 #profile-setting, #log-sec {
     overflow-y: auto;
     height: calc(100vh - 50px - 20px);
@@ -90,6 +102,7 @@
 #setting-pic {
     /* background-image: url(../images/me.jpg); */
     background-size: cover;
+    background-position: center;
     border-radius: 50%;
     border: 2px solid white;
     width: 100px;

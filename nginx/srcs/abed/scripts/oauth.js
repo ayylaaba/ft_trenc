@@ -2,7 +2,6 @@ import { get_csrf_token, showHome } from "./register.js";
 
 const oauthFunction = async (event)=> {
     event.preventDefault(); // Prevent the default form submission
-    console.log('send to backend for authorization code...');
     const response = await fetch('/oauth/');
     if (response.ok) {
         const jsonResponse = await response.json();
@@ -17,8 +16,6 @@ const oauthFunction = async (event)=> {
 
 const intraBtn = document.querySelector('.intra');
 intraBtn.addEventListener('click', oauthFunction);
-//part above is mine;
-
 const oauthCallback = async ()=> {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -37,15 +34,10 @@ const oauthCallback = async ()=> {
             const jsonResponse = await response.json();
             console.log('status ==> ', jsonResponse.status )
             if (jsonResponse.status == 'success') {
-                document.querySelector("#full-container").style.display = "flex";
-                document.querySelector('#main').style.display = 'flex';
-                document.querySelector("#nav").style.display = "flex";
-                document.querySelector('#login-parent').style.display = 'none';
-                document.querySelector('#profile-part').style.display = 'none';
-                // document.getElementById('user-name').textContent = jsonResponse.data.username;
-                // document.getElementById('full-name').textContent = jsonResponse.data.fullname;
-                // document.getElementById('profile-image').src = jsonResponse.data.imageProfile
-                // console.log('image = ', jsonResponse.data.imageProfile)
+                const sideBtns = document.querySelectorAll(".nav-button");
+                sideBtns[0].classList.add('link');
+                showHome(jsonResponse.data);
+                localStorage.setItem('isLoggedIn', 'true');
             }
         }
         else {
@@ -53,5 +45,4 @@ const oauthCallback = async ()=> {
         }
     }
 }
-
 oauthCallback();

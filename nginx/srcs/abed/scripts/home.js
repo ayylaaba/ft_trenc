@@ -5,11 +5,12 @@ import { profileId } from "./profile.js";
 import {settingPage} from "./setting.js";
 import { chatPage } from "./chat.js";
 import { rankPart } from "./rank.js";
-import { friendsPart, friendsFunction, suggestionsFunction } from "./friends.js";
+import { friendsPart, suggestionsFunction } from "./friends.js";
 
-let friendsArray;
+let frdsArr;
+
 export const mainFunction = async () => {
-    friendsArray = await suggestionsFunction();
+    frdsArr = await suggestionsFunction();
     profileId.style.display = "none";
     settingPage.style.display = "none";
     chatPage.style.display = "none";
@@ -36,8 +37,7 @@ const lookForUsers = ()=> {
         matchBlock.remove();
         flag = 0;
     }
-    const data = friendsArray;
-    friendsArray.forEach(element => {
+    frdsArr.forEach(element => {
         if (element.username.includes(searchInput.value.toLowerCase()) && searchInput.value != "") {
             if (flag === 0) {
                 matchBlock.classList.add("match-block");
@@ -59,7 +59,13 @@ const lookForUsers = ()=> {
             const usenameFound = document.createElement("div");
             const user = element.username;
             usenameFound.innerHTML = `${user.substring(0, firstIndex)}<span style="font-weight: bold; color: white;">${user.substring(firstIndex, lastIndex)}</span>${user.substring(lastIndex)}`;
-            matchElement.append(usernameImage, usenameFound);
+            const addBtnDiv = document.createElement("div");
+            addBtnDiv.classList.add("quick-add");
+            const addBtn = document.createElement("button");
+            addBtn.classList.add("btn", "btn-success", "btn-sm");
+            addBtn.innerHTML = "+add";
+            addBtnDiv.append(addBtn);
+            matchElement.append(usernameImage, usenameFound, addBtnDiv);
             matchBlock.append(matchElement);
         }
     });

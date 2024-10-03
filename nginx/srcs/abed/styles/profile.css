@@ -328,7 +328,7 @@
     bottom: 17%;
     width: 128px;
     height: 128px;
-    background-image: url(../images/me.jpg);
+    /* background-image: url(../images/me.jpg); */
     background-size: cover;
     background-repeat: no-repeat;
     border-radius: 50%;

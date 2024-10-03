@@ -2,14 +2,15 @@
 // let defaultName = username || 'Stranger';
 // console.log(defaultName); // Prints: Stranger
 
+import { friendsBtn, friendsFunc, createRequestCards, createSuggestionCard, createFriendCards, friendsFunction,  sendIdToBackend } from "./scripts/friends.js";
 import { homeButton, mainFunction } from "./scripts/home.js";
 import { profileButton, profileFunction } from "./scripts/profile.js";
-import { friendsBtn, friendsFunc } from "./scripts/friends.js";
 import { rankBtn, rankFunct } from "./scripts/rank.js";
 import { chatButton, chatFunction } from "./scripts/chat.js";
 import { settingButton, settingFunction} from "./scripts/setting.js";
 import { logoutBtn, showLogin } from "./scripts/logout.js";
 import { dataObject } from "./scripts/login.js";
+
 
 export const newDataFunc = async ()=> {
     const response = await fetch('/user/get_user_info/');
@@ -111,7 +112,80 @@ loginBtn.addEventListener("click", ()=> {
 });
 
 window.addEventListener('popstate', ()=> navigateTo("forback"));
-document.addEventListener("DOMContentLoaded", () => navigateTo("current"));
+document.addEventListener("DOMContentLoaded", () => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn) {
+        const socket = new WebSocket('wss://localhost/wss/friend_requests/');
+        socket.onopen = function() {
+                console.log('WebSocket connection established');
+            };
+            socket.onerror = function(error) {
+                console.log(' ---| WEBSOCKET IS NOT CONNECTE |----------', error);
+                console.error('WebSocket error:', error);
+        };
+        // When a message is received
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.status === 'success') {
+                if (data.option === 'receive_frd_req'){
+                    // alert("receive");
+                    // console.log("received data infos: ", data.data.from_user);
+                    createRequestCards(data.data.from_user.username, data.data.from_user.imageProfile)
+                    const acceptBtnsListen = document.querySelectorAll(".add .accept");
+                    for(let i = 0; i < acceptBtnsListen.length; i++) {
+                        // listen for add-friend button click event to send the id for the backend;
+                        acceptBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "accept"));
+                    }
+                    const refuseBtnsListen = document.querySelectorAll(".delete .refuse");
+                    for(let i = 0; i < refuseBtnsListen.length; i++) {
+                        // listen for add-friend button click event to send the id for the backend;
+                        refuseBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "refuse"));
+                    }
+                }
+                if (data.option === 'accepte_request'){
+                    // alert('accepte request \'{+_+}\'')
+                    console.log('data : ', data.data)
+                    createFriendCards(data.data.username, data.data.imageProfile);
+                    const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
+                    for(let i = 0; i < unfriendBtns.length; i++) {
+                        // listen for add-friend button click event to send the id for the backend;
+                        unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "unfriend"));
+                    }
+                }
+                if (data.option === 'refuse_frd_req'){
+                    // alert("refuse");
+                    // console.log("refused data infos: ", data.data);
+                    createSuggestionCard(data.data.username, data.data.imageProfile);
+                    const addBtnsListen = document.querySelectorAll(".add .btn");
+                    for(let i = 0; i < addBtnsListen.length; i++) {
+                        // listen for add-friend button click event to send the id for the backend;
+                        addBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.from_user_id, "add"));
+                    }
+                }
+                if (data.option === 'unfriend'){
+                    friendsFunction();
+                    // alert('remove the friendship with you')
+                    console.log('data222 : ', data.data)
+                    const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
+                    for(let i = 0; i < unfriendBtns.length; i++) {
+                        // listen for add-friend button click event to send the id for the backend;
+                        unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "unfriend"));
+                    }
+                    // console.log('online_status : ', data.online_status)
+                }
+                if (data.option === 'is_online'){
+                    alert('cho halto maskin kidayra')
+                    console.log('data : ', data.data)
+                    // console.log('online_status : ', data.online_status)
+                }
+            }
+        };
+        socket.onclose = function() {
+            console.log('WebSocket connection closed');
+        };
+    }
+    navigateTo("current")
+});
 
 // add styled class to the clicked button (.nav-button) in #nav
 
