@@ -5,7 +5,6 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, csrf_protect
 from django.contrib import messages
 import requests
-# ------------------------
 from django.middleware.csrf             import get_token
 from  django.shortcuts                  import  get_object_or_404
 from rest_framework.decorators          import api_view, permission_classes
@@ -23,7 +22,8 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.core.files import File
 import os
-
+from channels.layers     import get_channel_layer
+from asgiref.sync        import async_to_sync
 
 client_id       = "u-s4t2ud-fa7692872a0200db78dfe687567cc55dd2a444234c7720f33c53e0a4286a7301"
 client_secret   = "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"
@@ -68,6 +68,25 @@ def     register_vu(request):
 @permission_classes([AllowAny])
 def     logout_vu(request):
     print ("------------------------------------------------------------\n")
+
+    user = request.user
+    frends = user.friends.all()  
+    channel_layer = get_channel_layer()
+
+    for friend_of_user in frends:
+        # Send a message to the friend's WebSocket channel
+        async_to_sync(channel_layer.group_send)(
+            f'user_{friend_of_user.id}',
+            {
+                'type': 'notify_user_status',
+                'data':
+                {
+                    'id': user.id,
+                    'username':user.username,
+                    'online_status': False
+                }
+            }
+        )
     if request.method == 'POST':
         logout(request)
         return (JsonResponse({'status':'success'}))
