@@ -266,18 +266,18 @@ def accepte_request(request, receiver_id):
             }
         )
         print ("1\n")
-        # async_to_sync(channel_layer.group_send)(
-        #     f'user_{friend_request.from_user.id}',
-        #     {
-        #         'type': 'notify_user_status',
-        #         'data': {
-        #             'id'             : friend_request.to_user.id,
-        #             'username'       : friend_request.to_user.username,
-        #             'imageProfile'   : friend_request.to_user.imageProfile.url,
-        #             'online_status'  :  True
-        #         }
-        #     }
-        # )
+        async_to_sync(channel_layer.group_send)(
+            f'user_{friend_request.from_user.id}',
+            {
+                'type': 'notify_user_status',
+                'data': {
+                    'id'             : friend_request.to_user.id,
+                    'username'       : friend_request.to_user.username,
+                    'imageProfile'   : friend_request.to_user.imageProfile.url,
+                    'online_status'  :  True
+                }
+            }
+        )
         print ("2\n")
         print("\033[1;35m From_user's friends: ", from_user.friends.all())
         print("\033[1;35m To_user's friends: ", to_user.friends.all())

@@ -36,8 +36,13 @@ class FriendRequestConsumer(WebsocketConsumer):
                 f'user_{friend.id}',
                 {
                     'type'           : 'notify_user_status',
-                    'username'       : self.user.username,
-                    'online_status'  : user_status 
+                    'data':
+                    {
+                        'id'             : self.user.id,
+                        'username'       : self.user.username,
+                        # 'imageProfile'   : self.user.imageProfile,
+                        'online_status'  : user_status
+                    }
                 }
             )
 
@@ -47,8 +52,7 @@ class FriendRequestConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'status'       : 'success',
             'option'       : 'is_online',
-            'username'     : event['username'],
-            'online_status': event['online_status']
+            'data'         : event['data']
         }))
 
     # Handle receiving status updates (broadcast to clients)
