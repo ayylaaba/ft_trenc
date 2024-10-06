@@ -2,7 +2,7 @@
 // let defaultName = username || 'Stranger';
 // console.log(defaultName); // Prints: Stranger
 
-import { friendsBtn, friendsFunc, createRequestCards, createSuggestionCard, createFriendCards, friendsFunction,  sendIdToBackend } from "./scripts/friends.js";
+import { friendsBtn, friendsFunc, createRequestCards, createSuggestionCard, createFriendCards, friendsFunction,  sendIdToBackend, online_icon } from "./scripts/friends.js";
 import { homeButton, mainFunction } from "./scripts/home.js";
 import { profileButton, profileFunction } from "./scripts/profile.js";
 import { rankBtn, rankFunct } from "./scripts/rank.js";
@@ -111,6 +111,8 @@ loginBtn.addEventListener("click", ()=> {
     navigateTo("/home");
 });
 
+const onlineColor = document.querySelector(".frd-sug-img i");
+
 window.addEventListener('popstate', ()=> navigateTo("forback"));
 document.addEventListener("DOMContentLoaded", () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -174,9 +176,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     // console.log('online_status : ', data.online_status)
                 }
                 if (data.option === 'is_online'){
-                    alert('cho halto maskin kidayra')
-                    console.log('data : ', data.data)
-                    // console.log('online_status : ', data.online_status)
+                    console.log("is online: ", data.data.online_status);
+                    console.log("online_icon newxwww: ", online_icon);
+                    if (online_icon && data.data.online_status) {
+                        // alert('cho halto maskin kidayra111111111111111111')
+                        console.log('data dyal online : ', data.data.online_status);
+                        online_icon.style.color = "green";
+                        online_icon.style.filter = "drop-shadow(0 0 1px green)";
+                    }
+                    else if (online_icon && !data.data.online_status) {
+                        alert("gone");
+                        online_icon.style.color = "red";
+                    }
                 }
             }
         };

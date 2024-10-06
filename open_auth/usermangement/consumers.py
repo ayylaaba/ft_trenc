@@ -12,15 +12,22 @@ class FriendRequestConsumer(WebsocketConsumer):
         if self.user.is_authenticated and isinstance(self.user, User_info):
             self.group_name = f'user_{self.user.id}'
             async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
-            self.update_user_status(True)
+            self.user.online_status = True
+            self.user.save()
             self.accept()
+            self.update_user_status(True)
+            self.notify_to_curr_user_form_friends()
         else:
             print("Anonymous user connected")
             self.close()
 
     def disconnect(self, close_code):
         print ('\033[1;32m Disconnect it \n')
+        self.user = self.scope["user"]
+        self.user.online_status = False
+        self.user.save()
         self.update_user_status(False)
+        self.notify_to_curr_user_form_friends()
         async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
 
     def update_user_status(self, user_status):
@@ -46,9 +53,31 @@ class FriendRequestConsumer(WebsocketConsumer):
                 }
             )
 
+    def notify_to_curr_user_form_friends(self):
+
+        friends = self.user.friends.all()
+        print ('20 : fiends notfiy the user  \n')
+        for friend in friends :
+            friend.refresh_from_db() 
+            friend_status = friend.online_status
+            print ('user_friend  : ', friend.username , "\n")
+            print ('user_friend_status  : ', friend.online_status, "\n")
+            print ('user = ', friend.username)
+            self.send(text_data=json.dumps({
+                'status'       : 'success',
+                'option'       : 'is_online',
+                'data' : {
+                    'id'               : friend.id,
+                    'option'           : 'is_online',
+                    'username'         : friend.username,
+                    'online_status'    : friend_status
+                }
+            }))
+
+    
     def notify_user_status(self, event):
         # Send a message to the WebSocket client
-        print ('0 : notify_user_status\n')
+        print ('0 : user notify friends \n')
         self.send(text_data=json.dumps({
             'status'       : 'success',
             'option'       : 'is_online',

@@ -1,3 +1,3 @@
-check if the email exists.
-
-should also modify on the status of user in database 
+<!-- logout for mobile. --> done.
+<!-- when logout the login page become bad. --> done.
+need to handle canel after.

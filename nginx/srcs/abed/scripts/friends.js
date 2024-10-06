@@ -322,6 +322,8 @@ reqBtn.addEventListener("click", requestsFunction);
 
 // -------------- Display Friends --------------------
 
+export let online_icon;
+
 export const createFriendCards = (name, image) => {
     const element = document.createElement("div");
     element.classList.add("friend-suggestion-card");
@@ -333,7 +335,7 @@ export const createFriendCards = (name, image) => {
     forthElement.classList.add("add-del");
     element.append(secondElement, thirdElement, forthElement);
 
-    const imageElement = document.createElement("div");
+    const imageElement = document.createElement("div");  /// div .class="frd-sug-img" -> i;
     imageElement.classList.add("frd-sug-img");
     imageElement.style.backgroundImage = `url(${image})`;
     const sugInfos = document.createElement("div");
@@ -341,8 +343,8 @@ export const createFriendCards = (name, image) => {
     secondElement.append(imageElement, sugInfos);
 
     // online symbole, change the color to green in case of online;
-    const online_icon = document.createElement("i");
-    online_icon.innerHTML = `<i class="fa-solid fa-circle"></i>`;
+    online_icon = document.createElement("i");
+    online_icon.classList.add(`fa-solid`, `fa-circle`);
     imageElement.append(online_icon);
 
     const wins = document.createElement("div");
@@ -393,7 +395,7 @@ export const createFriendCards = (name, image) => {
     userName.innerHTML = name;
     document.querySelector("#my-friends").append(element);
 }
-
+// export {online_icon};
 export const friendsFunction = async() => {
     const response = await fetch("/user/get_user_friends/");
     if (response.ok) {

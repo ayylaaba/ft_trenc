@@ -70,9 +70,12 @@ def     logout_vu(request):
     print ("------------------------------------------------------------\n")
 
     user = request.user
+    
+    user.online_status = False
+    user.save()
+    
     frends = user.friends.all()  
     channel_layer = get_channel_layer()
-
     for friend_of_user in frends:
         # Send a message to the friend's WebSocket channel
         async_to_sync(channel_layer.group_send)(

@@ -1,7 +1,7 @@
 // export let dataObjectt = null;
 
 import { showLogin } from "./logout.js";
-import { createRequestCards, createSuggestionCard, createFriendCards, friendsFunction,  sendIdToBackend } from "./friends.js";
+import { createRequestCards, createSuggestionCard, createFriendCards, friendsFunction,  sendIdToBackend, online_icon } from "./friends.js";
 
 export const get_csrf_token = async () => {
     const response = await fetch('/get_csrf_token/');
@@ -46,6 +46,10 @@ const registrationFunction = async (event) => {
     }
 }
 registerForm.addEventListener("submit", registrationFunction);
+
+// document.addEventListener("DOMContentLoaded", ()=> {
+//     console.log('000000000000', online_icon);
+// })
 
 export const showHome = (dataObj)=> {
     const socket = new WebSocket('wss://localhost/wss/friend_requests/');
@@ -108,10 +112,18 @@ export const showHome = (dataObj)=> {
                 }
                 // console.log('online_status : ', data.online_status)
             }
-            if (data.option === 'is_online'){
-                alert('cho halto maskin kidayra')
-                console.log('data : ', data.data)
-                // console.log('online_status : ', data.online_status)
+            if (data.option === 'is_online') {
+                console.log("is online: ", data.data);
+                console.log("online_icon newxwww: ", online_icon);
+                if (online_icon && data.data.online_status) {
+                    // alert('cho halto maskin kidayra111111111111111111')
+                    console.log('data dyal online : ', data.data.online_status);
+                    online_icon.style.color = "green";
+                }
+                else if (online_icon && !data.data.online_status) {
+                    alert("gone");
+                    online_icon.style.color = "red";
+                }
             }
         }
     };
