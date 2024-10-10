@@ -54,6 +54,49 @@ visibility */
     background: rgb(80, 55, 80);
 } */
 
+.toast {
+    opacity: 0;
+    animation: toast-frames 6s;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    background-color: #6c87a5;
+}
+
+@keyframes toast-frames {
+    0% {
+        opacity: 0;
+    }
+    30% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+}
+
+.toast-header {
+    display: flex;
+    /* gap: 8px; */
+    color: rgb(172 183 199);
+    background-color: #0b1230;
+}
+
+.toast-header .btn-close {
+    position: relative;
+    top: 0;
+    right: 0;
+    /* background: transparent var(--bs-btn-close-bg) center / 1em auto no-repeat; */
+}
+
+.error_style {
+    min-width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .quick-add .btn {
     /* position: absolute; */
     top: 70px;
@@ -108,21 +151,22 @@ visibility */
         font-size: 18px !important;
     }
     #main {
-        width: 100% !important;
+        width: 96% !important;
+        margin: auto;
         min-height: 640px !important;
     }
     #full-container {
-        min-height: 700px;
         flex-direction: column;
     }
     #main-img {
         min-width: 0px !important;
         width: 62% !important;
         height: 60% !important;
+        min-height: 180px !important;
     }
     #design {
         height: 35% !important;
-        width: 100vw !important;
+        width: 100% !important;
         min-width: 0 !important;
     }
     #home-navbar {
@@ -179,6 +223,10 @@ visibility */
         height: 60px !important;
         max-width: 100% !important;
         justify-content: center;
+        min-height: 0 !important;
+        border-right: none !important;
+        border-bottom: 1px solid gray;
+        /* margin-top: 15px !important; */
     }
     h1 {
         font-size: 22px !important;
@@ -462,6 +510,7 @@ h1 {
     background-color: rgb(10 19 57);
     color: whitesmoke !important;
     height: 100vh;
+    min-height: 600px;
     border-right: 1px solid #9f9f9f8c;
     max-width: 215px;
 }
@@ -626,6 +675,7 @@ h1 {
     min-width: 463px;
     width: 65%;
     height: 100%;
+    min-height: 237px;
     background-image: url(images/design3.png);
     background-size: cover;
     margin: auto;
@@ -777,7 +827,7 @@ a, button {
 .link {
     background-color: #6d349c8a;
     border: none;
-    box-shadow: 0px 0px 8px 2px #6d349c;
+    box-shadow: 0px 0px 5px #6d349c;
     margin: 0 auto;
     transition-duration: 0.5s;
     height: 100% !important;

@@ -1,4 +1,6 @@
 import { get_csrf_token } from "./register.js";
+import { socket, flag } from "./socket.js";
+export let isLogOut = 0;
 
 export const logoutBtn = document.querySelector("#logout");
 
@@ -16,7 +18,10 @@ export const logoutFuntion = async (event) => {
             const jsonResponse = await response.json();
             if (jsonResponse.status === "success") {
                 showLogin();
-                localStorage.removeItem('isLoggedIn');
+                if (flag) {
+                    socket.close();
+                }
+                localStorage.clear();
             }
             return jsonResponse;
         }
@@ -33,12 +38,4 @@ export const showLogin = ()=> {
     document.querySelector("#login-parent").style.display = "flex";
     document.querySelector("#full-container").style.display = "none";
     singIn_function();
-    // document.querySelector("#online-friends").style.display = "none";
-    // document.querySelector("#nav").style.display = "none";
-    // document.querySelector("#main").style.display = "none";
-    // document.querySelector("#profile-part").style.display = "none";
-    // document.querySelector("#chat-part").style.display = "none";
-    // document.querySelector("#setting-part").style.display = "none";
-    // document.querySelector("#friends-part").style.display = "none";
-    // document.querySelector("#rank-part").style.display = "none";
 }

@@ -278,6 +278,19 @@ def accepte_request(request, receiver_id):
                 }
             }
         )
+        # Notify the acceptor (to_user) with the sender's online status
+        async_to_sync(channel_layer.group_send)(
+            f'user_{to_user.id}',
+            {
+                'type': 'notify_user_status',
+                'data': {
+                    'id': from_user.id,
+                    'username': from_user.username,
+                    'imageProfile': from_user.imageProfile.url,
+                    'online_status': from_user.online_status  # Sender's online status
+                }
+            }
+        )
         print ("2\n")
         print("\033[1;35m From_user's friends: ", from_user.friends.all())
         print("\033[1;35m To_user's friends: ", to_user.friends.all())

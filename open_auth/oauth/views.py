@@ -58,8 +58,8 @@ def     register_vu(request):
             return JsonResponse({'status': 'success', 'data':seria.data}, status=200)
         else:
             errors = form.errors.as_json()
-            print("\033[1;39m This user failed to sign up \n")
-            print(f"Errors: {errors}")  # Add this line
+            print("\033[1;39m This user failed to sign up \n")  
+            print(f"Errors: {errors}")  # Add this line   
             return JsonResponse({'status': 'faild', 'error': form.errors}, status=400)
     return JsonResponse({'status': False, "error": form.errors}, status=400)
 

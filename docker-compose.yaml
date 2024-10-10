@@ -9,7 +9,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     ports:
-      - "8000:8000"
+      - "8080:8000" #host port changed to 8080
     networks:
       - nw
     depends_on:
@@ -47,7 +47,7 @@ services:
       - 6379:6379
     networks:
       - nw
-  xo_gmae:
+  xo_game:
     build: ./Xo_Game/xo_game/
     ports:
       - 8001:8001

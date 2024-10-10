@@ -157,6 +157,8 @@ export const suggestionsFunction = async ()=> {
     }
 }
 
+import { flag, socketFunction } from "./socket.js";
+
 export const sendIdToBackend = async (id, action) => {
     const token = await get_csrf_token();
     if (action === "add") {
@@ -168,14 +170,6 @@ export const sendIdToBackend = async (id, action) => {
             },
         });
         suggestionsFunction();
-        if (response.ok) {
-            const jsonResponse = await response.json();
-            if (jsonResponse.status === "success") {
-                alert("succesfully sent to the backend");
-            } else {
-                alert("already sent to the backend");
-            }
-        }
     }
     else if (action === "accept") {
         console.log("Accpet with id: ", id);
@@ -322,9 +316,7 @@ reqBtn.addEventListener("click", requestsFunction);
 
 // -------------- Display Friends --------------------
 
-export let online_icon;
-
-export const createFriendCards = (name, image) => {
+export const createFriendCards = (name, image, userId) => {
     const element = document.createElement("div");
     element.classList.add("friend-suggestion-card");
     const secondElement = document.createElement("div");
@@ -343,10 +335,23 @@ export const createFriendCards = (name, image) => {
     secondElement.append(imageElement, sugInfos);
 
     // online symbole, change the color to green in case of online;
-    online_icon = document.createElement("i");
+    const online_icon = document.createElement("i");
     online_icon.classList.add(`fa-solid`, `fa-circle`);
+    online_icon.id = `online-icon-${userId}`;
+    const status = localStorage.getItem(`online_status_${userId}`);
+    // console.log("user id", userId);
+    console.log(`${name} is ${status}`);
+    // console.log("status: ", status);
+    if (status === "online") {
+        // alert('green');
+        online_icon.style.color = "green";
+        online_icon.style.filter = "drop-shadow(0 0 1px green)";
+    } else {
+        // alert('red');
+        online_icon.style.color = "red";
+        online_icon.style.filter = "drop-shadow(0 0 1px red)";
+    }
     imageElement.append(online_icon);
-
     const wins = document.createElement("div");
     wins.classList.add("wins");
     const loses = document.createElement("div");
@@ -395,7 +400,7 @@ export const createFriendCards = (name, image) => {
     userName.innerHTML = name;
     document.querySelector("#my-friends").append(element);
 }
-// export {online_icon};
+let friendsLoaded = 0;
 export const friendsFunction = async() => {
     const response = await fetch("/user/get_user_friends/");
     if (response.ok) {
@@ -404,7 +409,7 @@ export const friendsFunction = async() => {
             document.querySelector("#my-friends").innerHTML = ""; // main parent.
             // console.log(jsonResponse.data);
             for (let i = 0; i < jsonResponse.data.length; i++) {
-                createFriendCards(jsonResponse.data[i].username, jsonResponse.data[i].imageProfile);
+                createFriendCards(jsonResponse.data[i].username, jsonResponse.data[i].imageProfile, jsonResponse.data[i].id);
             }
             const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
             for(let i = 0; i < unfriendBtns.length; i++) {
@@ -412,9 +417,12 @@ export const friendsFunction = async() => {
                 unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "unfriend"));
             }
         }
+        friendsLoaded = 1;
         return jsonResponse.data;
     }
 }
+
+export {friendsLoaded};
 
 const friendBtn = document.querySelector("#friend-btn");
 

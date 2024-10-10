@@ -24,6 +24,7 @@ singIn.addEventListener("click", singIn_function);
 import { get_csrf_token, showHome } from "./register.js";
 // import { profileFunction } from "./profile.js";
 import { reloadFunction } from "../script.js";
+import { flag, socketFunction } from "./socket.js";
 export let dataObject;
 
 const updateData = async () => {
@@ -65,6 +66,10 @@ const loginFunction = async (event) => {
                 sideBtns[0].classList.add('link');
                 showHome(jsonResponse.data);
                 localStorage.setItem('isLoggedIn', 'true');
+                console.log("flag: ", flag);
+                if (!flag) {
+                    socketFunction();
+                }
             }
             return jsonResponse.data;
         }
