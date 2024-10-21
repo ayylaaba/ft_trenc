@@ -5,12 +5,18 @@ from oauth.models import User_info
 # class Profie(models.Model):
 #     pass
 
-class       RequestFriend(models.Model):
+class           RequestFriend(models.Model):
     from_user   = models.ForeignKey(User_info, related_name="request_sent", on_delete=models.CASCADE)
     to_user     = models.ForeignKey(User_info, related_name="request_received", on_delete=models.CASCADE)
     accepted    = models.BooleanField ( default  = False)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp   = models.DateTimeField(auto_now_add=True)
 
+class           MatchHistoric(models.Model):
+    user        = models.ForeignKey(User_info, related_name="user", on_delete=models.CASCADE)
+    opponent    = models.ForeignKey(User_info, related_name="opponent", on_delete=models.CASCADE)
+    result      = models.CharField(max_length=10)
+    create_at   = models.CharField(max_length=20)
+    # models.DateTimeField(auto_now_add = True)
 
 # related_name allows you to query the related objects in reverse:
 

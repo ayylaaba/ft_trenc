@@ -1,5 +1,6 @@
 from    django.urls             import path
 from    usermangement           import views
+from    usermangement           import xo_historic
 
 urlpatterns=[
     path('update/', views.update_user),
@@ -14,4 +15,6 @@ urlpatterns=[
     path('get_user_info/', views.get_user),
     path('unfriend/<int:received_id>/', views.unfriend),
     path('cancel_friend_request/', views.cancel_friend_req),
+    path('store_match/', xo_historic.store_match),
+    path('get_match_history/', xo_historic.get_match_history)
 ]

@@ -1,8 +1,20 @@
-from rest_framework import serializers
-from oauth.models     import User_info
+from rest_framework     import serializers
+from oauth.models       import User_info
+from .models            import MatchHistoric
 from .models            import RequestFriend
 from django.contrib.auth.hashers import make_password
 
+
+class   MatchHistoricSerialzer(serializers.ModelSerializer):
+    class Meta:
+        model = MatchHistoric
+        fields=[
+            'id',
+            'user',
+            'opponent',
+            'result',
+            'create_at'
+        ]
 
 class   ProfileSerializer(serializers.ModelSerializer):
     class Meta:
