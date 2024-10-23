@@ -16,5 +16,6 @@ urlpatterns=[
     path('unfriend/<int:received_id>/', views.unfriend),
     path('cancel_friend_request/', views.cancel_friend_req),
     path('store_match/', xo_historic.store_match),
-    path('get_match_history/', xo_historic.get_match_history)
+    path('get_match_history/', xo_historic.get_match_history),
+    path('get_curr_user/', xo_historic.get_curr_user)
 ]

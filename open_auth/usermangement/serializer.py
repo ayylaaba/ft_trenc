@@ -26,7 +26,8 @@ class   ProfileSerializer(serializers.ModelSerializer):
             'firstname',
             'lastname',
             'email',
-            'imageProfile'
+            'imageProfile',
+            'level'
         ]
 
 class   UserInfoSerializer(serializers.ModelSerializer):
@@ -39,7 +40,8 @@ class   UserInfoSerializer(serializers.ModelSerializer):
             'firstname',
             'lastname',
             'email',
-            'imageProfile'
+            'imageProfile',
+            'level'
         ]
 
 class       RequestFriendSerializer(serializers.ModelSerializer):

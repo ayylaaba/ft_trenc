@@ -22,6 +22,7 @@ class User_info(AbstractUser):
     email     = models.EmailField(unique=True, null=True, blank=True)
     friends   = models.ManyToManyField('self', blank=True)
     online_status = models.BooleanField(default=False)   
+    level    = models.IntegerField(default=0)
     # understand this #
  
     groups = models.ManyToManyField(
