@@ -8,6 +8,8 @@ services:
       - oauth_volume:/django
     environment:
       - PYTHONUNBUFFERED=1
+    env_file:
+      - .env  # This loads the environment variables from the .env file
     ports:
       - "8080:8000" #host port changed to 8080
     networks:
@@ -20,9 +22,9 @@ services:
     image: postgres:16
     container_name: postgreDB
     environment:
-      POSTGRES_DB: users_42
-      POSTGRES_USER: ayylaaba
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - /home/ayoub/data/db:/var/lib/postgresql/data
     ports:
@@ -32,12 +34,11 @@ services:
   nginx:
     build: ./nginx  # Ensure this points to your Nginx directory with the Dockerfile and nginx.conf
     ports:
-      - "80:80"
       - "443:443"
     depends_on:
       - remote_auth
     volumes:
-      - front_volume:/var/www/front  # Front-end files volume
+      - front_volume:/var/www/front
     networks:
       - nw
   redis:

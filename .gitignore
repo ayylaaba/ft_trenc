@@ -1,2 +1,2 @@
-
-postgre_volume/
+# postgre_volume/
+.env
