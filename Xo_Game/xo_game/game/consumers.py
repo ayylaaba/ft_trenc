@@ -7,11 +7,13 @@ connected_players = {}
 turn_tracker = {}
 game_states = {}
 
+user1 = 0
+user2 =  0
 class TicTacToeConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        print("in game", flush=True)
         self.room_code = self.scope['url_route']['kwargs']['room_code']
         self.room_group_name = f'room_{self.room_code}'
-
         if self.room_group_name not in game_states:
             game_states[self.room_group_name] = {
                 'board': ['', '', '', '', '', '', '', '', ''],  
@@ -19,7 +21,6 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
         if self.room_group_name not in connected_players:
             connected_players[self.room_group_name] = []
             turn_tracker[self.room_group_name] = 'X'
-        
         if len(connected_players[self.room_group_name]) >= 2:
             await self.close()
             return
@@ -35,7 +36,7 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
 
         if len(connected_players[self.room_group_name]) == 2:
             turn_tracker[self.room_group_name] = 'X'
-            print("the actual value is ", turn_tracker[self.room_group_name])
+            print("GAME Start", flush=True)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {'type': 'send_message', 'message': 'Game is ready to start!', 'event': 'START'}
@@ -46,6 +47,8 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                 {'type': 'send_message', 'message': 'Waiting for the second player...', 'event': 'wait'}
             )
     async def disconnect(self, close_code):
+        global user2
+        global user1
         if self.room_group_name in connected_players:
             if self.channel_name in connected_players[self.room_group_name]:
                 # connected_players[self.room_group_name].remove(self.channel_name)
@@ -64,6 +67,8 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                 }
             )
             await self.close()
+            user1 = 0
+            user2 = 0
         if len(connected_players[self.room_group_name]) == 0:
             await self.delete_room() 
             del connected_players[self.room_group_name]
@@ -76,33 +81,51 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         event = data['event']
         message = data['message']
+        global user1
+        global user2
         is_game_over = False
 
+        #delte 
+        print("In recive", flush=True)
+        print("user1 ", user1, flush=True)
+        print("user2", user2,flush=True)
         if event == 'START':
-            TicTacToeConsumer.connect
+            if not user1:
+                user1 = message
+            elif not user2:
+                user2 = message
+        print("before Move", flush=True)
         if event == 'MOVE':
             print('in Move', data)
             current_turn = turn_tracker[self.room_group_name]
             index = message['index']
             player = message['player']
             board = game_states[self.room_group_name]['board']
-            print("player is ", player, " index is ", index, "it is ", board[index] == '' , "current turn ", current_turn, "it is ", turn_tracker[self.room_group_name])
+            if message['player'] == current_turn:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'send_message',
+                        'message': message,
+                        'event': 'MOVE'
+                    }
+                )
             if board[index] == '' and player == current_turn:
                 board[index] = player
                 print('cuurent is ', current_turn)
             if self.check_winner(board):
                 is_game_over = True
-                turn_tracker[self.room_group_name] = 'X'
                 for i in range(len(board)):
                     board[i] = ''
                 await self.channel_layer.group_send(
                 self.room_group_name,
                     {
                         'type': 'send_message',
-                        'message': f'{player} wins!',
+                        'message': f'{player}',
                         'event': 'END'
                     }
                 )
+                turn_tracker[self.room_group_name] = 'X'
             elif '' not in board and len(connected_players[self.room_group_name]) == 2:
                 print("in draw")
                 turn_tracker[self.room_group_name] = 'X'
@@ -117,20 +140,31 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                         'event': 'DRAW'
                     }
                 )
-            
-            if message['player'] == current_turn:
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'send_message',
-                        'message': message,
-                        'event': 'MOVE'
-                    }
-                )
             if turn_tracker[self.room_group_name] == 'X' and is_game_over == False:
                 turn_tracker[self.room_group_name] = 'O'
             elif turn_tracker[self.room_group_name] == 'O' and is_game_over == False:
                 turn_tracker[self.room_group_name] = 'X'
+        if event == "DUSER":
+            if user1 == user2:
+                await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'send_message',
+                    'message': 'Suser',
+                    'event': 'USERS'
+                }
+            )
+            else:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'send_message',
+                        'message': {'user1': user1, 'user2': user2},
+                        'event': 'USERS'
+                    }
+                )
+                print("Out", flush=True)
+        
 
 
     async def send_message(self, message):

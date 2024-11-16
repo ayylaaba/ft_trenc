@@ -45,37 +45,56 @@ const updateData = async () => {
     }
 }
 updateData();
+
+export const displayErrorMsg = (message, target, type) => {
+    const userError = document.createElement("div");
+    userError.classList.add("error");
+    if (type === "array") {
+        message.forEach(element => {
+            userError.innerHTML += `${element}<br>`;
+        });
+    } else {
+        userError.innerHTML = `${message}`;
+    }
+    userError.style.color = "red";
+    userError.style.marginBottom = "12px";
+    target.insertAdjacentElement("afterend", userError);
+}
+
 const loginForm = document.querySelector("#login-form");
+const loginPassword = document.querySelector("#login-password");
 
 const loginFunction = async (event) => {
     event.preventDefault();
     const token =  await get_csrf_token();
-    try {
-        const formData = new FormData(loginForm);
-        const response = await fetch('/login/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': token,
-            },
-            body: formData
-        });
-        if (response.ok) {
-            const jsonResponse = await response.json();
-            if (jsonResponse.status === "success") {
-                const sideBtns = document.querySelectorAll(".nav-button");
-                sideBtns[0].classList.add('link');
-                showHome(jsonResponse.data);
-                localStorage.setItem('isLoggedIn', 'true');
-                console.log("flag: ", flag);
-                if (!flag) {
-                    socketFunction();
-                }
+    const formData = new FormData(loginForm);
+    const response = await fetch('/login/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': token,
+        },
+        body: formData
+    });
+    const jsonResponse = await response.json();
+    if (response.ok) {
+        if (jsonResponse.status === "success") {
+            const sideBtns = document.querySelectorAll(".nav-button");
+            sideBtns[0].classList.add('link');
+            showHome(jsonResponse.data);
+            localStorage.setItem('isLoggedIn', 'true');
+            console.log("flag: ", flag);
+            if (!flag) {
+                socketFunction();
             }
-            return jsonResponse.data;
         }
+        return jsonResponse.data;
     }
-    catch(err) {
-        console.error(err);
+    else {
+        const existingErrors = document.querySelectorAll(".error");
+        existingErrors.forEach(error => {
+            error.remove();
+        });
+        displayErrorMsg(jsonResponse.error, loginPassword, "");
     }
 }
 

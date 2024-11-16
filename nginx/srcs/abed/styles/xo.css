@@ -96,7 +96,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 80vh;
 }
 
 .loading-text {
@@ -221,6 +221,8 @@ body {
 }
 
 #app {
+    flex-direction: column;
+    justify-content: center;
     width: 500px;
     height: 610px;
     border: 1px solid white;
@@ -233,7 +235,6 @@ body {
     user-select: none;
     background-color: #233354;
     text-align: center;
-    padding-top: 5vh;
     z-index: 5;
 }
 

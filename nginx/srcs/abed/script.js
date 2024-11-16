@@ -74,8 +74,7 @@ export const navigateTo = (path) => {
     if (path != "forback" && path != "current")
     {
         history.pushState(null, null, path);
-    }
-    else {
+    } else {
         console.log("enter here please..");
     }
     document.querySelector("#nav").style.display = "flex";

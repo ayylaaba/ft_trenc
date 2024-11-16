@@ -7,6 +7,7 @@ import { chatPage } from "./chat.js";
 import { profileId } from "./profile.js"; 
 import { rankPart } from "./rank.js";
 import { get_csrf_token } from "./register.js";
+import { notificationFunction } from "./notification.js";
 
 const frdNavBtns = document.querySelectorAll(".frd-nav-btn");
 export const friendsFunc = () => {
@@ -147,11 +148,6 @@ export const suggestionsFunction = async ()=> {
                 // listen for add-friend button click event to send the id for the backend;
                 addBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "add"));
             }
-    
-            // const deleteBtnsListen = document.querySelectorAll(".delete .btn");
-            // for(let i = 0; i < deleteBtnsListen.length; i++) {
-            //     deleteBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "delete"));
-            // }
         }
         return jsonResponse.data;
     }
@@ -292,7 +288,11 @@ export const requestsFunction = async ()=> {
         if (jsonResponse.status === "success") {
             // console.log(jsonResponse.data);
             document.querySelector("#requests").innerHTML = "";
+            // if (jsonResponse.data.length === 0) {
+            //     notificationFunction(); // show the main container even if no request exists;
+            // }
             for (let i = 0; i < jsonResponse.data.length; i++) {
+                notificationFunction(jsonResponse.data[i].from_user.username, jsonResponse.data[i].from_user.imageProfile);
                 createRequestCards(jsonResponse.data[i].from_user.username, jsonResponse.data[i].from_user.imageProfile);
             }
             const acceptBtnsListen = document.querySelectorAll(".add .accept");
@@ -300,15 +300,26 @@ export const requestsFunction = async ()=> {
                 // listen for add-friend button click event to send the id for the backend;
                 acceptBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "accept"));
             }
+            const acceptBtnsNotifListen = document.querySelectorAll("#notifications .acc-req");
+            for(let i = 0; i < acceptBtnsNotifListen.length; i++) {
+                // listen for add-friend button click event to send the id for the backend;
+                acceptBtnsNotifListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "accept"));
+            }
             const refuseBtnsListen = document.querySelectorAll(".delete .refuse");
             for(let i = 0; i < refuseBtnsListen.length; i++) {
                 // listen for add-friend button click event to send the id for the backend;
                 refuseBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "refuse"));
             }
+            const refuseBtnsNotifListen = document.querySelectorAll("#notifications .ref-req");
+            for(let i = 0; i < refuseBtnsNotifListen.length; i++) {
+                // listen for add-friend button click event to send the id for the backend;
+                refuseBtnsNotifListen[i].addEventListener("click", ()=> sendIdToBackend(jsonResponse.data[i].id, "refuse"));
+            }
         }
         // else if (jsonResponse.status === "failed") {
         //     alert("you already sent a request to this user.");
         // }
+        return jsonResponse.data;
     }
 }
 const reqBtn = document.querySelector("#requests-btn");

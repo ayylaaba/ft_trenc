@@ -1,20 +1,24 @@
-from    django.http                             import JsonResponse
-from    usermangement.serializer                import ProfileSerializer, UpdateUserSerializers
-from    rest_framework.decorators               import api_view, permission_classes
-from    rest_framework.permissions              import AllowAny
-import                                          requests
-from    rest_framework.permissions              import IsAuthenticated  # Use IsAuthenticated
-from    django.contrib.sessions.models          import Session
-from    oauth.models                            import User_info
-from    .models                                 import RequestFriend
-from    .serializer                             import RequestFriendSerializer
-from    .serializer                             import UserInfoSerializer
-from    django.contrib.auth                     import update_session_auth_hash
-from    channels.layers                         import get_channel_layer
-from    asgiref.sync                            import async_to_sync
-from    django.db.models                        import Q 
+from    django.shortcuts import render
+from    django.http import JsonResponse
+from    django.middleware.csrf import get_token
+from    usermangement.serializer              import ProfileSerializer, UpdateUserSerializers
+from rest_framework.decorators          import api_view, permission_classes
+from rest_framework.permissions         import AllowAny
+import  requests
+from rest_framework.permissions import IsAuthenticated  # Use IsAuthenticated
+from django.contrib.sessions.models import Session
+from django.views.decorators.csrf import csrf_exempt
+from oauth.models        import User_info
+from .models             import RequestFriend
+from .serializer         import RequestFriendSerializer
+from .serializer         import UserInfoSerializer
+from django.contrib.auth import update_session_auth_hash
+from channels.layers     import get_channel_layer
+from asgiref.sync        import async_to_sync
 
+# Create your views here.
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def     get_user(request):
     if request.method == 'GET':
         user = request.user
@@ -29,6 +33,7 @@ def     get_user(request):
             "error" : "method Not allowed"})
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def profile(request):
     print("\033[1;38m ----------> inside Profile Function \n")
     if request.method == 'GET':
@@ -52,6 +57,7 @@ def profile(request):
             'status': 'failed'
         }, status=400)
 
+@csrf_exempt
 @api_view(['POST'])
 def update_user(request):
     print("Entered update_user view")
@@ -68,6 +74,7 @@ def update_user(request):
     if 'imageProfile' in request.FILES:
         request.data['imageProfile'] = request.FILES['imageProfile']
 
+    # Use request.data instead of request.body
     data  = request.data
     
     if not data:
@@ -84,8 +91,10 @@ def update_user(request):
 
     if update_serializer.is_valid():
         update_serializer.save()
+    print('Updated data === ', update_serializer.data)
     return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200) 
 
+from django.db.models import Q  # Add this import
 
 @api_view(['POST'])
 def         unfriend(request, received_id):
@@ -169,16 +178,18 @@ def get_user_friends(request):
         'data': serialized_friends.data
     })
 
+# @api_view(['GET'])
 @api_view(['GET'])
 def users_list(request):
     print('Users List \n')
     current_user = request.user
+    super_user   = User_info.objects.filter(is_superuser=True)
     # Get users who have sent or received a request to/from the current user
     sent_requests = RequestFriend.objects.filter(from_user=current_user).values_list('to_user', flat=True) # flat=True with Output: [2, 3, 5] WITHOUT [(2), (3)]
     received_requests = RequestFriend.objects.filter(to_user=current_user).values_list('from_user', flat=True)
     # Combine both sets of users into one list
     requested_users_ids = list(set(sent_requests) | set(received_requests))
-    users = User_info.objects.exclude(id=current_user.id).exclude(id__in=requested_users_ids)
+    users = User_info.objects.exclude(id=current_user.id).exclude(id__in=requested_users_ids).exclude(is_superuser=True)
     serialize_users = ProfileSerializer(users, many=True)
     print ('users : ', serialize_users.data)
     return JsonResponse({'status': 'success', 'data': serialize_users.data})
@@ -255,6 +266,7 @@ def accepte_request(request, receiver_id):
                 }
             }
         )
+        print ("1\n")
         async_to_sync(channel_layer.group_send)(
             f'user_{friend_request.from_user.id}',
             {
@@ -282,7 +294,7 @@ def accepte_request(request, receiver_id):
         )
         print ("2\n")
         print("\033[1;35m From_user's friends: ", from_user.friends.all())
-        print("\033[1;35m To_user's friends: ",   to_user.friends.all())
+        print("\033[1;35m To_user's friends: ", to_user.friends.all())
         return JsonResponse({'status': 'success', 'data': 'The request has been accepted'})
 
     except RequestFriend.DoesNotExist:  # Catch the correct exception
@@ -303,11 +315,13 @@ def reject_request(request, receiver_id):
         # friend_req = RequestFriend.objects.get(from_user=from_user, to_user=to_user)
         seria_req = RequestFriendSerializer(friend_request)
 
+        print ('gooooooooo \n')
         # Check if the request is already accepted
         if friend_request.accepted:
             return JsonResponse({'status': 'failed', 'data': 'This request is already accepted and cannot be rejected'}, status=400)
         # Delete the friend request
          # Send a message to the WebSocket group
+        print ('1 : eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
         print ('seria = ', friend_request, "\n")
 
         friend_request.delete()
@@ -349,13 +363,17 @@ def ChangePassword(request):
                 return JsonResponse({"error": "Username is already taken."}, status=400)
             else:
                 user.username = new_username  # Update the username
+
     # Check if old password is correct
     if not user.check_password(old_password):
         return JsonResponse({"error": "Old password is incorrect."}, status=400)
+
     if len(new_password) < 5:
         return JsonResponse({"error": "New password must be at least 8 characters long."}, status=400)
     user.set_password(new_password)
     user.save()
+
     # Update the session with the new password (to prevent logging out)
     update_session_auth_hash(request, user)
+
     return JsonResponse({"status": "Password changed successfully!"}, status=200)

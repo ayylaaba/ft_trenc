@@ -5,7 +5,7 @@ import { profileId } from "./profile.js";
 import {settingPage} from "./setting.js";
 import { chatPage } from "./chat.js";
 import { rankPart } from "./rank.js";
-import { friendsPart, suggestionsFunction } from "./friends.js";
+import { friendsPart, sendIdToBackend, suggestionsFunction } from "./friends.js";
 
 let frdsArr;
 
@@ -29,7 +29,7 @@ let flag = 0;
 let matchBlock = document.createElement("div");
 const homeNav = document.querySelector("#home-navbar");
 
-const lookForUsers = ()=> {
+export const lookForUsers = ()=> {
     document.querySelectorAll(".match-element").forEach(el => {
         el.remove();
     })
@@ -67,6 +67,12 @@ const lookForUsers = ()=> {
             addBtnDiv.append(addBtn);
             matchElement.append(usernameImage, usenameFound, addBtnDiv);
             matchBlock.append(matchElement);
+            addBtnDiv.addEventListener("click", async () => {
+                await sendIdToBackend(element.id, "add");
+                frdsArr = await suggestionsFunction();
+                matchBlock.remove();
+                searchInput.value = "";
+            });
         }
     });
 }

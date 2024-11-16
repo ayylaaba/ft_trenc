@@ -7,5 +7,6 @@ urlpatterns=[
     path('get_csrf_token/', views.get_csrf_token, name='get_csrf_token'),
     path('register/', views.register_vu,  name='register'),
     path('login/', views.login_vu,  name='login'),
-    path('logout/', views.logout_vu,  name='logout')
+    path('logout/', views.logout_vu,  name='logout'),
+    path('users_rank/', views.users_rank,  name='users_rank')
 ]

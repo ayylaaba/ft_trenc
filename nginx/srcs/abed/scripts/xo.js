@@ -1,20 +1,31 @@
-// static/js/app.js
-// static/js/app.js
-
 document.addEventListener("DOMContentLoaded", () =>  {
     const app = document.getElementById("app");
     const startContainer = document.createElement("div");
     const gameContainer = document.createElement("div");
     const waitContainer = document.createElement("div");
     const showResult = document.createElement("div");
+    const Suser = document.createElement("div");
     let is_gameOver = false;
     let socket;
+    let crtf;
+    let matchdata = 
+    {
+        id:0,
+        level:0,
+        user:0,
+        opponent:0,
+        chose:"",
+        result:0,
+        x_resuSuserlt:"",
+    };
     // const leftGameContainer = document.createElement("div");
 
     startContainer.className = "start-container";
     gameContainer.className = "game-container";
     waitContainer.className = "wait-container";
     showResult.className = "show-Result";
+    Suser.className = "same-User"
+
     // gameContainer.className = "leftGame-container";
 
 
@@ -53,35 +64,160 @@ document.addEventListener("DOMContentLoaded", () =>  {
     showResult.innerHTML = `
         <h2 id="result" ></h2>
         `;
+    Suser.innerHTML = `
+        <h2 id="sameUser"> you can't Play with yourself</h2>
+    `;
     app.appendChild(startContainer);
     app.appendChild(gameContainer);
     app.appendChild(waitContainer);
     app.appendChild(showResult);
+    app.appendChild(Suser);
     let charChoice = null;
     let roomCode =null;
     let currentTurn = 'X'; 
     let room_is_created = false;
+
+function fetchUser(){
+    fetch('https://localhost/user/get_curr_user/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();  
+    })
+    .then(data => {
+        if (data.status === '400') {
+            console.log('User is not authenticated:', data.data);
+        } else {
+            matchdata.id = data.data.id;
+            matchdata.user = data.data.id;
+            matchdata.level = data.data.level;
+            console.log("LEVEL is ", matchdata.level, " User is ", matchdata.user, matchdata.id)
+        }
+    })
+}
+function fetchcrtf(){
+    fetch('https://localhost/get_csrf_token/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();  
+    })
+    .then(data => {
+        if (data.status === '400') {
+            console.log('User is not authenticated:', data.data);
+        } else {
+            crtf = data.csrfToken;
+        }
+    })
+}
+function postMatch()
+{
+    if (matchdata.result == 0)
+        matchdata.x_result = "lose";
+    else if (matchdata.result == 1)
+        matchdata.x_result = "won";
+    else
+        matchdata.x_result = "draw";
+
+    let postdata = 
+    {
+        id : matchdata.id,
+        user : matchdata.id,
+        opponent: matchdata.opponent,
+        result: matchdata.x_result,
+        level: 0,
+        Type: "XO"
+    }
+    postdata.level= 1;
+    console.log("crtf ", crtf);
+    console.log("postdata ",postdata);
+    fetch('https://localhost/user/store_match/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': crtf
+        },
+        body: JSON.stringify(postdata)
+    })
+}
+async function fetchRoom() {
+    try {
+        const response = await fetch('http://127.0.0.1:8001/api/rooms/');
+        
+        if (!response.ok) {
+            console.log("No available rooms. Creating a new room...");
+            return await createRoom();
+        }
+        
+        const room = await response.json();
+        console.log("Fetched room:", room);
+
+        if (room.players < 3) {
+            console.log(`Joining room ${room.code} with ${room.players} players.`);
+            roomCode = room.code;
+            connectWebSocket();
+        } else {
+            console.log("Room is full, creating a new room...");
+            await createRoom();
+        }
+    } catch (error) {
+        console.error("Error fetching or creating room:", error);
+    }
+}
+
+async function createRoom() {
+    try {
+        const response = await fetch('http://127.0.0.1:8001/api/rooms/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code: generateRoomCode() })
+        });
+        
+        const data = await response.json();
+        roomCode = data.code;
+        console.log("Created new room with code:", roomCode);
+        connectWebSocket();
+        
+        return data;
+    } catch (error) {
+        console.error("Error creating room:", error);
+    }
+}
+/*
 function fetchRoom() {
     fetch('http://127.0.0.1:8001/api/rooms/')
     .then(response => {
+        console.log("fetch room ", response.ok)
         if (!response.ok) {
-            console.log("No available rooms, creating a new room...");
+            console.log("there is no room")
             createRoom();
-            room_is_created = true;
-            console.log("room was created");
+            console.log("room was created")
+
         }
-        console.log("we are about to return ");
         return response.json();
     })
         .then(data => {
-            if (data && !room_is_created) {
+            if (data) {
                 const room = data;
                 console.log("the room is ", room.code, " and num of player ", room.players);
                 if (room.players < 2) {
                     console.log("********************************inside room num ", room.code, " and num of player ", room.players);
                     roomCode = room.code;  
                     console.log("Joining existing room with code: ", roomCode); 
-                    wait_page();
                     connectWebSocket();
                     return ;
                 }
@@ -90,19 +226,15 @@ function fetchRoom() {
                     createRoom();  
                 }
             }
-            // else {
-            //     console.log("there is no room");
-            //     createRoom();
-            // }
         })
         .catch(error => {
             console.error("Error fetching rooms:", error);
         });
-}
-
-
-function createRoom() {
-    fetch('http://127.0.0.1:8001/api/rooms/', {
+    }
+    
+    
+    function createRoom() {
+        fetch('http://127.0.0.1:8001/api/rooms/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -111,16 +243,19 @@ function createRoom() {
     })
     .then(response => response.json())
     .then(data => {
-        roomCode = data.code;
-        console.log("Created new room with code: ", roomCode); 
-        wait_page();
-        connectWebSocket();
+        if (!roomCode)
+        {
+            roomCode = data.code;
+            console.log("Created new room with code: ", roomCode); 
+            wait_page();
+            connectWebSocket();
+        }
     })
     .catch(error => {
         console.error("Error creating room:", error);
     });
 }
-
+*/
 function disconnect() {
     socket.close();
 }
@@ -129,47 +264,56 @@ function disconnect() {
 function generateRoomCode() {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
-    document.getElementById("startGame").addEventListener("click", function() {
-        wait_page();
-        fetchRoom();
-    });
+document.getElementById("startGame").addEventListener("click", function() {
+    console.log("First Wait");
+    wait_page();
+    fetchRoom();
+});
 
-    function wait_page()
-    {
-        console.log("wait fuction");
-        waitContainer.classList.add("active");
-        startContainer.classList.remove("active");
-        showResult.classList.remove("active");
-        startContainer.style.display = "none";
-    }
-    function startGame() {
+function wait_page()
+{
+    console.log("wait fuction");
+    fetchUser();
+    waitContainer.classList.add("active");
+    startContainer.classList.remove("active");
+    showResult.classList.remove("active");
+    startContainer.style.display = "none";
+}
+function startGame() {
         console.log("start fuction");
-
+        console.log("id", matchdata.id)
+        fetchcrtf();
+        socket.send(JSON.stringify({
+            "event": "START",
+            "message": matchdata.id
+        }));
         startContainer.classList.remove("active");
         gameContainer.classList.add("active");
         waitContainer.classList.remove("active");
-    }
+        socket.send(JSON.stringify({
+            "event": "DUSER",
+            "message": ""
+        }));
+
+   }
 
     function connectWebSocket() {
         socket = new WebSocket(`ws://127.0.0.1:8001/ws/play/${roomCode}/`);
 
         socket.onopen = function() {
-            console.log('WebSocket connection established.');
-            socket.send(JSON.stringify({
-                "event": "START",
-                "message": ""
-            }));
+            console.log("Here New pr")
         };
 
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
             const message = data.message;
             const eventType = data.event;
-
+            
             console.log("event type is ", eventType, "message is ", message);
             switch (eventType) {
                 case "CHOICE":
-                    charChoice = message; 
+                    charChoice = message;
+                    matchdata.chose = message;
                     wait_page();
                     break;
                 case "START":
@@ -192,14 +336,23 @@ function generateRoomCode() {
                     break;
                 case "END":
                     console.log('game over ', message, 'with ', eventType)
-                    resetGame();
+                    console.log("this char ", charChoice)
                     if (message.includes(charChoice)) {
-                        document.querySelector("#result").innerHTML = currentTurn + " win";
-                        // keep curent turn here
+                        document.querySelector("#result").innerHTML = charChoice + " win";
+                        if (message.includes(matchdata.chose))
+                        {
+                                matchdata.result = 1;
+                                matchdata.level +=0.1; 
+                        }   
+                        else
+                        {
+                            matchdata.result = 0;
+                            matchdata.level -=0.1; 
+                         }                      
                     } 
                     else {
-                        if (currentTurn === 'X')
-                        {
+                        if (message === 'X')
+                            {
                             document.querySelector("#result").innerHTML = 'O' + " loss";
                         }
                         else
@@ -207,24 +360,37 @@ function generateRoomCode() {
                             document.querySelector("#result").innerHTML = 'X' + " loss";
                         }
                     }
+                    console.log("res game ")
+                    resetGame(message);
                     break;
                 case "wait":
-                    wait_page(message);
+                    console.log("waitt")
+                    wait_page();
                     break;
                 case "DRAW":
-                    console.log('game Draw ', message, 'with ', eventType)
-                    resetGame();
+                    matchdata.result = 2;
+                    console.log("this is draw")
+                    resetGame(message);
                     break;
                 case "OVER":
-                    left_game(message);
+                    console.log("this is over")
+                    if (!is_gameOver)
+                        left_game(message);
+                    break;
+                case "USERS":
+                    if (message == 'Suser')
+                        hadnleSuser();
+                    else
+                        updateMatchData(message);
                     break;
             }
         };
 
         document.querySelectorAll('.square').forEach((element, index) => {
+
             element.addEventListener('click', function() {
                 if (validMove(index) && isPlayerTurn()) {
-                    console.log("this is Handle");
+
                     element.innerHTML = currentTurn;
                     const moveData = {
                         "event": "MOVE",
@@ -233,6 +399,7 @@ function generateRoomCode() {
                             "player": currentTurn
                         }
                     };
+                    console.log("sending ...");
                     socket.send(JSON.stringify(moveData));
                 }
             });
@@ -269,6 +436,25 @@ function generateRoomCode() {
             }
             
         }
+        function updateMatchData(message)
+        {
+            if (matchdata.id == message.user1)
+            {
+                matchdata.opponent = message.user2;
+            }
+            else
+            {
+                matchdata.opponent = message.user1;
+            }
+            console.log("Update Match ", matchdata.id, " ope ", matchdata.opponent);
+        }
+        function hadnleSuser()
+        {
+            console.log("in Suser");
+            gameContainer.classList.remove("active");
+            const same = document.querySelector(".same-User");
+            same.style.display = "flex";
+        }
         function initializeGame() {
             console.log("intitialze fuction");
             document.getElementById("alert_move").textContent = `Your are ${charChoice}`;
@@ -280,21 +466,40 @@ function generateRoomCode() {
             if (message === 'X')
             {
                     document.querySelector("#result").innerHTML = 'O' + " won";
+                    if (message === matchdata.chose)
+                    {
+                            matchdata.result = 0;
+                            matchdata.level -=0.1; 
+                    }
+                    else
+                    {
+                        matchdata.result = 1;
+                        matchdata.level+=0.1; 
+                    } 
             }
             else
             {
                 document.querySelector("#result").innerHTML = 'X' + " won";
+                if (message === matchdata.chose)
+                {
+                        matchdata.result = 0;
+                        matchdata.level -=0.1; 
+                }
+                else
+                {
+                    matchdata.result = 1;
+                    matchdata.level+=0.1; 
+                } 
             }
-            resetGame();
+            resetGame(message);
             console.log("this one left");
         }
-        function resetGame() {
+        function resetGame(message) {
             // document.querySelectorAll('.square').forEach((element) => {
             //     element.textContent = '';
             // });
             is_gameOver = true;
-            console.log('this restGame');
-
+            console.log('t his restGame');
             showResult.classList.add("active");
             showResult.style.display = "block";
             document.querySelector("#play-again").style.display = "block";
@@ -309,38 +514,37 @@ function generateRoomCode() {
                 [2, 4, 6]
             ];
             let boxes = document.querySelectorAll('.square');
-            // console.log('this boxes');
             for (let i = 0; i < WinCondation.length; i++)
-            {
-                // console.log('this boxes', i);
-                let v0 = boxes[WinCondation[i][0]].innerHTML;
-                let v1 = boxes[WinCondation[i][1]].innerHTML;
-                let v2 = boxes[WinCondation[i][2]].innerHTML;
-                console.log("the winner is ", v0);
+                {
+                    let v0 = boxes[WinCondation[i][0]].innerHTML;
+                    let v1 = boxes[WinCondation[i][1]].innerHTML;
+                    let v2 = boxes[WinCondation[i][2]].innerHTML;
+                    console.log("in win condatio with ", v0, v1, v2);
                 if (v0 != "" && v0 === v1 && v0 === v2){
-                    alert("fill the boxes.");
-                    // console.log('winner Chose');
                     for (let j = 0; j < 3; j++)
                     {
-                        boxes[WinCondation[i][j]].style.backgroundColor = "#00ffa2";
+                        if (message == charChoice)
+                            boxes[WinCondation[i][j]].style.backgroundColor = "#00ffa2";
+                        else
+                            boxes[WinCondation[i][j]].style.backgroundColor = "#e00d0d";
                         boxes[WinCondation[i][j]].style.color = "#000";
                     }
-                    // boxes.forEach(e =>
-                    //     {
-                    //         e.classList.add('filled');
-                    //     })
                 }
             }
-
+            postMatch();
+            disconnect();
         }
     }
     const playAgain = ()=> {
         is_gameOver = false;
+        disconnect();
         currentTurn = 'X'; 
-
         console.log('playAgain');
-        gameContainer.classList.remove('player-o-turn');
         room_is_created = false;
+        gameContainer.classList.remove('player-o-turn');
+        const same = document.querySelector(".same-User");
+        same.style.display = "none";
+        waitContainer.classList.remove("active")
         startContainer.classList.add("active");
         gameContainer.classList.remove("active");
         startContainer.style.display = "block";
@@ -355,6 +559,7 @@ function generateRoomCode() {
             // element.classList.remove('filled');
             element.textContent = '';
             element.style.removeProperty("background-color");
+            element.style.color = "white";
         });
     }
     document.querySelector("#play-again").addEventListener("click", playAgain);
@@ -363,13 +568,15 @@ function generateRoomCode() {
 
     const displayXoFunction = () => {
         freeze.classList.add("unclick");
-        app.style.display = "block";
+        app.style.display = "flex";
         const design = document.querySelector("#design");
         design.style.filter = "blur(3px)";
         const games = document.querySelector("#games");
         games.style.filter = "blur(3px)";
         const nav = document.querySelector("#nav");
         nav.style.filter = "blur(3px)";
+        const same = document.querySelector(".same-User");
+        same.style.display = "none";
     }
 
     const xoImgBtn = document.querySelector("#XO");
@@ -377,7 +584,6 @@ function generateRoomCode() {
 
     const closeGame = () => {
         freeze.classList.remove("unclick");
-        disconnect()
         playAgain();
         app.style.display = "none";
         document.querySelector("#design").style.filter = "blur(0px)";

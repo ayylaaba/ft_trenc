@@ -8,8 +8,6 @@ services:
       - oauth_volume:/django
     environment:
       - PYTHONUNBUFFERED=1
-    env_file:
-      - .env  # This loads the environment variables from the .env file
     ports:
       - "8080:8000" #host port changed to 8080
     networks:
@@ -22,23 +20,24 @@ services:
     image: postgres:16
     container_name: postgreDB
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: users_42
+      POSTGRES_USER: ayylaaba
+      POSTGRES_PASSWORD: password
     volumes:
       - /home/ayoub/data/db:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - 5433:5432
     networks:
       - nw
   nginx:
     build: ./nginx  # Ensure this points to your Nginx directory with the Dockerfile and nginx.conf
     ports:
+      - "80:80"
       - "443:443"
     depends_on:
       - remote_auth
     volumes:
-      - front_volume:/var/www/front
+      - front_volume:/var/www/front  # Front-end files volume
     networks:
       - nw
   redis:
@@ -52,6 +51,14 @@ services:
     build: ./Xo_Game/xo_game/
     ports:
       - 8001:8001
+    depends_on:
+      - postgreDB
+    networks:
+      - nw
+  pingpong:
+    build: ./PingPong/pinpong/pinpong/
+    ports:
+      - 8002:8002
     depends_on:
       - postgreDB
     networks:

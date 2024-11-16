@@ -6,6 +6,7 @@ class CustomerForm(UserCreationForm):
     class Meta:
         model = User_info
         fields = [
+            'id',
             'username',
             'fullname',
             'firstname',

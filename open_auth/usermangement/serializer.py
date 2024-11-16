@@ -13,7 +13,8 @@ class   MatchHistoricSerialzer(serializers.ModelSerializer):
             'user',
             'opponent',
             'result',
-            'create_at'
+            'level',
+            'Type'
         ]
 
 class   ProfileSerializer(serializers.ModelSerializer):
