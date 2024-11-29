@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Room
+from .models import XRoom
 
-class RoomSerializer(serializers.ModelSerializer):
+class XRoomSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Room
+        model = XRoom
         fields = ['id', 'code', 'created_at', 'players']

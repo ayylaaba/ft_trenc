@@ -7,7 +7,6 @@ import { chatPage } from "./chat.js";
 import { rankPart } from "./rank.js";
 import { friendsPart } from "./friends.js";
 
-const gameContainer = document.querySelector("#games-container");
 const recordGame = (matchData) => {
     const gameContainer = document.getElementById("games-container");
     const gameRecordHTML = `
@@ -28,10 +27,7 @@ const recordGame = (matchData) => {
     // Convert the HTML string to DOM elements
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = gameRecordHTML;
-    // const gameRecordElement = tempDiv.firstElementChild;
-
-    // Append the new game record element to the container
-    gameContainer.appendChild(tempDiv);
+    gameContainer.append(tempDiv);
 };
 
 export const profileFunction = async (dataObj) => {
@@ -51,6 +47,8 @@ export const profileFunction = async (dataObj) => {
         }
         document.querySelector("#welcome > h1").innerHTML = `Welcome ${dataObj.firstname} ${dataObj.lastname}!`;
     }
+    const gameContainer = document.querySelector("#games-container");
+    gameContainer.innerHTML = "";
     const response = await fetch("/user/get_match_history");
     if (response.ok) {
         const jsonData = await response.json();

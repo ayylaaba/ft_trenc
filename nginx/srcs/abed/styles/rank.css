@@ -127,7 +127,7 @@
     flex-direction: column;
     order: 2;
     align-self: start;
-    gap: 20px;
+    gap: 5px;
 }
 
 #gold i {
@@ -150,7 +150,7 @@
     border: 2px solid rgb(255, 215, 0);
     border-bottom-left-radius: 50%;
     border-bottom-right-radius: 50%;
-    background-image: url(../images/me.jpg);
+    /* background-image: url(../images/me.jpg); */
     background-size: cover;
     box-shadow: 0 0 15px rgb(255, 215, 0);
 }
@@ -167,17 +167,18 @@
     display: flex;
     flex-direction: column;
     order: 1;
-    gap: 20px;
+    gap: 5px;
     align-self: end;
 }
 
 #second-user-pic {
+    position: relative;
     width: 120px;
     height: 120px;
     border: 2px solid rgb(192, 192, 192);
     border-bottom-left-radius: 50%;
     border-bottom-right-radius: 50%;
-    background-image: url(../images/me.jpg);
+    /* background-image: url(../images/me.jpg); */
     background-size: cover;
     box-shadow: 0 0 10px rgb(192, 192, 192);
 }
@@ -202,17 +203,18 @@
     display: flex;
     flex-direction: column;
     order: 3;
-    gap: 20px;
+    gap: 5px;
     align-self: end;
 }
 
 #third-user-pic {
+    position: relative;
     width: 120px;
     height: 120px;
     border: 2px solid rgb(205, 127, 50);
     border-bottom-left-radius: 50%;
     border-bottom-right-radius: 50%;
-    background-image: url(../images/me.jpg);
+    /* background-image: url(../images/me.jpg); */
     background-size: cover;
     box-shadow: 0 0 10px rgb(205, 127, 50);
 }
@@ -273,8 +275,9 @@
 }
 
 .player-rank .player-pic {
-    background-image: url(../images/me.jpg);
+    /* background-image: url(../images/me.jpg); */
     background-size: cover;
+    background-position: center;
     width: 60px;
     height: 60px;
     border: 2px solid white;

@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
-from .models import Room
+from .models import XRoom
 
 connected_players = {}
 turn_tracker = {}
@@ -74,7 +74,7 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
             del connected_players[self.room_group_name]
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
     async def delete_room(self):
-        await sync_to_async(Room.objects.filter(code=self.room_code).delete)()
+        await sync_to_async(XRoom.objects.filter(code=self.room_code).delete)()
 
 
     async def receive(self, text_data):

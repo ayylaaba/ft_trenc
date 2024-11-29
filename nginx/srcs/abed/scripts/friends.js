@@ -430,6 +430,8 @@ export const friendsFunction = async() => {
         }
         friendsLoaded = 1;
         return jsonResponse.data;
+    } else {
+        return NULL;
     }
 }
 

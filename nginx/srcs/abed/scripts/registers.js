@@ -1,3 +1,4 @@
+
 const form = document.getElementById("form");
 const player1 = document.getElementById("player1");
 const player2 = document.getElementById("player2");
@@ -8,7 +9,12 @@ const player6 = document.getElementById("player6");
 const player7 = document.getElementById("player7");
 const player8 = document.getElementById("player8");
 let sameName = false;
+let bracket = [];
 
+
+export function rplayers(){
+	return bracket;
+}
 
 const handleSubmit = (e) => {
 	e.preventDefault();
@@ -29,12 +35,13 @@ const randomNumber = (i) =>{
 	return(Math.floor(Math.random() * i));
 }
 
-const fill = (element, pvalue, i) => {
+const fill = (element, pvalue, i, bracket) => {
 	let deleter = randomNumber(i);
 	console.log("length", i);
 	console.log(deleter);
 	console.log(pvalue[deleter]);
 	document.getElementById(element).value = pvalue[deleter];
+	bracket.push(pvalue[deleter]);
 	pvalue.splice(deleter,1);
 	console.log(pvalue);
 }
@@ -78,16 +85,17 @@ const validateInput = () =>{
 	{
 		hide(document.querySelector('.container'));
 		show(document.querySelector('.allbrackets'));
-		fill("player1B", pValue, pValue.length);
-		fill("player2B", pValue, pValue.length);
-		fill("player3B", pValue, pValue.length);
-		fill("player4B", pValue, pValue.length);
-		fill("player5B", pValue, pValue.length);
-		fill("player6B", pValue, pValue.length);
-		fill("player7B", pValue, pValue.length);
-		fill("player8B", pValue, pValue.length);
+		fill("player1B", pValue, pValue.length, bracket);
+		fill("player2B", pValue, pValue.length, bracket);
+		fill("player3B", pValue, pValue.length, bracket);
+		fill("player4B", pValue, pValue.length, bracket);
+		fill("player5B", pValue, pValue.length, bracket);
+		fill("player6B", pValue, pValue.length, bracket);
+		fill("player7B", pValue, pValue.length, bracket);
+		fill("player8B", pValue, pValue.length, bracket);
 	}
-	
+	console.log("brackets=====>");
+	console.log(bracket);
 	// console.log(pValue);
 	// if (p1Value === '')
 	// {

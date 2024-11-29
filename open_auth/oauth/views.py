@@ -27,7 +27,7 @@ from asgiref.sync        import async_to_sync
 from  usermangement .serializer      import ProfileSerializer
 
 client_id       = "u-s4t2ud-fa7692872a0200db78dfe687567cc55dd2a444234c7720f33c53e0a4286a7301"
-client_secret   = "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"
+client_secret   = "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"
 redirect_url    = "https://localhost/"
 authorization_url = "https://api.intra.42.fr/oauth/authorize"
 token_url = "https://api.intra.42.fr/oauth/token"
@@ -71,13 +71,15 @@ def     register_vu(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def     logout_vu(request):
-    print ("123----------------------------------------------------------\n")
+    print ("------------------------------------------------------------\n")
 
-    user = request.user
-    
+    user = User_info.objects.get(id=request.user.id)
+
     user.online_status = False
     user.save()
     
+    user = User_info.objects.get(id=request.user.id)
+
     frends = user.friends.all()  
     channel_layer = get_channel_layer()
     for friend_of_user in frends:
@@ -96,6 +98,8 @@ def     logout_vu(request):
         )
     if request.method == 'POST':
         logout(request)
+        print ("after logout user level : ", user.level, flush=True)
+        print ("after logout user score : ", user.score, flush=True)
         return (JsonResponse({'status':'success'}))
     else :
         return (JsonResponse({'status':'faild'}))
@@ -166,7 +170,11 @@ def callback(request):
         return JsonResponse({'status': 'error', 'message': 'No code provided'}, status=400)
 
     # Exchange the code for an access token
-    
+    # print("\033[1;35m ---> token **--** ", token_url, "\n")
+    # print("\033[1;35m ---> code  **--** ", code, "\n")
+    # print("\033[1;35m --->  redirect_url **--** ", redirect_url, "\n")
+    # print("\033[1;35m ---> client_id  **--** ", client_id, "\n")
+    # print("\033[1;35m ---> client_secret  **--** ", client_secret, "\n")
     necessary_info = {
         'grant_type': grant_type,
         'client_id': client_id,
@@ -246,7 +254,7 @@ def users_rank(request):
     user = request.user
     if user.is_authenticated:
         # Order users by `scoor` in descending order
-        users = User_info.objects.all().order_by('scoor')
+        users = User_info.objects.all().order_by('-score')
 
         # Serialize the ordered users
         users_serialized = ProfileSerializer(users, many=True)
@@ -254,22 +262,6 @@ def users_rank(request):
         return JsonResponse({'status': 'success', 'data': users_serialized.data})
     else:
         return JsonResponse({'status': 'error', 'message': 'User is not authenticated'}, status=400)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 """
 If the user is redirected to your callback URL with the following URL:

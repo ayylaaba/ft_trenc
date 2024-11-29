@@ -14,7 +14,8 @@ class   MatchHistoricSerialzer(serializers.ModelSerializer):
             'opponent',
             'result',
             'level',
-            'Type'
+            'Type',
+            'score',
         ]
 
 class   ProfileSerializer(serializers.ModelSerializer):
@@ -28,7 +29,8 @@ class   ProfileSerializer(serializers.ModelSerializer):
             'lastname',
             'email',
             'imageProfile',
-            'level'
+            'level',
+            'score'
         ]
 
 class   UserInfoSerializer(serializers.ModelSerializer):
@@ -42,7 +44,8 @@ class   UserInfoSerializer(serializers.ModelSerializer):
             'lastname',
             'email',
             'imageProfile',
-            'level'
+            'level',
+            'score'
         ]
 
 class       RequestFriendSerializer(serializers.ModelSerializer):

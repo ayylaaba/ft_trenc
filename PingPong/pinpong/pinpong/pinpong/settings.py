@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "daphne",
-    'game',
+    'pgame',
     'channels',
     'rest_framework',
     'corsheaders',

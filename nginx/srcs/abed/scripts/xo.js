@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
         chose:"",
         result:0,
         x_resuSuserlt:"",
+        score:0,
     };
     // const leftGameContainer = document.createElement("div");
 
@@ -78,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
     let room_is_created = false;
 
 function fetchUser(){
-    fetch('https://localhost/user/get_curr_user/', {
+    fetch('https://localhost/user/get_user_info/', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -97,10 +98,14 @@ function fetchUser(){
             matchdata.id = data.data.id;
             matchdata.user = data.data.id;
             matchdata.level = data.data.level;
-            console.log("LEVEL is ", matchdata.level, " User is ", matchdata.user, matchdata.id)
+            matchdata.score = data.data.score;
+            console.log("score is ", data.data.score);
+            console.log("******  ", matchdata , "*******")
         }
     })
 }
+fetchUser();
+
 function fetchcrtf(){
     fetch('https://localhost/get_csrf_token/', {
         method: 'GET',
@@ -137,10 +142,14 @@ function postMatch()
         user : matchdata.id,
         opponent: matchdata.opponent,
         result: matchdata.x_result,
-        level: 0,
+        level:  matchdata.level,
+        score: matchdata.score,
         Type: "XO"
     }
-    postdata.level= 1;
+    if (postdata.level < 0)
+        postdata.level = 0;
+    if (postdata.score < 0)
+        postdata.score = 0;
     console.log("crtf ", crtf);
     console.log("postdata ",postdata);
     fetch('https://localhost/user/store_match/', {
@@ -154,7 +163,7 @@ function postMatch()
 }
 async function fetchRoom() {
     try {
-        const response = await fetch('http://127.0.0.1:8001/api/rooms/');
+        const response = await fetch('http://127.0.0.1:8001/api/xrooms/');
         
         if (!response.ok) {
             console.log("No available rooms. Creating a new room...");
@@ -179,7 +188,7 @@ async function fetchRoom() {
 
 async function createRoom() {
     try {
-        const response = await fetch('http://127.0.0.1:8001/api/rooms/', {
+        const response = await fetch('http://127.0.0.1:8001/api/xrooms/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -197,67 +206,11 @@ async function createRoom() {
         console.error("Error creating room:", error);
     }
 }
-/*
-function fetchRoom() {
-    fetch('http://127.0.0.1:8001/api/rooms/')
-    .then(response => {
-        console.log("fetch room ", response.ok)
-        if (!response.ok) {
-            console.log("there is no room")
-            createRoom();
-            console.log("room was created")
-
-        }
-        return response.json();
-    })
-        .then(data => {
-            if (data) {
-                const room = data;
-                console.log("the room is ", room.code, " and num of player ", room.players);
-                if (room.players < 2) {
-                    console.log("********************************inside room num ", room.code, " and num of player ", room.players);
-                    roomCode = room.code;  
-                    console.log("Joining existing room with code: ", roomCode); 
-                    connectWebSocket();
-                    return ;
-                }
-                else {
-                    console.log("Room is full, creating a new room...");
-                    createRoom();  
-                }
-            }
-        })
-        .catch(error => {
-            console.error("Error fetching rooms:", error);
-        });
-    }
-    
-    
-    function createRoom() {
-        fetch('http://127.0.0.1:8001/api/rooms/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({"code": generateRoomCode()})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!roomCode)
-        {
-            roomCode = data.code;
-            console.log("Created new room with code: ", roomCode); 
-            wait_page();
-            connectWebSocket();
-        }
-    })
-    .catch(error => {
-        console.error("Error creating room:", error);
-    });
-}
-*/
 function disconnect() {
-    socket.close();
+    if (socket.readyState === WebSocket.OPEN) {
+        console.log("in closed");
+        socket.close();
+    }
 }
 
 
@@ -298,7 +251,7 @@ function startGame() {
    }
 
     function connectWebSocket() {
-        socket = new WebSocket(`ws://127.0.0.1:8001/ws/play/${roomCode}/`);
+        socket = new WebSocket(`ws://127.0.0.1:8001/ws/playx/${roomCode}/`);
 
         socket.onopen = function() {
             console.log("Here New pr")
@@ -342,12 +295,14 @@ function startGame() {
                         if (message.includes(matchdata.chose))
                         {
                                 matchdata.result = 1;
-                                matchdata.level +=0.1; 
+                                matchdata.level += 1; 
+                                matchdata.score +=15; 
                         }   
                         else
                         {
                             matchdata.result = 0;
-                            matchdata.level -=0.1; 
+                            matchdata.level -=1; 
+                            matchdata.score -= 10; 
                          }                      
                     } 
                     else {
@@ -469,12 +424,14 @@ function startGame() {
                     if (message === matchdata.chose)
                     {
                             matchdata.result = 0;
-                            matchdata.level -=0.1; 
+                            matchdata.level -=1; 
+                            matchdata.score -=10;
                     }
                     else
                     {
                         matchdata.result = 1;
-                        matchdata.level+=0.1; 
+                        matchdata.level += 1; 
+                        matchdata.score +=15; 
                     } 
             }
             else
@@ -483,12 +440,14 @@ function startGame() {
                 if (message === matchdata.chose)
                 {
                         matchdata.result = 0;
-                        matchdata.level -=0.1; 
+                        matchdata.level -=1; 
+                        matchdata.score -=10; 
                 }
                 else
                 {
                     matchdata.result = 1;
-                    matchdata.level+=0.1; 
+                    matchdata.level += 1;
+                    matchdata.score +=15; 
                 } 
             }
             resetGame(message);
@@ -537,7 +496,6 @@ function startGame() {
     }
     const playAgain = ()=> {
         is_gameOver = false;
-        disconnect();
         currentTurn = 'X'; 
         console.log('playAgain');
         room_is_created = false;

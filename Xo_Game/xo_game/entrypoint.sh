@@ -9,6 +9,9 @@ until pg_isready -h "$host"; do
   sleep 1
 done
 
+  sleep 5
+
+
 >&2 echo "Postgres is up - executing command"
 
 # Make migrations without user input

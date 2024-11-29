@@ -41,6 +41,7 @@ const showError = ()=> {
 const sideBtns = document.querySelectorAll(".nav-button");
 
 export const reloadFunction = async ()=> {
+    // alert("reload function");
     errorPage.style.display = "none";
     document.querySelector("#full-container").style.display = "flex";
     sideBtns.forEach (sideBtn => {sideBtn.classList.remove('link')});
@@ -86,7 +87,7 @@ export const navigateTo = (path) => {
     }
 }
 
-homeButton.addEventListener("click", () => {
+homeButton.addEventListener("click", () => { //only when i click the nav button the navigate called;
     navigateTo("/home");
 });
 profileButton.addEventListener("click", () => {
@@ -115,9 +116,10 @@ loginBtn.addEventListener("click", ()=> {
 
 import { flag, socketFunction } from "./scripts/socket.js";
 
-window.addEventListener('popstate', ()=> navigateTo("forback"));
-document.addEventListener("DOMContentLoaded", () => {
-    navigateTo("current")
+window.addEventListener('popstate', ()=> navigateTo("forback")); // this is to check navigation backward or forward;
+
+document.addEventListener("DOMContentLoaded", () => { // this is on reload page (refresh);
+    navigateTo("current");
     if (!flag) {
         socketFunction();
     }

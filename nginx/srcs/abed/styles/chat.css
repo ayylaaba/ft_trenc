@@ -1,14 +1,33 @@
 @media (min-width: 0px) and (max-width: 575px) {
+    #secondd button {
+        display: block !important;
+    }
     #chat-page {
-        width: 100%;
+        border-left: none !important;
+        margin-top: 205px !important;
+        margin-left: 8px !important;
+        width: 95% !important;
+    }
+    #chats {
+        height: 100% !important;
     }
     #chat-part {
         margin: 20px 0 0 0 !important;
         width: 100% !important;
         min-width: 320px !important;
+        height: fit-content !important;
+        min-height: 711px !important;
     }
     #players {
-        display: none;
+        margin-top: 6px;
+        position: absolute !important;
+        height: 200px !important;
+        width: 95% !important;
+        border: 2px solid black !important;
+        overflow-y: auto;
+    }
+    #firstt {
+        display: none !important;
     }
     #messages {
         width: 100% !important;
@@ -74,6 +93,65 @@
     }
 }
 
+
+#chat2 {
+    width: 150px;
+    height: 200px;
+    border: 1px solid white;
+    position: absolute;
+    right: 4px;
+    top: 100%;
+    /* display: none; */
+    flex-direction: column;
+}
+
+.user2 {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+
+.block-style2 {
+    border: 2px solid black;
+    width: 80px !important;
+    height: 40px !important;
+    background-color: #9a2833;
+    color: white;
+    position: absolute;
+    right: -3px;
+    top: 17%;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-dots {
+    position: absolute;
+    right: 11%;
+}
+
+.block-style {
+    border: 2px solid black;
+    width: 138px !important;
+    height: 50px !important;
+    background-color: #9a2833;
+    color: white;
+    position: absolute;
+    right: -3px;
+    top: 45%;
+    z-index: 1000;
+}
+
 .dropdown {
     display: none;
 }
@@ -130,6 +208,7 @@
     border-radius: 10px;
     width: 90%;
     height: 12%;
+    min-height: 80px;
     margin: 15px auto;
 }
 #firstt {
@@ -210,15 +289,25 @@
     background-color: rgb(0, 12, 45, 0.80);
 }
 
+#secondd button {
+    display: none;
+    position: absolute;
+    right: 5%;
+}
+
 #chats, #chats2 {
     background-color: rgb(0, 12, 45, 0.90);
     border-radius: 10px;
     box-shadow: 0 0 10px #0e1c1f;
-    width: 100%;
+    /* width: 100%; */
     height: 80%;
     margin: auto;
     overflow-y: auto;
 }
+
+/* #chats2 { */
+    /* display: none; */
+/* } */
 
 ::-webkit-scrollbar {
     width: 5px;

@@ -25,22 +25,6 @@
     #second {
         border: none !important;
     }
-    /* #profile-part {
-        width: 100vw !important;
-        margin-top: 100px !important;
-        height: 640px !important;
-    } */
-    /* #profile-container {
-        height: 768px !important;
-        width: 100vw !important;
-    }
-    #profile-part #statistics {
-        margin-top: 20px;
-        height: 410px !important;
-    } */
-    /* #match-history {
-        height: 400px !important;
-    } */
     #user-picture {
         margin-top: 10px !important;
         bottom: 0 !important;
@@ -92,10 +76,6 @@
     #match-history {
         height: 100% !important;
     }
-    /* #profile-part {
-        width: 80vw !important;
-        height: 640px !important;
-    } */
     #user-picture {
         margin-top: 10px !important;
         bottom: 0 !important;
@@ -113,14 +93,6 @@
     #games-container {
         height: 100% !important;
     }
-    /* #profile-container {
-        height: 768px !important;
-        width: 100% !important;
-    } */
-    /* #profile-part #statistics {
-        margin-top: 20px;
-        height: 410px !important;
-    } */
     .game-record {
         width: 98% !important;
         gap: 0 !important;
@@ -131,9 +103,6 @@
     .game-record h2 {
         font-size: 16px;
     }
-    /* #match-history {
-        height: 400px !important;
-    } */
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
@@ -220,7 +189,6 @@
     box-shadow: 0 0 5px #4fb0c6;
     border-radius: 20px;
     width: 75vw;
-    /* max-height: 90vh; */
     background-image: url(../images/2.jpeg);
     background-size: cover;
 }
@@ -290,11 +258,10 @@
     height: 64px;
     width: 64px;
     border: 2px solid aqua;
-
+    background-position: center;
 }
 
 #me {
-    /* background-image: url(../images/me.jpg); */
     background-size: cover;
 }
 
@@ -314,7 +281,6 @@
 }
 
 #enemy {
-    /* background-image: url(../images/1.jpeg); */
     background-size: cover;
 }
 
@@ -332,14 +298,11 @@
 
 #user-info h2 {
     color: aquamarine !important;
-    /* text-align: center; */
     font-size: 20px !important;
     font-weight: bold;
 }
 
 #user-info h4 {
-    /* color: rgb(194, 223, 213) !important;
-    text-align: center; */
     font-size: 13px !important;
     font-weight: bold;
     margin-top: 7px;
@@ -352,7 +315,6 @@
     width: 128px;
     height: 128px;
     background-position: center;
-    /* background-image: url(../images/me.jpg); */
     background-size: cover;
     background-repeat: no-repeat;
     border-radius: 50%;
@@ -371,26 +333,11 @@
     height: 128px;
 }
 
-/* #user-picture > i {
-    font-size: 64px;
-    position: absolute;
-    left: 32px;
-    top: 25px;
-    color: #c6e1dc;
-} */
-
-/* #first-empty {
-    height: 100%;
-} */
-
 .uInfo {
     color: #c6e1dc;
 }
 
 #first {
-    /* width: 40%; */
-    /* background-color: #4fb0c6; */
-    /* margin: 10px auto; */
     border-right: 2px solid white;
 }
 
@@ -414,9 +361,3 @@
 .progress-bar-animated {
     background-color: #0a496b;
 }
-
-/* #profile-part > h2 {
-    color: whitesmoke;
-    text-align: center;
-    font-size: 50px;
-} */

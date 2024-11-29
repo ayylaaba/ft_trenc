@@ -1,0 +1,42 @@
+# version: '3.8'
+
+# services:
+#   chatapp:
+#     image: chat_image
+#     container_name: chat
+#     build: .
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - PYTHONUNBUFFERED=1
+#     depends_on:
+#       - redis
+#     env_file:
+#       - .env
+#   pgadmin:
+#     image: dpage/pgadmin4
+#     environment:
+#       PGADMIN_DEFAULT_EMAIL: "hicham@example.com"
+#       PGADMIN_DEFAULT_PASSWORD: "123"
+#     ports:
+#       - "5050:80"
+#   postgresql:
+#     image: postgres:latest
+#     container_name: postgres
+#     restart: on-failure:5
+#     environment:
+#       POSTGRES_DB: chat
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: 123
+#     volumes:
+#       - database-postgres:/var/lib/postgresql/data
+#     ports:
+#       - '5432:5432'
+#   redis:
+#     image: redis:latest
+#     container_name: redis
+#     ports:
+#       - 6379:6379
+  
+# volumes:
+#   database-postgres:

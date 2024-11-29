@@ -9,4 +9,5 @@ urlpatterns=[
     path('login/', views.login_vu,  name='login'),
     path('logout/', views.logout_vu,  name='logout'),
     path('users_rank/', views.users_rank,  name='users_rank')
+
 ]

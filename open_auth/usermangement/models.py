@@ -16,9 +16,12 @@ class           MatchHistoric(models.Model):
     opponent    = models.ForeignKey(User_info, related_name="opponent", on_delete=models.CASCADE)
     result      = models.CharField(max_length=10)
     Type        = models.CharField(max_length=20, default="")
-    level       = models.IntegerField(default=0) 
-    # models.DateTimeField(auto_now_add = True)
+    level       = models.IntegerField(default=0)
+    score       = models.IntegerField(default=0)
 
+    # models.DateTimeField(auto_now_add = True)
+    def __str__(self):
+        return f"Match: {self.user.username} vs {self.opponent.username} - Result: {self.result}"
 # related_name allows you to query the related objects in reverse:
 
 # You can find all friend requests sent by John (ID 1) using john.sent_requests.all().

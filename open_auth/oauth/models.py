@@ -22,10 +22,10 @@ class User_info(AbstractUser):
     email     = models.EmailField(unique=True, null=True, blank=True)
     friends   = models.ManyToManyField('self', blank=True)
     online_status = models.BooleanField(default=False)   
-    level    = models.IntegerField(default = 0)
-    scoor    = models.IntegerField(default = 0)
+    level    = models.IntegerField(default=0)
+    score    = models.IntegerField(default=0)
+
     # understand this #
- 
     groups = models.ManyToManyField(
         Group,
         related_name="oauth_user_set",  # Changed related_name to avoid conflict
