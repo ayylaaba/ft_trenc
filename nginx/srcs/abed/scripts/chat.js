@@ -1,6 +1,8 @@
 export const chatButton = document.querySelector("#chat");
 export const chatPage = document.querySelector("#chat-part");
 let chatSocket = null;
+let roomCode;
+let thisSocket = null;
 
 import { profileId } from "./profile.js";
 import { main } from "./home.js";
@@ -14,13 +16,6 @@ import { createRoom } from "./game.js";
 
 
 /************************* */
-
-function generateRoomCode() {
-    return  Math.random().toString(36).substring(2, 8).toUpperCase();
-    
-}
-
-
 
 
 /********************************** */
@@ -200,7 +195,7 @@ const data_characters = async () => {
     const thisCurrUser = await newDataFunc();
     const chats1 = document.querySelector("#chats");
     //kharjha mnhana
-    const thisSocket = await socketFunction();
+    thisSocket = await socketFunction();
     let room_id = 0;
     let check = "";
 
@@ -285,16 +280,13 @@ const data_characters = async () => {
                         document.getElementById(`play-${character.id}`).addEventListener('click', async function (e) {
                             
                             if (check.etat === false) {
-                                //create room with code
-                                let roomCode = generateRoomCode();
-                                createRoom();
+ 
                                 thisSocket.send(JSON.stringify({
                                     'type': 'requestFriend',
                                     'recipient_id': character.id,
                                     'sender_id': thisCurrUser.id,
                                     'sender': thisCurrUser.username,
                                     'recipient': character.username,
-                                    'roomcode': roomCode
                                 }));
                             }
                             else{

@@ -42,7 +42,7 @@ class FriendRequestConsumer(WebsocketConsumer):
             sender = data['sender']
             recipient = data['recipient']
 
-            print(f"----->>>>>>>  receive {recipient_id} {recipient} __ {sender_id} {sender}")
+            print(f"----->>>>>>>  receive {recipient_id} {recipient} __ {sender_id} {sender}  ")
             friends = self.user.friends.all()
             for friend in friends:
                 if friend.id == recipient_id:
@@ -53,7 +53,7 @@ class FriendRequestConsumer(WebsocketConsumer):
                         'type': 'play_invitation',
                         'author': sender,
                         'sender_id': sender_id,
-                        'recipient': recipient
+                        'recipient': recipient,
                     }
         )
 
@@ -63,15 +63,17 @@ class FriendRequestConsumer(WebsocketConsumer):
             recipient = data['recipient']
             sender = data['sender']
             senderId = data['sender_id']
+            Groomcode = data['roomcode']
             confirmation = data.get('confirmation')
-            print(f">>>>>>>>>>>>> recive {recipient} __ {confirmation},,, {senderId}")
-
+            print(f">>>>>>>>>>>>> response {recipient} __ {confirmation},,, {senderId}")
+            print("not Here")
             async_to_sync(self.channel_layer.group_send) (
             f'user_{senderId}',
             {
                 'type': 'response_invitation',
                 "recipient": recipient,
                 "confirmation": confirmation,
+                'roomcode':Groomcode
             },
         )
         if data.get('type') == 'request_block':
@@ -167,11 +169,12 @@ class FriendRequestConsumer(WebsocketConsumer):
         # author = event["author"]
         recipient = event["recipient"]
         confirmation = event["confirmation"]
-
+        Groomcode = event['roomcode']
         self.send(text_data=json.dumps ({
                 'type': 'response_invitation',
                 'recipient': recipient,
                 'confirmation': confirmation,
+                'roomcode': Groomcode
         }))
     
     def notify_user_status(self, event):

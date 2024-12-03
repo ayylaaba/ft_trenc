@@ -5,5 +5,4 @@ from django.db import models
 class Proom(models.Model):
     code = models.CharField(max_length=8, unique=True)
     players = models.IntegerField(default=0)
-    password = models.CharField(max_length=8)
     is_reserved = models.IntegerField(default=0)

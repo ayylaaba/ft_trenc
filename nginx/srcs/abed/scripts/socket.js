@@ -1,11 +1,14 @@
 import { friendsFunction, suggestionsFunction, requestsFunction, createRequestCards, createFriendCards, createSuggestionCard, sendIdToBackend } from "./friends.js";
 import { mainFunction, lookForUsers } from "./home.js";
 import { notificationFunction, notifBtn } from "./notification.js";
+import { createRoom } from "./game.js";
+import { fettchTheRoom  } from "./game.js";
 
 export let flag = 0;
 export let socket = null;
 export let check_status = false;
 let count = 0;
+let roomCode
 
 export const createToast = (message, timeAgo) => {
     // Create toast HTML structure
@@ -77,14 +80,18 @@ export const socketFunction = async () => {
 
                 const yesss = document.querySelector("#yesss");
                 const nooo = document.querySelector("#nooo");
-                yesss.addEventListener("click", ()=> {
-                    
+                yesss.addEventListener("click",  async ()=> {
+                    //create room with code
+                    let dataGame =  await createRoom(1);
+                    roomCode = dataGame.code;
+                    console.log("room code ", roomCode)
                     socket.send(JSON.stringify ({
                         'type': 'response',
                         'sender' : sender,
                         'sender_id': sender_id,
                         'recipient': recipient,
-                        'confirmation': true
+                        'confirmation': true,
+                        'roomcode': roomCode
                     }))
                     cardDiv.remove();
                 });
@@ -96,7 +103,8 @@ export const socketFunction = async () => {
                         'sender' : sender,
                         'sender_id': sender_id,
                         'recipient': recipient,
-                        'confirmation': false
+                        'confirmation': false,
+                        'roomcode': ""
                     }))
                     cardDiv.remove();
                 });
@@ -105,28 +113,29 @@ export const socketFunction = async () => {
                     cardDiv.remove();
                 }, 10000);
             }
-            if (data.type === 'response_invitation' && count == 0) {
+            if (data.type === 'response_invitation') {
 
                 count = 1;
                 const _confirm = data['confirmation'];
                 const recipient = data['recipient'];
-                console.log('----------- hellolooooooooooooooo');
-    
+                
+                console.log('-------------> helloooo');
+
                 if (_confirm){
+                    console.log("room code in case accept ", data['roomcode'])
+                    let roomToGET = data['roomcode']
                     console.log('check is true');
+                    fettchTheRoom(roomToGET);
                 }
                 else {
                     console.log('check is false');
                 }
             }
-            else if (count == 1)
-                count = 0;
             if (data.type === 'response_block') {
 
                 count = 1;
                 const block_id = data['block_id'];
                 const etat = data['etat'];
-
                 const dots = document.querySelector(`#user-${block_id}`);
                 
                 if (etat === true) {

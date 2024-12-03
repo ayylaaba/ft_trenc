@@ -5,7 +5,6 @@ from    django.http             import JsonResponse
 from rest_framework.decorators  import api_view
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
-from django.db import transaction
 
 @api_view(['POST'])
 def store_match(request):
@@ -22,21 +21,17 @@ def store_match(request):
     # Update user level and score
     user_db.level = request.data.get('level')
     user_db.score = request.data.get('score')
-    # print ("score : ", request.data.get('score'))
-    # print ("result : ", request.data.get('result'))
+    print ("score : ", request.data.get('score'))
+    print ("result : ", request.data.get('result'))
 
     if request.data.get('result') == "won":
         user_db.win  += 1
-    if request.data.get('result') == "loss":
-        user_db.loss += 1
+    if request.data.get('result') == "loss" and user_db.loss > 0:
+        user_db.loss -= 1
 
-    
     user_db.save()
     user_db.refresh_from_db()  # Ensure fresh data is loaded from DB
-    User_info.objects.update_or_create(
-        id=user.id,  # Match on the unique user ID
-        defaults=user_db,  # Update the fields with this data
-    )
+
     # Invalidate cache for the user
     cache_key = f"user_profile_{user.id}"
     cache.delete(cache_key)
@@ -49,7 +44,6 @@ def store_match(request):
     match_serialize = MatchHistoricSerialzer(data=request.data)
     if match_serialize.is_valid():
         match_serialize.save()
-        # Register the callback
         return JsonResponse({'data': match_serialize.data, 'status': '200'})
 
     return JsonResponse({'data': match_serialize.errors, 'status': '400'})

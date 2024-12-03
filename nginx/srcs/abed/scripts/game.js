@@ -117,7 +117,7 @@ var socket = null;
 		else{
 			await fetchUser();
 			wait_page();
-			await createRoom();
+			await createRoom(0);
 		}
 	});
 
@@ -210,7 +210,7 @@ var socket = null;
 	}
 	
 
-	async function createRoom() {
+	export async function  createRoom(is_reserved) {
 		try
 		{
 			const res = await fetch('http://127.0.0.1:8002/api/prooms/', {
@@ -220,14 +220,17 @@ var socket = null;
 				},
 				body: JSON.stringify({
 					"code": generateRoomCode(),
-					"type": gameType
+					"type": gameType,
+					'is_reserved':is_reserved
 				})
 			})
 	    	let data = await res.json()
 	    	    roomCode = data.code;
+				console.log("game room code is ", roomCode);
 	    	    console.log("Created new room with code: ", roomCode); 
 	    	    wait_page();
 	    	    connectWebSocket();
+				return data;
 		}
 	    catch(error )
 		{
@@ -242,13 +245,37 @@ var socket = null;
 		}
 	}
 
-async function fetchRoom() {
+
+export async function fettchTheRoom(Theroom){
+	try{
+		console.log("the room code is ", Theroom);
+		const response = await fetch(`http://127.0.0.1:8002/api/fprooms/room/${Theroom}/`);
+        if (!response.ok) {
+            console.log("No available rooms. Creating a new room...");
+            return await createRoom(0);
+        }
+        
+        const room = await response.json();
+        console.log("Fetched room:", room);
+
+
+            console.log(`Joining room ${room.code} with ${room.players} players.`);
+            roomCode = room.code;
+            connectWebSocket();
+    } catch (error) {
+        console.error("Error fetching or creating room:", error);
+    }
+}
+
+
+export async function fetchRoom() {
     try {
+		console.log("not here ")
         const response = await fetch('http://127.0.0.1:8002/api/prooms/');
         
         if (!response.ok) {
             console.log("No available rooms. Creating a new room...");
-            return await createRoom();
+            return await createRoom(0);
         }
         
         const room = await response.json();
@@ -260,7 +287,7 @@ async function fetchRoom() {
             connectWebSocket();
         } else {
             console.log("Room is full, creating a new room...");
-            await createRoom();
+            await createRoom(0);
         }
     } catch (error) {
         console.error("Error fetching or creating room:", error);
@@ -381,21 +408,21 @@ async function fetchRoom() {
 		console.log("this semi bracket have ", semi);
 		console.log("pmatch  is ", pmatch)
 		if (pmatch < 4 ){
-			createRoom();
+			createRoom(0);
 			app.style.display = "flex";
 			startContainer.classList.remove("active");
 			startContainer.style.display = "none";
 			pmatch += 1;
 		}
 		else if (pmatch < 6 && pmatch > 3){
-			createRoom();
+			createRoom(0);
 			app.style.display = "flex";
 			startContainer.classList.remove("active");
 			startContainer.style.display = "none";
 			pmatch += 1;
 		}
 		else{
-			createRoom();
+			createRoom(0);
 			app.style.display = "flex";
 			startContainer.classList.remove("active");
 			startContainer.style.display = "none";
