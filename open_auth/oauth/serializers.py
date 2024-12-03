@@ -48,4 +48,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)  # Hash the password
         user.save()
         return user
-

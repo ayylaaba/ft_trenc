@@ -13,6 +13,21 @@
     margin: 50px;
 }
 
+.announce{
+    display: none;
+}
+
+.pressEnter
+{
+    position: absolute;
+    border-radius: 10px;
+    bottom: 1%;
+    right: 1%;
+    color: whitesmoke;
+    border: 1px solid whitesmoke;
+    background: linear-gradient(274deg, rgba(2, 0, 36, 1) 0%, rgb(49 6 6) 0%, rgb(0, 21, 52) 100%);
+    padding: 20px;
+}
 
 #player1Score {
 	color: #ff0000;
@@ -28,6 +43,26 @@
 }
 
 
+
+#play-again
+{
+    background-color: #FF2E63;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.5s;
+    display: none;
+     margin: auto;
+}
+
+#play-again:hover
+{
+    padding: 10px 40px;
+    background-color: #08D9D6;
+    color:#000;
+}
 
 #player2Score {
 	color: #0095DD;
@@ -288,7 +323,8 @@ canvas
 
 #choose-mode {
     display: none;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
     position: absolute;
     z-index: 100;

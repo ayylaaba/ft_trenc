@@ -88,6 +88,10 @@
     display: none;
 }
 
+.player-rank .usernamee {
+    width: 70px;
+}
+
 #rank-part {
     display: none;
     width: 80%;
@@ -150,9 +154,9 @@
     border: 2px solid rgb(255, 215, 0);
     border-bottom-left-radius: 50%;
     border-bottom-right-radius: 50%;
-    /* background-image: url(../images/me.jpg); */
     background-size: cover;
     box-shadow: 0 0 15px rgb(255, 215, 0);
+    background-position: center;
 }
 
 #gold p {
@@ -178,9 +182,9 @@
     border: 2px solid rgb(192, 192, 192);
     border-bottom-left-radius: 50%;
     border-bottom-right-radius: 50%;
-    /* background-image: url(../images/me.jpg); */
     background-size: cover;
     box-shadow: 0 0 10px rgb(192, 192, 192);
+    background-position: center;
 }
 
 #silver p {
@@ -214,9 +218,9 @@
     border: 2px solid rgb(205, 127, 50);
     border-bottom-left-radius: 50%;
     border-bottom-right-radius: 50%;
-    /* background-image: url(../images/me.jpg); */
     background-size: cover;
     box-shadow: 0 0 10px rgb(205, 127, 50);
+    background-position: center;
 }
 
 #bronze i {
@@ -253,6 +257,7 @@
 }
 
 #first-col, #second-col {
+    margin-top: 2%;
     display: flex;
     flex-direction: column;
     align-items: center;

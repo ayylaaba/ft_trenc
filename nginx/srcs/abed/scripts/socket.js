@@ -1,9 +1,11 @@
 import { friendsFunction, suggestionsFunction, requestsFunction, createRequestCards, createFriendCards, createSuggestionCard, sendIdToBackend } from "./friends.js";
 import { mainFunction, lookForUsers } from "./home.js";
-import { notificationFunction, notifDiv } from "./notification.js";
+import { notificationFunction, notifBtn } from "./notification.js";
 
 export let flag = 0;
 export let socket = null;
+export let check_status = false;
+let count = 0;
 
 export const createToast = (message, timeAgo) => {
     // Create toast HTML structure
@@ -52,22 +54,130 @@ export const socketFunction = async () => {
         };
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
+            const recipient = data.recipient;
+            const sender = data['author'];
+            const sender_id = data['senderId'];
+            
+            if (data.type === 'play_invitation') {
+                
+                console.log('check yes', count);
+
+                const _confirm = `
+                    <p>You have been invited to pong match with ${sender}</p>
+                    <div id="yesno">
+                        <button id="yesss" style="color: white; border: none; width: 90px; border-radius: 10px; background-color: green; height: 35px;">Yes</button>
+                        <button id="nooo" style="color: white; border: none; width: 90px; border-radius: 10px; background-color: #b32d2d; height: 35px;">NO</button>
+                    </div>
+                `;
+                const cardDiv = document.createElement("div");
+                cardDiv.id = "Pong-invitation";
+                cardDiv.innerHTML = _confirm.trim();
+                const bodyElement = document.querySelector("body");
+                bodyElement.append(cardDiv);
+
+                const yesss = document.querySelector("#yesss");
+                const nooo = document.querySelector("#nooo");
+                yesss.addEventListener("click", ()=> {
+                    
+                    socket.send(JSON.stringify ({
+                        'type': 'response',
+                        'sender' : sender,
+                        'sender_id': sender_id,
+                        'recipient': recipient,
+                        'confirmation': true
+                    }))
+                    cardDiv.remove();
+                });
+                nooo.addEventListener("click", () => {
+                    console.log("check no");
+                    count = 0;
+                    socket.send(JSON.stringify ({
+                        'type': 'response',
+                        'sender' : sender,
+                        'sender_id': sender_id,
+                        'recipient': recipient,
+                        'confirmation': false
+                    }))
+                    cardDiv.remove();
+                });
+                
+                setInterval(()=> {
+                    cardDiv.remove();
+                }, 10000);
+            }
+            if (data.type === 'response_invitation' && count == 0) {
+
+                count = 1;
+                const _confirm = data['confirmation'];
+                const recipient = data['recipient'];
+                console.log('----------- hellolooooooooooooooo');
+    
+                if (_confirm){
+                    console.log('check is true');
+                }
+                else {
+                    console.log('check is false');
+                }
+            }
+            else if (count == 1)
+                count = 0;
+            if (data.type === 'response_block') {
+
+                count = 1;
+                const block_id = data['block_id'];
+                const etat = data['etat'];
+
+                const dots = document.querySelector(`#user-${block_id}`);
+                
+                if (etat === true) {
+                    if (dots) {
+                        dots.addEventListener('click', function() {
+                            event.preventDefault();
+                        });
+                        dots.disabled = true;
+                    }
+                }
+                else {
+                    if (dots) {
+                        dots.addEventListener('click', function() {
+                            event.preventDefault();
+                        });
+                        dots.disabled = false;
+                    }
+                }
+            }
             if (data.status === 'success') {
                 if (data.option === 'receive_frd_req'){
                     const bellNotif = document.createElement("div");
                     bellNotif.id = "bell-notif";
-                    notifDiv.append(bellNotif);
-                    notificationFunction(data.data.from_user.username, data.data.from_user.imageProfile);
+                    notifBtn.append(bellNotif);
+                    localStorage.setItem("notifications", true);
+                    // notificationFunction(data.data.from_user.username, data.data.from_user.imageProfile);
                     console.log("receive: ", data.data);
-                    suggestionsFunction();
-                    requestsFunction();
+                    notifBtn.addEventListener("click", () => {
+                        localStorage.setItem("notifications", false);
+                        bellNotif.remove()
+                    });
+                    // suggestionsFunction();
+                    // requestsFunction();
                     const acceptBtnsListen = document.querySelectorAll(".add .accept");
                     for(let i = 0; i < acceptBtnsListen.length; i++) {
+                        console.log("Acceptttttttttt 2222222222222222222");
                         acceptBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "accept"));
                     }
                     const refuseBtnsListen = document.querySelectorAll(".delete .refuse");
                     for(let i = 0; i < refuseBtnsListen.length; i++) {
                         refuseBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "refuse"));
+                    }
+                    console.log("Before Acceptttttttttt");
+                    const acceptBtnsNotifListen = document.querySelectorAll("#notifications .acc-req");
+                    for(let i = 0; i < acceptBtnsNotifListen.length; i++) {
+                        console.log("Acceptttttttttt");
+                        acceptBtnsNotifListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "accept"));
+                    }
+                    const refuseBtnsNotifListen = document.querySelectorAll("#notifications .ref-req");
+                    for(let i = 0; i < refuseBtnsNotifListen.length; i++) {
+                        refuseBtnsNotifListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "refuse"));
                     }
                 }
                 if (data.option === 'accepte_request'){
@@ -103,12 +213,12 @@ export const socketFunction = async () => {
                     }
                     const onlineIcon = document.querySelector(`#online-icon-${data.data.id}`);
                     console.log("the icon: ", onlineIcon);
-                    if (onlineIcon && data.data.online_status) {
+                    if (data.data.online_status) {
                         createToast(data.data.username, 'just now');
                         onlineIcon.style.color = "green";
                         onlineIcon.style.filter = "drop-shadow(0 0 1px green)";
                         localStorage.setItem(`online_status_${data.data.id}`, 'online');  // Store online status
-                    } else if (onlineIcon && !data.data.online_status) {
+                    } else if (!data.data.online_status) {
                         onlineIcon.style.color = "red";
                         onlineIcon.style.filter = "drop-shadow(0 0 1px red)";
                         localStorage.setItem(`online_status_${data.data.id}`, 'offline');  // Store offline status
@@ -121,4 +231,5 @@ export const socketFunction = async () => {
             flag = 0;
         };
     }
+    return socket;
 }

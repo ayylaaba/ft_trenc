@@ -12,7 +12,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Arsenal+SC:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="styles/xo.css">
     <link rel="stylesheet" href="styles/friends.css">
@@ -134,7 +133,7 @@
     <!-- toast to apply later when someone is loggedin -->
     <div id="freeze"></div>
     <div id="error" class="error_style" style="display: none;">
-        <h1>Oops Somthing went wrong!</h1>
+        <h1>Oops Something went wrong!</h1>
         <h3>404 Not Found</h3>
     </div>
     <div class="container-fluid">
@@ -158,6 +157,7 @@
                 </div>
                 <div id="game_over">
                     <h1 id="result1">You Win</h1>
+                    <button id="play-again">Play Again</button> <!-- Moved here -->
                 </div>
             </div>
             <!-- login part -->
@@ -267,6 +267,12 @@
                     </div> -->
                 </div>
                 <!-- main part -->
+
+                <div class="justify-content-center" id="loading-spinner">
+                    <div class="spinner-border" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>                
                 <div id="main" style="display: none;" >
                     <div id="home-navbar">
                         <div id="search-bar">
@@ -278,7 +284,7 @@
                                 <div class="btn"><i class="fa-solid fa-bell"></i></div>
                             </div>
                             <div id="profile-pict">
-                                <div><i class="fa-solid fa-user"></i></div>
+                                <div class="btn"><i class="fa-solid fa-user"></i></div>
                             </div>
                         </div>
                     </div>
@@ -335,26 +341,26 @@
                                     </div>
                                     <div id="us">
                                         <h3 style="align-self: center;">mhassani</h3>
-                                        <h5 style="align-self: center;">2560</h5>
+                                        <h5 id="profile-score" style="align-self: center;">2560</h5>
                                     </div>
                                     <!-- <i class="fa-solid fa-user"></i> -->
                                 </div>
                                 <div class="col-12 col-lg-6 uInfo" id="second">
                                     <div class="par" style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
-                                        <h4>Level42</h4>
-                                        <h4>2560/3000</h4>
+                                        <h4 id="level-id">42 - 20%</h4>
+                                        <!-- <h4>2560/3000</h4> -->
                                     </div>
                                     <div class="progress">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 55%" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div id="progress-profile" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                     <div class="par" style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
                                         <h4>Next level</h4>
-                                        <h4>43</h4>
+                                        <h4 id="next-level-id">43</h4>
                                     </div>
                                 </div>
                                 <div class="col-12 col-lg-4 uInfo d-flex justify-content-center align-items-center" id="third">
-                                    <h3>wins: 42</h3>
-                                    <h3>loses: 0</h3>
+                                    <h3 id="profile-wins">wins: 42</h3>
+                                    <h3 id="profile-loses">loses: 0</h3>
                                 </div>
                             </div>
                             <div class="row" id="statistics">

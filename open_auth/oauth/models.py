@@ -24,6 +24,9 @@ class User_info(AbstractUser):
     online_status = models.BooleanField(default=False)   
     level    = models.IntegerField(default=0)
     score    = models.IntegerField(default=0)
+    win     = models.IntegerField(default=0)
+    loss    = models.IntegerField(default=0)
+    draw    = models.IntegerField(default=0)
 
     # understand this #
     groups = models.ManyToManyField(

@@ -2,12 +2,12 @@
 // let defaultName = username || 'Stranger';
 // console.log(defaultName); // Prints: Stranger
 
-import { friendsBtn, friendsFunc, createRequestCards, createSuggestionCard, createFriendCards, friendsFunction,  sendIdToBackend } from "./scripts/friends.js";
+import { friendsPart, friendsBtn, friendsFunc, createRequestCards, createSuggestionCard, createFriendCards, friendsFunction,  sendIdToBackend } from "./scripts/friends.js";
 import { homeButton, mainFunction } from "./scripts/home.js";
-import { profileButton, profileFunction } from "./scripts/profile.js";
-import { rankBtn, rankFunct } from "./scripts/rank.js";
-import { chatButton, chatFunction } from "./scripts/chat.js";
-import { settingButton, settingFunction} from "./scripts/setting.js";
+import { profileButton, profileFunction, profileId } from "./scripts/profile.js";
+import { rankBtn, rankFunct, rankPart } from "./scripts/rank.js";
+import { chatButton, chatFunction, chatPage } from "./scripts/chat.js";
+import { settingButton, settingFunction, settingPage} from "./scripts/setting.js";
 import { logoutBtn, showLogin } from "./scripts/logout.js";
 import { dataObject } from "./scripts/login.js";
 
@@ -22,7 +22,6 @@ export const newDataFunc = async ()=> {
 }
 
 const loginBtn = document.querySelector(".login-btn");
-
 const errorPage = document.querySelector("#error")
 
 const showError = ()=> {
@@ -40,37 +39,68 @@ const showError = ()=> {
 
 const sideBtns = document.querySelectorAll(".nav-button");
 
-export const reloadFunction = async ()=> {
-    // alert("reload function");
+export const reloadFunction = async () => {
     errorPage.style.display = "none";
     document.querySelector("#full-container").style.display = "flex";
-    sideBtns.forEach (sideBtn => {sideBtn.classList.remove('link')});
+    sideBtns.forEach(sideBtn => {
+        sideBtn.classList.remove('link');
+    });
     if (location.pathname === "/home" || location.pathname === "/") {
         sideBtns[0].classList.add('link');
-        mainFunction();
+        await mainFunction();
     } else if (location.pathname === "/profile") {
         const updateDataObj = await newDataFunc();
         sideBtns[1].classList.add('link');
         profileFunction(updateDataObj);
     } else if (location.pathname === "/friends") {
         sideBtns[2].classList.add('link');
-        friendsFunc();
+        await friendsFunc();
     } else if (location.pathname === "/rank") {
         sideBtns[3].classList.add('link');
-        rankFunct();
+        await rankFunct();
     } else if (location.pathname === "/chat") {
         sideBtns[4].classList.add('link');
-        chatFunction();
+        await chatFunction();
     } else if (location.pathname === "/setting") {
         const updateDataObj = await newDataFunc();
         sideBtns[5].classList.add('link');
         settingFunction(updateDataObj);
     } else {
-        showError() // need to implemet better front.
+        showError(); // Display an error message.
+    }
+};
+
+export const showLinkStyle = () => {
+    sideBtns.forEach(sideBtn => {
+        sideBtn.classList.remove('link');
+    });
+    if (location.pathname === "/home" || location.pathname === "/") {
+        sideBtns[0].classList.add('link');
+    } else if (location.pathname === "/profile") {
+        sideBtns[1].classList.add('link');
+    } else if (location.pathname === "/friends") {
+        sideBtns[2].classList.add('link');
+    } else if (location.pathname === "/rank") {
+        sideBtns[3].classList.add('link');
+    } else if (location.pathname === "/chat") {
+        sideBtns[4].classList.add('link');
+    } else if (location.pathname === "/setting") {
+        sideBtns[5].classList.add('link');
     }
 }
+export const main = document.querySelector("#main");
 
-export const navigateTo = (path) => {
+const hideAll = () => {
+    profileId.style.display = "none";
+    settingPage.style.display = "none";
+    chatPage.style.display = "none";
+    rankPart.style.display = "none";
+    friendsPart.style.display = "none";
+    main.style.display = "none";
+    document.querySelector("#full-container").style.display = "flex";
+}
+
+export const navigateTo = async (path) => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (path != "forback" && path != "current")
     {
@@ -81,7 +111,13 @@ export const navigateTo = (path) => {
     document.querySelector("#nav").style.display = "flex";
     document.querySelector("#login-parent").style.display = "none";
     if (isLoggedIn) {
-        reloadFunction();
+        const loadingSpinner = document.querySelector("#loading-spinner");
+        loadingSpinner.style.display = "block";
+        hideAll();
+        showLinkStyle();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await reloadFunction();
+        loadingSpinner.style.display = "none";
     } else {
         showLogin();
     }
@@ -105,9 +141,9 @@ chatButton.addEventListener("click", () => {
 settingButton.addEventListener("click", () => {
     navigateTo("/setting");
 });
-logoutBtn.addEventListener("click", ()=> {
-    navigateTo("/");
-});
+// logoutBtn.addEventListener("click", ()=> {
+//     navigateTo("/");
+// });
 loginBtn.addEventListener("click", ()=> {
     navigateTo("/home");
 });

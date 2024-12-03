@@ -29,7 +29,8 @@ let flag = 0;
 let matchBlock = document.createElement("div");
 const homeNav = document.querySelector("#home-navbar");
 
-export const lookForUsers = ()=> {
+export const lookForUsers = (event)=> {
+    event.stopPropagation();
     document.querySelectorAll(".match-element").forEach(el => {
         el.remove();
     })
@@ -38,6 +39,7 @@ export const lookForUsers = ()=> {
         flag = 0;
     }
     frdsArr.forEach(element => {
+        matchBlock.style.display = "flex";
         if (element.username.includes(searchInput.value.toLowerCase()) && searchInput.value != "") {
             if (flag === 0) {
                 matchBlock.classList.add("match-block");
@@ -52,6 +54,7 @@ export const lookForUsers = ()=> {
             const usernameImage = document.createElement("div");
             usernameImage.style.backgroundImage = `url(${element.imageProfile})`;
             usernameImage.style.backgroundSize = "cover";
+            usernameImage.style.backgroundPosition = "center";
             usernameImage.style.width = "44px";
             usernameImage.style.height = "44px";
             usernameImage.style.border = "white 1px solid";
@@ -79,26 +82,40 @@ export const lookForUsers = ()=> {
 
 searchInput.addEventListener("input", lookForUsers);
 
+searchInput.addEventListener("click", (e)=> {
+    e.stopPropagation();
+    matchBlock.style.display = "flex";
+});
+
 import { logoutFuntion } from "./logout.js";
 
 const profilePict = document.querySelector("#profile-pict");
-let clicked = 0;
-let logoutt;
+const profBtn = document.querySelector("#profile-pict .btn");
+const notifButton = document.querySelector("#notif .btn");
 
 const showLogout = ()=> {
-    if (window.innerWidth <= 575) {
-        if (!clicked) {
-            logoutt = document.createElement("div");
-            logoutt.classList.add("logout-phone");
-            logoutt.innerHTML = `<h3 class="btn btn-danger" style="color: white">Logout</h3>`;
-            main.append(logoutt);
-            clicked++;
-            logoutt.addEventListener("click", logoutFuntion);
-        } else {
-            logoutt.remove();
-            clicked = 0;
+    const logoutPhone = document.querySelector(".logout-phone");
+    if (!logoutPhone) {
+        const notifications = document.querySelector("#notifications");
+        if (notifications) {
+            notifButton.style.backgroundColor = "#2f1e65";
+            notifications.remove();
         }
+        profBtn.style.backgroundColor = "#522d91";
+        const logoutt = document.createElement("div");
+        logoutt.classList.add("logout-phone");
+        logoutt.innerHTML = `<button class="btn btn-danger" style="color: white">Logout</button>`;
+        profilePict.append(logoutt);
+        const buttonLogout = document.querySelector(".logout-phone button");
+        buttonLogout.addEventListener("click", logoutFuntion);
+    }
+    else {
+        profBtn.style.backgroundColor = "#2f1e65";
+        logoutPhone.remove();
     }
 }
 
-profilePict.addEventListener("click", showLogout);
+profilePict.addEventListener("click",(event) => {
+    event.stopPropagation();
+    showLogout();
+});

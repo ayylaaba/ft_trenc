@@ -82,7 +82,12 @@ const loginFunction = async (event) => {
         if (jsonResponse.status === "success") {
             const sideBtns = document.querySelectorAll(".nav-button");
             sideBtns[0].classList.add('link');
-            showHome(jsonResponse.data);
+            const loginParent = document.querySelector("#login-parent");
+            loginParent.style.display = "none";
+            const loadingSpinner = document.querySelector("#loading-spinner"); // Show the loading spinner
+            loadingSpinner.style.display = "block";
+            await reloadFunction();
+            loadingSpinner.style.display = "none";
             localStorage.setItem('isLoggedIn', 'true');
             console.log("flag: ", flag);
             if (!flag) {

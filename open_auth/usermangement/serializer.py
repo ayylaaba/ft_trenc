@@ -46,6 +46,7 @@ class   UserInfoSerializer(serializers.ModelSerializer):
             'imageProfile',
             'level',
             'score'
+
         ]
 
 class       RequestFriendSerializer(serializers.ModelSerializer):

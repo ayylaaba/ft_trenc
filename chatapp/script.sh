@@ -2,7 +2,7 @@
 
 set -e
 
-host="postgreDB"  # Set this to your PostgreSQL host name
+host="chat_db"  # Set this to your PostgreSQL host name
 
 until pg_isready -h "$host"; do
   >&2 echo "Postgres is unavailable - sleeping"

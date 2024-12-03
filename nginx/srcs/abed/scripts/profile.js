@@ -31,6 +31,7 @@ const recordGame = (matchData) => {
 };
 
 export const profileFunction = async (dataObj) => {
+    console.log("pro data: ", dataObj)
     main.style.display = "none";
     settingPage.style.display = "none";
     chatPage.style.display = "none";
@@ -44,6 +45,22 @@ export const profileFunction = async (dataObj) => {
         }
         if (dataObj.imageProfile != undefined) {
             document.querySelector("#user-picture").style.backgroundImage = `url(${dataObj.imageProfile})`;
+        }
+        if (dataObj.level != undefined) {
+            //1 /10 = 0 + 1 % 10 = 1 0.1
+            let curr_level = parseInt(dataObj.level / 10);
+            let to_next_level = (dataObj.level % 10) * 10;
+            let next_level = parseInt(curr_level + 1);
+            document.querySelector("#level-id").innerHTML = `${curr_level} - ${to_next_level}%`;
+            document.querySelector("#next-level-id").innerHTML = `${next_level}`;
+            document.querySelector("#progress-profile").style.width = `${to_next_level}%`;
+        }
+        if (dataObj.win != undefined) {
+            document.querySelector("#profile-wins").innerHTML = `Wins: ${dataObj.win}`;
+        } if (dataObj.loss != undefined) {
+            document.querySelector("#profile-loses").innerHTML = `Loses: ${dataObj.loss}`;
+        } if (dataObj.score != undefined) {
+            document.querySelector("#profile-score").innerHTML = `${dataObj.score}`;
         }
         document.querySelector("#welcome > h1").innerHTML = `Welcome ${dataObj.firstname} ${dataObj.lastname}!`;
     }

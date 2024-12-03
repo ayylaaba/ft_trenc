@@ -1,6 +1,6 @@
 import { rplayers } from "./registers.js";
 
-var socket;
+var socket = null;
 
 document.addEventListener("DOMContentLoaded", () =>  {
 	
@@ -12,12 +12,11 @@ document.addEventListener("DOMContentLoaded", () =>  {
 	img.src = "./img2.jpg";
 	let semi = [];
 	let final = [];
-	let isTourn = false;
-	let gameStart = false;
-	let tour1;
-	let tour2;
 	let bracket;
 	let pmatch = 0;
+	let isTourn = false;
+	let gameStart = false;
+	let noMatch = false;
 	let ballPosition = { x: 400, y: 200 }; 
 	let ballRadius = 10;
 	let paddle1 = {
@@ -29,18 +28,63 @@ document.addEventListener("DOMContentLoaded", () =>  {
 	let paddle2 = {
         x: 10,        
         y: 110,       
-        w: 5,        
+        w: 5,
         h: 80,        
     };
+	let matchdata = 
+    {
+        id:0,
+        level:0,
+        user:0,
+        opponent:0,
+        chose:"",
+        result:0,
+        x_resuSuserlt:"",
+        score:0,
+        userName:"",
+        openName:"",
+    };
+	let crtf;
 	/*******************************************************************************************************/
 	//																	My change
 	/*******************************************************************************************************/
+	
 	const startContainer = document.createElement("div");
 	const waitContainer = document.createElement("div");
 	const app = document.getElementById('pingpong-game');
 	const main_counter = document.getElementById("main_counter");
 	const gameContainer = document.getElementById("game-container1")
 	const game_over = document.getElementById("game_over"); 
+	//newwwwwwwwwwwwwwwww 
+	const closeBtn = document.createElement("button");
+	closeBtn.type = "button";
+	closeBtn.classList.add("btn-close");
+	closeBtn.ariaLabel = "Close";
+	const bodyElement = document.querySelector("body");
+	const header = document.createElement("h1");
+	header.id = "header-mode";
+	header.innerHTML = `CHOOSE MODE`;
+	const parent = document.createElement("div");
+	const container = document.createElement("div");
+	container.id = "cont-modes";
+	parent.id = "choose-mode";
+	const twoPlayers = document.createElement("div");
+	twoPlayers.id = "two-players";
+	twoPlayers.classList.add("mode");
+	twoPlayers.innerHTML = `Two Players.`
+	const tournament = document.createElement("div");
+	tournament.id = "tournament";
+	tournament.classList.add("mode");
+	tournament.innerHTML = `Tournament.`;
+	const remote = document.createElement("div");
+	remote.id = "remote";
+	remote.classList.add("mode");
+	remote.innerHTML = `Remote.`
+	container.append(twoPlayers, tournament, remote);
+	parent.append(header, container);
+	bodyElement.append(parent);
+	parent.append(header, container, closeBtn);
+
 	startContainer.className = "start-container1";
 	waitContainer.className = "wait-container1";
 	let gameType;
@@ -58,85 +102,170 @@ document.addEventListener("DOMContentLoaded", () =>  {
 		<div class="loading-text1">Loading<span class="dots1"></span></div>
 	</div>
 	`;
-
 	app.appendChild(startContainer);
 	app.appendChild(waitContainer);
 	app.append(game_over);
-	document.getElementById("startGame1").addEventListener("click", function() {
+	document.getElementById("startGame1").addEventListener("click", async function() {
 		wait_page();
-		if (gameType == "remote")
-			fetchRoom();
-		else
-			createRoom();
+		if (gameType == 'remote')
+			{
+				await fetchUser();
+				wait_page();
+				await fetchRoom();
+
+			}
+		else{
+			await fetchUser();
+			wait_page();
+			await createRoom();
+		}
 	});
 
 	window.addEventListener("beforeunload", (event) => {
-		if (socket.readyState === WebSocket.OPEN) {
+		if (socket && socket.readyState === WebSocket.OPEN) {
 			console.log("in closed");
 			socket.send(JSON.stringify({ type: "close" }));
 		}
 	});
-	function createRoom() {
-		fetch('http://127.0.0.1:8002/api/prooms/', {
+
+	async function fetchUser(){
+		const res = await fetch('https://localhost/user/get_curr_user/', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+		})
+		
+		if (!res.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+		}
+		let data = await res.json();  
+		if (data.status === '400') {
+			console.log('User is not authenticated:', data.data);
+		} else {
+			matchdata.id = data.data.id;
+			matchdata.user = data.data.id;
+			matchdata.level = data.data.level;
+			matchdata.userName = data.data.username;
+			matchdata.score = data.data.score
+			matchdata.result = -1;
+			console.log("full name is ", data.data.score);
+			console.log("LEVEL is ", matchdata.level, " User is ", matchdata.user, matchdata.id)
+		}
+	}
+
+	function fetchcrtf(){
+		fetch('https://localhost/get_csrf_token/', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+			return response.json();  
+		})
+		.then(data => {
+			if (data.status === '400') {
+				console.log('User is not authenticated:', data.data);
+			} else {
+				crtf = data.csrfToken;
+			}
+		})
+	}
+	function postMatch()
+	{
+		console.log("match result is ", matchdata.result);
+		if (matchdata.result == 0)
+			matchdata.x_result = "lose";
+		else
+			matchdata.x_result = "won";
+	
+		let postdata = 
+		{
+			id : matchdata.id,
+			user : matchdata.id,
+			opponent: matchdata.opponent,
+			result: matchdata.x_result,
+			level:  matchdata.level,
+			score: matchdata.score,
+			Type: "PONG"
+		}
+		if (postdata.level < 0)
+			postdata.level = 0;
+		if (postdata.score < 0)
+			postdata.score = 0;
+		console.log("crtf ", crtf);
+		console.log("postdata ",postdata);
+		fetch('https://localhost/user/store_match/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				'X-CSRFToken': crtf
 			},
-			body: JSON.stringify({
-				"code": generateRoomCode(),
-				"type": gameType
-			})
+			body: JSON.stringify(postdata)
 		})
-	    .then(response => response.json())
-	    .then(data => {
-	        roomCode = data.code;
-	        console.log("Created new room with code: ", roomCode); 
-	        wait_page();
-	        connectWebSocket();
-	    })
-	    .catch(error => {
+	}
+	
+
+	async function createRoom() {
+		try
+		{
+			const res = await fetch('http://127.0.0.1:8002/api/prooms/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					"code": generateRoomCode(),
+					"type": gameType
+				})
+			})
+	    	let data = await res.json()
+	    	    roomCode = data.code;
+	    	    console.log("Created new room with code: ", roomCode); 
+	    	    wait_page();
+	    	    connectWebSocket();
+		}
+	    catch(error )
+		{
 	        console.error("Error creating room:", error);
-	    });
+	    }
 	}
 
-	function disconnect() {
-	    socket.close();
+	function disconnect()
+	{
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			socket.close();
+		}
 	}
 
-	function fetchRoom() {
-	    fetch('http://127.0.0.1:8002/api/prooms/')
-	    .then(response => {
-	        if (!response.ok) {
-	            console.log("No available rooms, creating a new room...");
-	            createRoom();
-	            room_is_created = true;
-	            console.log("room was created");
-	        }
-	        console.log("we are about to return ");
-	        return response.json();
-	    })
-	        .then(data => {
-	            if (data && !room_is_created) {
-	                const room = data;
-	                console.log("the room is ", room.code, " and num of player ", room.players);
-	                if (room.players < 2) {
-	                    console.log("********************************inside room num ", room.code, " and num of player ", room.players);
-	                    roomCode = room.code;  
-	                    console.log("Joining existing room with code: ", roomCode); 
-	                    wait_page();
-	                    connectWebSocket();
-	                    return ;
-	                }
-	                else {
-	                    console.log("Room is full, creating a new room...");
-	                    createRoom();  
-	                }
-	            }
-	        }) 
-	        .catch(error => {
-	            console.error("Error fetching rooms:", error);
-	        });
-	}
+async function fetchRoom() {
+    try {
+        const response = await fetch('http://127.0.0.1:8002/api/prooms/');
+        
+        if (!response.ok) {
+            console.log("No available rooms. Creating a new room...");
+            return await createRoom();
+        }
+        
+        const room = await response.json();
+        console.log("Fetched room:", room);
+
+        if (room.players < 3) {
+            console.log(`Joining room ${room.code} with ${room.players} players.`);
+            roomCode = room.code;
+            connectWebSocket();
+        } else {
+            console.log("Room is full, creating a new room...");
+            await createRoom();
+        }
+    } catch (error) {
+        console.error("Error fetching or creating room:", error);
+    }
+}
 
 	function connectWebSocket() {
 		socket = new WebSocket(`ws://127.0.0.1:8002/ws/playp/${roomCode}/`);
@@ -151,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 		socket.onmessage = function(event) {
 			const data = JSON.parse(event.data);
 			if (data.type === "GAME_STATE") {
-				const ball = data.ball				// Extract ball and paddle datal;
+				const ball = data.ball				
 				const paddle_serv1 = data.paddle1;
 				const paddle_serv2 = data.paddle2;
 				ballPosition.x = ball.x;
@@ -171,11 +300,34 @@ document.addEventListener("DOMContentLoaded", () =>  {
 				console.log("pad num is ", pad_num)
 			}
 			else if (data.event == 'START')
-				start_game();
+				{
+					console.log("in start");
+					start_game();
+				}
 			else if (data.event == 'END')
 				Game_over(data.message);
-			else if (data.event == "LEFT")
+			else if (data.event == "LEFT" && gameType == "remote"){
+				noMatch = true;
 				left_game(data.pad_num);
+			}
+			else if (data.event  == "USERS")
+			{
+				let message = data.message
+				if (matchdata.id == message.user1)
+				{
+					matchdata.opponent = message.user2;
+					matchdata.openName = message.userName2;
+				}
+				else
+				{
+					matchdata.opponent = message.user1;
+					matchdata.openName = message.userName1;
+	
+				}
+				console.log("Update Match ", matchdata.id, " ope ", matchdata.opponent);
+				console.log("message.userName", message)
+
+			}
 		};
 	}
 	
@@ -192,18 +344,34 @@ document.addEventListener("DOMContentLoaded", () =>  {
 	function start_game(){
 		console.log("start")
 		console.log("tourn mod");
+		wait_page();
+		fetchcrtf();
+        socket.send(JSON.stringify({
+            "type": "START",
+            "message": {
+                "id": matchdata.id,
+                "name": matchdata.userName
+            }
+        }));
         startContainer.classList.remove("active");
 		waitContainer.classList.remove("active");
 		main_counter.style.display = "block";
 		let Tournament = document.querySelector('.allbrackets');
 		Tournament.style.display = "none";
+		resetDOM()
 		runAnimation();
 		setTimeout(() => {
 			socket.send(JSON.stringify({ type: "start"}));
-			gameContainer.style.display = "block";
+			if (!noMatch)
+				gameContainer.style.display = "block";
 			renderGame();
 			
-		}, 3000)
+		}, 3500)
+		socket.send(JSON.stringify({
+            "type": "DUSER",
+            "message": ""
+        }));
+
 		gameStart = true;
 
 	}
@@ -213,7 +381,6 @@ document.addEventListener("DOMContentLoaded", () =>  {
 		console.log("this semi bracket have ", semi);
 		console.log("pmatch  is ", pmatch)
 		if (pmatch < 4 ){
-			console.log("QUARTET")
 			createRoom();
 			app.style.display = "flex";
 			startContainer.classList.remove("active");
@@ -221,7 +388,6 @@ document.addEventListener("DOMContentLoaded", () =>  {
 			pmatch += 1;
 		}
 		else if (pmatch < 6 && pmatch > 3){
-			console.log("Semi Final");
 			createRoom();
 			app.style.display = "flex";
 			startContainer.classList.remove("active");
@@ -229,7 +395,6 @@ document.addEventListener("DOMContentLoaded", () =>  {
 			pmatch += 1;
 		}
 		else{
-			console.log("Final")
 			createRoom();
 			app.style.display = "flex";
 			startContainer.classList.remove("active");
@@ -239,10 +404,15 @@ document.addEventListener("DOMContentLoaded", () =>  {
 		}
 	}
 	function update_tournment(){
+		console.log("this is working ...");
 		app.style.display = "none";
 		let Tournament = document.querySelector('.allbrackets');
 		Tournament.style.display = "flex";
-		resetDOM();
+		let curr_matach1 = " Blue is " + bracket[0];
+		let curr_matach2 = " Red is " + bracket[1];
+
+		document.querySelector("#announce1").innerHTML = curr_matach1 + " vs ";
+		document.querySelector("#announce2").innerHTML = curr_matach2;
 		// update player 
 	}
 
@@ -269,10 +439,15 @@ document.addEventListener("DOMContentLoaded", () =>  {
 					else{
 						semi.push(bracket[1]);
 					}
-					document.getElementById("1stbracket").value = semi[0];
-					document.getElementById("2ndbracket").value = semi[1];
-					document.getElementById("3rdbracket").value = semi[2];
-					document.getElementById("4thbracket").value = semi[3];
+					console.log("semi lent ", semi.length, "semi elemnt ", semi);
+					if (semi.length == 1)
+						document.getElementById("1stbracket").value = semi[0];
+					else if (semi.length == 2) 
+						document.getElementById("2ndbracket").value = semi[1];
+					else if (semi.length == 3)
+						document.getElementById("3rdbracket").value = semi[2];
+					else if (semi.length == 4)
+						document.getElementById("4thbracket").value = semi[3];
 					if (bracket.length - 2 > 0)
 						bracket.splice(0, 2);
 				}
@@ -281,8 +456,10 @@ document.addEventListener("DOMContentLoaded", () =>  {
 						final.push(semi[0]);
 					else
 						final.push(semi[1]);
-					document.getElementById("Finalist1").value = final[0];
-					document.getElementById("Finalist2").value = final[1];
+					if (final.length == 1)
+						document.getElementById("Finalist1").value = final[0];
+					else if (final.length == 2)
+						document.getElementById("Finalist2").value = final[1];
 					semi.splice(0, 2);
 				}
 				if (pmatch == 7)
@@ -299,15 +476,25 @@ document.addEventListener("DOMContentLoaded", () =>  {
 				update_tournment();
 			}
 		}
-		else if (gameType == 'remote')
-		{
 
+		else if (gameType == "remote")
+		{
+			console.log("pad num is ", pad_num, "winner iis ",parseInt(winner) )
 			if (pad_num == parseInt(winner))
 			{
 				gameContainer.style.display = "none";
 				game_over.style.display = "block";
-				if (pad_num == 0)
+				document.getElementById("result1").innerHTML = "You  Win";
+				if (pad_num == 0){
 					game_over.style.backgroundColor = "#0095DD";
+				}
+				else
+				{
+					game_over.style.backgroundColor =  "#ff0000";
+				}
+				matchdata.score += 30;
+				matchdata.result = 1;
+				matchdata.level += 1;
 			}
 			else
 			{
@@ -316,7 +503,34 @@ document.addEventListener("DOMContentLoaded", () =>  {
 				document.getElementById("result1").innerHTML = "You lose";
 				if (pad_num == 0)
 					game_over.style.backgroundColor = "#0095DD";
+				else
+					game_over.style.backgroundColor =  "#ff0000";
+				matchdata.score -= 20;
+				matchdata.result = 0;
+				matchdata.level -= 1;
 			}
+			postMatch();
+			document.querySelector("#play-again").style.display = "block";
+		}
+		else 
+		{
+			if (0 == parseInt(winner))
+				{
+					gameContainer.style.display = "none";
+					game_over.style.display = "block";
+					game_over.style.backgroundColor = "#0095DD";
+					document.getElementById("result1").innerHTML = "Blue  Won";
+				}
+				else
+				{
+					gameContainer.style.display = "none";
+					game_over.style.display = "block";
+					document.getElementById("result1").innerHTML = "Red  Won";
+					game_over.style.backgroundColor =  "#ff0000";
+
+
+				}
+				document.querySelector("#play-again").style.display = "block";
 		}
 	}
 
@@ -325,10 +539,18 @@ document.addEventListener("DOMContentLoaded", () =>  {
 		if (left_pad == pad_num){
 			console.log("you lose");
 		}
-		else{
-			console.log("you ve Won");
+		else
+		{
+			if (left_pad == 0){
+				Game_over(1);
+			}
+			else{
+				Game_over(0);
+			}
 		}
 	}
+
+
 
 	function generateRoomCode() {
 	    return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -366,7 +588,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 
 	}
 
-	document.addEventListener("keydown", (event) => {
+	document.addEventListener("keydown",  (event) => {
 		if (gameType == 'remote'){
 			if (gameStart && (event.key === "ArrowUp")) {
 				socket.send(JSON.stringify({ 
@@ -377,7 +599,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 			} 
 			else if (gameStart && (event.key === "ArrowDown"))
 			{
-				socket.send(JSON.stringify({ 
+				 socket.send(JSON.stringify({ 
 					type: "move", 
 					move: "Down", 
 					pad_num: pad_num 
@@ -390,7 +612,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 				socket.send(JSON.stringify({ 
 					type: "move", 
 					move: "Up", 
-					pad_num: 1 
+					pad_num: 0 
 				}));
 			}
 			else if (gameStart && (event.key === "ArrowDown"))
@@ -398,14 +620,14 @@ document.addEventListener("DOMContentLoaded", () =>  {
 				socket.send(JSON.stringify({ 
 					type: "move", 
 					move: "Down", 
-					pad_num: 1 
+					pad_num: 0 
 				}));
 			}
 			if (gameStart && (event.key === "w" || event.key === "W")) {
 				socket.send(JSON.stringify({ 
 					type: "move", 
 					move: "Up", 
-					pad_num: 0 
+					pad_num: 1 
 				}));
 			}
 			else if (gameStart && (event.key === "s" || event.key === "S"))
@@ -413,7 +635,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 				socket.send(JSON.stringify({ 
 					type: "move", 
 					move: "Down", 
-					pad_num: 0 
+					pad_num: 1 
 				}));
 			}
 
@@ -438,7 +660,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 				socket.send(JSON.stringify({ 
 					type: "move", 
 					move: "Stop", 
-					pad_num: 1
+					pad_num: 0
 				}));
 			}
 			else if (gameStart && (event.key === "w" || event.key === "W" || event.key === "s" || event.key === "S" ))
@@ -446,7 +668,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 				socket.send(JSON.stringify({ 
 					type: "move", 
 					move: "Stop", 
-					pad_num: 0
+					pad_num: 1
 				}));
 			}
 		}
@@ -454,6 +676,8 @@ document.addEventListener("DOMContentLoaded", () =>  {
 
 	document.addEventListener("keydown", (event) => {
 		if (event.key === "Enter") {
+			if (Array.isArray(bracket) && !bracket.length)
+				bracket = rplayers();
 			if (Array.isArray(bracket) && bracket.length) 
 			{
 				console.log("successfully!");
@@ -492,30 +716,13 @@ document.addEventListener("DOMContentLoaded", () =>  {
 	/* ************************************ Abed Changes ******************************************* */
 	
 	const handlePlayBtn = () => {
-		const bodyElement = document.querySelector("body");
-		const header = document.createElement("h1");
-		header.id = "header-mode";
-		header.innerHTML = `CHOOSE MODE`;
-		const parent = document.createElement("div");
-		const container = document.createElement("div");
-		container.id = "cont-modes";
-		parent.id = "choose-mode";
-		const twoPlayers = document.createElement("div");
-		twoPlayers.id = "two-players";
-		twoPlayers.classList.add("mode");
-		twoPlayers.innerHTML = `Two Players.`
-		const tournament = document.createElement("div");
-		tournament.id = "tournament";
-		tournament.classList.add("mode");
-		tournament.innerHTML = `Tournament.`;
-		const remote = document.createElement("div");
-		remote.id = "remote";
-		remote.classList.add("mode");
-		remote.innerHTML = `Remote.`
-		container.append(twoPlayers, tournament, remote);
+
+		// --------------------------------- //
 		parent.append(header, container);
 		bodyElement.append(parent);
-		// --------------------------------- //
+		parent.append(header, container, closeBtn);
+		header.style.display = "flex";
+		container.style.display = "flex";
 		parent.style.display = "flex";
 		const handleRemoteGame = () => {
 			gameType = 'remote';
@@ -523,6 +730,8 @@ document.addEventListener("DOMContentLoaded", () =>  {
 			header.style.display = "none";
 			parent.append(app);
 			app.style.display = "flex";
+			startContainer.classList.add("active");
+			startContainer.style.display = "block";
 		}
 
 		remote.addEventListener("click", handleRemoteGame);
@@ -549,16 +758,58 @@ document.addEventListener("DOMContentLoaded", () =>  {
 			header.style.display = "none";
 			parent.append(app);
 			app.style.display = "flex";
+			
+			startContainer.classList.add("active");
+			startContainer.style.display = "block";
 		}
 		twoPlayers.addEventListener("click", handleLocaleGame);
 		const closeGame = () => {
 			parent.style.display = "none";
-			// playAgain();
+			startContainer.classList.remove("active");
+			startContainer.style.display = "none";
+			gameType = "";
+			app.style.display = "none";
+			counter.classList.add('hide');
+	
+			nums.forEach(num => {
+				num.classList.value = '';
+			});
+	
+			nums[0].classList.add('out');
+			// const TournamentContainer2 = document.querySelector('.allbrackets');
+			// TournamentContainer2.style.display = "none";
+			// const parent = document.querySelector("#choose-mode");
+			// parent.append(TournamentContainer2);
+			playAgain();
 		}
 
 		closeBtn.addEventListener("click", closeGame);
 	}
 
+	const playAgain = () =>{
+		disconnect();
+		document.querySelector("#play-again").style.display = "none";
+		roomCode = "";
+		room_is_created = false;
+		pad_num = 0;
+		semi = [];
+		final = [];
+		bracket = [];
+		pmatch = 0;
+		matchdata = [];
+		game_over.style.display = "none";
+		gameContainer.style.display = "none";
+		startContainer.classList.add("active");
+	    startContainer.style.display = "block";
+		const TournamentContainer = document.querySelector('.container');
+		TournamentContainer.style.display = "none";
+		if (gameType == "tourn")
+			document.querySelector(".comingUp").style.display = "none";
+		document.querySelector(".allbrackets").style.display = "none";
+
+	}
+
+    document.querySelector("#play-again").addEventListener("click", playAgain);
 	const play_button = document.querySelector("#play-button");
 	play_button.addEventListener("click", handlePlayBtn);
 

@@ -43,7 +43,7 @@ const getRank = (data) => {
                 if (i > 2) {
                     const player = `
                         <div class="player-rank">
-                            <h5>${i + 1}</h5>
+                            <h5>${i + 1}th</h5>
                             <div class="player-pic" style="background-image: url(${element.imageProfile})"></div>
                             <h5 class="usernamee">${element.username}</h5>
                             <h4>${element.score}</h4>
@@ -60,7 +60,7 @@ const getRank = (data) => {
                     if (i > 2) {
                         const player = `
                             <div class="player-rank">
-                                <h5>${i + 1}</h5>
+                                <h5>${i + 1}th</h5>
                                 <div class="player-pic" style="background-image: url(${element.imageProfile})"></div>
                                 <h5 class="usernamee">${element.username}</h5>
                                 <h4>${element.score}</h4>
@@ -78,7 +78,7 @@ const getRank = (data) => {
                 if (i > 2) {
                     const player = `
                         <div class="player-rank">
-                            <h5>${i + 1}</h5>
+                            <h5>${i + 1}th</h5>
                             <div class="player-pic" style="background-image: url(${element.imageProfile})"></div>
                             <h5 class="usernamee">${element.username}</h5>
                             <h4>${element.score}</h4>

@@ -93,6 +93,31 @@
     }
 }
 
+#Pong-invitation {
+    /* transition: all 0.3s; */
+    /* need to add animation later */
+    background-color: #0a1339;
+    border-radius: 10px;
+    position: absolute;
+    top: 2%;
+    right: 16%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid white;
+    box-shadow: 0 0 5px white;
+    min-width: fit-content;
+    min-height: fit-content;
+    width: 380px;
+    height: 140px;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#yesno {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+}
 
 #chat2 {
     width: 150px;
@@ -141,15 +166,28 @@
 }
 
 .block-style {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     border: 2px solid black;
     width: 138px !important;
-    height: 50px !important;
-    background-color: #9a2833;
-    color: white;
+    height: 100px !important;
+    background-color: #211b1b54;
+    color: #9a2833;
     position: absolute;
     right: -3px;
     top: 45%;
     z-index: 1000;
+    overflow-y: auto;
+}
+
+.block-child {
+    background-color: royalblue;
+    height: 40px;
+    width: 90%;
+    border: none;
+    box-shadow: 0 0 2px white;
+    margin: auto;
 }
 
 .dropdown {
@@ -171,6 +209,38 @@
     background-image: url(../images/1.jpeg);
     background-size: cover;
 }
+
+/* ------------------ add by Abed ---------------------- */
+
+#chat-part .row {
+    position: relative;
+}
+
+.profile-card {
+    position: absolute;
+    box-shadow: 0 0 10px black;
+    display: flex;
+    flex-direction: column;
+    width: 330px;
+    min-height: fit-content;
+    height: 430px;
+    top: 16%;
+    right: 32%;
+    z-index: 1000;
+    background-color: #001534;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.profile-chat-image {
+    width: 128px;
+    height: 128px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+}
+
+/* ------------------ end modification ----------------------*/
 
 #chat-part h2 {
     color: whitesmoke;
@@ -251,6 +321,7 @@
     border-radius: 50%;
     border: 2px solid aqua;
     background-size: cover;
+    background-position: center;
 }
 
 

@@ -106,12 +106,8 @@ visibility */
 
 @media (min-width: 0px) and (max-width: 575px) {
     .logout-phone {
-        position: absolute;
-        display: flex;
-        align-items: center;
-        top: 14vh;
-        right: 2.5vw;
-        cursor: pointer;
+        top: 14% !important;
+        /* right: 2.5vw !important; */
     }
     .match-block {
         left: 1% !important;
@@ -411,12 +407,37 @@ visibility */
         height: 9% !important;
         width: 95% !important;
     }
+    /* .logout-phone {
+        width: 95% !important;
+        top: 12% !important;
+    } */
     #speech h3 {
         font-size: 25px !important;
     }
     .match-block {
         left: 3% !important;
     }
+}
+
+#loading-spinner {
+    position: absolute;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+}
+
+.spinner-border {
+    --bs-spinner-width: 4rem;
+    --bs-spinner-height: 4rem;
+    --bs-spinner-border-width: 0.45em;
+    border-color: rgb(217 156 236);
+    border-right-color: transparent;
+}
+
+.logout-phone {
+    position: absolute;
+    top: 12%;
+    z-index: 100;
 }
 
 .match-block {
@@ -643,15 +664,15 @@ h1 {
 .search-icons div {
     width: 45px;
     height: 45px;
-    background-color: rgb(96 96 96);;
+    /* background-color: rgb(96 96 96);; */
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.search-icons .btn {
-    background-color: #454152e6;
+#notif, #profile-pict {
+    background-color: #2f1e65;
     box-shadow: none;
 }
 
@@ -810,7 +831,7 @@ a, button {
 }
 
 .btn:not(.link, .accept, .refuse):hover {
-    background-color: rgba(83, 83, 83, 0.473);
+    /* background-color: rgba(83, 83, 83); */
     box-shadow: 0px 0px 8px 2px rgba(83, 83, 83, 0.473);
 }
 

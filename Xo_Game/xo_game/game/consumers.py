@@ -7,8 +7,6 @@ connected_players = {}
 turn_tracker = {}
 game_states = {}
 
-user1 = 0
-user2 =  0
 class TicTacToeConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         print("in game", flush=True)
@@ -19,22 +17,28 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                 'board': ['', '', '', '', '', '', '', '', ''],  
             }
         if self.room_group_name not in connected_players:
-            connected_players[self.room_group_name] = []
+            connected_players[self.room_group_name] = {
+                "user1": None,
+                "user2": None,
+                "user1Name":None,
+                "user2Name":None,
+                "channels": []
+            }
             turn_tracker[self.room_group_name] = 'X'
-        if len(connected_players[self.room_group_name]) >= 2:
+        if len(connected_players[self.room_group_name]['channels']) >= 2:
             await self.close()
             return
         
-        connected_players[self.room_group_name].append(self.channel_name)
+        connected_players[self.room_group_name]["channels"].append(self.channel_name)
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
-        if len(connected_players[self.room_group_name]) == 1:
+        if len(connected_players[self.room_group_name]["channels"]) == 1:
             await self.send(text_data=json.dumps({'event': 'CHOICE', 'message': 'X'}))
         else:
             await self.send(text_data=json.dumps({'event': 'CHOICE', 'message': 'O'}))
 
-        if len(connected_players[self.room_group_name]) == 2:
+        if len(connected_players[self.room_group_name]["channels"]) == 2:
             turn_tracker[self.room_group_name] = 'X'
             print("GAME Start", flush=True)
             await self.channel_layer.group_send(
@@ -47,17 +51,15 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                 {'type': 'send_message', 'message': 'Waiting for the second player...', 'event': 'wait'}
             )
     async def disconnect(self, close_code):
-        global user2
-        global user1
+        player_left_index = None
         if self.room_group_name in connected_players:
-            if self.channel_name in connected_players[self.room_group_name]:
+            if self.channel_name in connected_players[self.room_group_name]["channels"]:
                 # connected_players[self.room_group_name].remove(self.channel_name)
-                player_left_index = connected_players[self.room_group_name].index(self.channel_name)
+                # player_left_index = connected_players[self.room_group_name]["channels"].index(self.channel_name)
+                player_left_index = connected_players[self.room_group_name]["channels"].index(self.channel_name)
                 player_left = 'X' if player_left_index == 0 else 'O'  # Assuming the first player is 'X' and the second is 'O'
-            
-            # Remove the player from the connected players list
-            connected_players[self.room_group_name].remove(self.channel_name)
-        if len(connected_players[self.room_group_name]) == 1:
+                connected_players[self.room_group_name]["channels"].remove(self.channel_name)
+        if len(connected_players[self.room_group_name]["channels"]) == 1:
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -67,9 +69,7 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                 }
             )
             await self.close()
-            user1 = 0
-            user2 = 0
-        if len(connected_players[self.room_group_name]) == 0:
+        if len(connected_players[self.room_group_name]["channels"]) == 0:
             await self.delete_room() 
             del connected_players[self.room_group_name]
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
@@ -81,20 +81,15 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         event = data['event']
         message = data['message']
-        global user1
-        global user2
         is_game_over = False
 
-        #delte 
-        print("In recive", flush=True)
-        print("user1 ", user1, flush=True)
-        print("user2", user2,flush=True)
         if event == 'START':
-            if not user1:
-                user1 = message
-            elif not user2:
-                user2 = message
-        print("before Move", flush=True)
+            if not connected_players[self.room_group_name]["user1"]:
+                connected_players[self.room_group_name]["user1"] = message["id"]
+                connected_players[self.room_group_name]["user1Name"] = message["name"]
+            else:
+                connected_players[self.room_group_name]["user2"] = message["id"]
+                connected_players[self.room_group_name]["user2Name"] = message["name"]
         if event == 'MOVE':
             print('in Move', data)
             current_turn = turn_tracker[self.room_group_name]
@@ -145,7 +140,7 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
             elif turn_tracker[self.room_group_name] == 'O' and is_game_over == False:
                 turn_tracker[self.room_group_name] = 'X'
         if event == "DUSER":
-            if user1 == user2:
+            if connected_players[self.room_group_name]["user1"] == connected_players[self.room_group_name]["user2"]:
                 await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -155,15 +150,18 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                 }
             )
             else:
+                user1 = connected_players[self.room_group_name]["user1"]
+                user2 = connected_players[self.room_group_name]["user2"]
+                user1Name = connected_players[self.room_group_name]["user1Name"]
+                user2Name = connected_players[self.room_group_name]["user2Name"]
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         'type': 'send_message',
-                        'message': {'user1': user1, 'user2': user2},
+                        'message': {'user1': user1, 'user2': user2, 'userName1': user1Name, 'userName2': user2Name},
                         'event': 'USERS'
                     }
                 )
-                print("Out", flush=True)
         
 
 

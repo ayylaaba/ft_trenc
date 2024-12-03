@@ -15,6 +15,8 @@ from .serializer         import UserInfoSerializer
 from django.contrib.auth import update_session_auth_hash
 from channels.layers     import get_channel_layer
 from asgiref.sync        import async_to_sync
+from django.core.cache   import cache
+
 
 # Create your views here.
 @api_view(['GET'])
@@ -63,67 +65,42 @@ def profile(request):
             'status': 'failed'
         }, status=400)
 
-from django.core.cache import cache
-from django.db import transaction
-
-
-from django.core.cache import cache
-
 @csrf_exempt
 @api_view(['POST'])
 def update_user(request):
     print("Entered update_user view")
 
-    # Ensure the method is POST
     if request.method != 'POST':
         return JsonResponse({'status': 'failed', 'data': 'Invalid request method'}, status=400)
 
-    # Check if user is authenticated
     user = request.user
+
     if not user.is_authenticated:
         return JsonResponse({'status': 'failed', 'data': 'User is not authenticated'}, status=401)
+    
+    # Handle file uploads for imageProfile
+    if 'imageProfile' in request.FILES:
+        request.data['imageProfile'] = request.FILES['imageProfile']
 
-    # Ensure the request data is in the expected format
-    try:
-        data = request.data
-    except Exception as e:
-        print(f"Error parsing request data: {e}")
-        return JsonResponse({'status': 'failed', 'data': 'Invalid JSON format'}, status=400)
-
-    if not isinstance(data, dict):
-        return JsonResponse({'status': 'failed', 'data': 'Expected a JSON object'}, status=400)
-
+    # Use request.data instead of request.body
+    data  = request.data
+    
     if not data:
         return JsonResponse({'status': 'failed', 'data': 'Request body is empty'}, status=400)
 
-    # Handle email validation
-    if user.email == data.get('email'):
-        return JsonResponse({'status': 'failed', 'data': 'Must change email'}, status=400)
-
-    # Handle file uploads (e.g., imageProfile)
-    if 'imageProfile' in request.FILES:
-        data['imageProfile'] = request.FILES['imageProfile']
-
-    # Initialize serializer with partial update support
+    # check if data is a json form by method isinstance "dict" mean data is a dic or not
+    if  not isinstance(data, dict):
+        return JsonResponse({'status': 'failed', 'data': 'Expected a JSON object'}, status=400)
+    
+    if user.email == request.data['email']:
+        return JsonResponse({'status': 'failed', 'data': 'must to change email'}, status=400)
+    
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
 
-    # Validate the serializer data
     if update_serializer.is_valid():
-        # Save the updated user data
         update_serializer.save()
-
-        # Clear and set the updated cache
-        cache_key = f"user_profile_{user.id}"
-        cache.delete(cache_key)  # Remove old cached data
-        cache.set(cache_key, update_serializer.data)  # Cache updated data
-        
-        # Return the updated user data
-        print("Updated data:", update_serializer.data)
-        return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200)
-    
-    # Handle invalid serializer data
-    print(f"Validation errors: {update_serializer.errors}")
-    return JsonResponse({'status': 'failed', 'data': update_serializer.errors}, status=400)
+    print('Updated data === ', update_serializer.data)
+    return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200) 
 
 from django.db.models import Q  # Add this import
 

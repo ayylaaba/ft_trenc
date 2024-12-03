@@ -25,6 +25,8 @@ class RoomListCreateAPIView(APIView):
         print("code of  room", code)
         room = XRoom.objects.create(code=code)
         print("room player is ", room.players)
+        print("room code is ",  room.code, flush=True)
         serializer = XRoomSerializer(room)
+        print("ser is ", serializer.data, flush=True)
         print("*-------------------------------------------------------------------------*")
         return Response(serializer.data)

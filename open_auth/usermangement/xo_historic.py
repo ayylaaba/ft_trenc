@@ -6,60 +6,6 @@ from rest_framework.decorators  import api_view
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
 
-# @api_view(['POST'])
-# def         store_match(request):
-#     user            = request.user
-    
-#     if not user.is_authenticated:
-#         return JsonResponse({'status' : '400', 'data' : 'user is not authenticated'})
-
-#     print("The level is ", request.data.get('level'), flush=True)
-#     print("The score is ", request.data.get('score'), flush=True)
-#     user_db = User_info.objects.get(id=user.id)
-    
-#     match_serialize =  MatchHistoricSerialzer(data=request.data)
-
-#     print ('old user ------- >> : ', user_db, flush=True) 
-
-    
-#     user_db.level = request.data.get('level')
-#     user_db.score = request.data.get('score')
-
-
-#     user_db.save()
-#     user_db.refresh_from_db()
-#     print("use is save", flush=True)
-#     if match_serialize.is_valid():
-#         match_serialize.save()
-#         print("\033[1;38m the match is stored -> : ", match_serialize.data, flush=True)
-#         return JsonResponse({'data':match_serialize.data, 'status' : '200'})
-#     return JsonResponse({'data':match_serialize.data, 'status' : '400'})
-from django.core.cache import cache
-
-# @api_view(['POST'])
-# def store_match(request):
-#     user = request.user
-
-#     if not user.is_authenticated:
-#         return JsonResponse({'status': '400', 'data': 'user is not authenticated'})
-
-#     user_db = User_info.objects.get(id=user.id)
-
-#     match_serialize = MatchHistoricSerialzer(data=request.data)
-
-#     user_db.level = request.data.get('level')
-#     user_db.score = request.data.get('score')
-#     user_db.save()
-
-#     # Invalidate cache for the user
-#     cache_key = f"user_profile_{user.id}"
-#     cache.delete(cache_key)
-
-#     if match_serialize.is_valid():
-#         match_serialize.save()
-#         return JsonResponse({'data': match_serialize.data, 'status': '200'})
-#     return JsonResponse({'data': match_serialize.data, 'status': '400'})
-
 @api_view(['POST'])
 def store_match(request):
     user = request.user
@@ -75,6 +21,14 @@ def store_match(request):
     # Update user level and score
     user_db.level = request.data.get('level')
     user_db.score = request.data.get('score')
+    print ("score : ", request.data.get('score'))
+    print ("result : ", request.data.get('result'))
+
+    if request.data.get('result') == "won":
+        user_db.win  += 1
+    if request.data.get('result') == "loss" and user_db.loss > 0:
+        user_db.loss -= 1
+
     user_db.save()
     user_db.refresh_from_db()  # Ensure fresh data is loaded from DB
 
@@ -151,24 +105,3 @@ def get_curr_user(request):
     print("\033[1;33m Current user data -> : ", serialize_user.data, flush=True)
 
     return JsonResponse({'status': '200', 'data': serialize_user.data})
-
-
-# @api_view(['GET'])
-# def get_curr_user(request):
-#     user = request.user
-#     if not user.is_authenticated:
-#         return JsonResponse({'status': '400', 'data': 'User is not authenticated'})
-
-#     try:
-#         # Fetch fresh user object from the database
-#         user_db = User_info.objects.get(id=user.id)
-#     except User_info.DoesNotExist:
-#         return JsonResponse({'status': '404', 'data': 'User not found'})
-
-#     # Serialize and return fresh user data
-#     serialize_user = UserInfoSerializer(user_db)
-#     print("\033[1;33m Current user data -> : ", serialize_user.data, flush=True)
-#     return JsonResponse({'status': '200', 'data': serialize_user.data})
-
-
-

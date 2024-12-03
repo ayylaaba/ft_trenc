@@ -50,12 +50,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         print(f"Sender: {sender}, recipient: {recipient} ,Message: {content}, Room: {room_id}")
 
-        room = await sync_to_async(Room.objects.get)(id=room_id)
-        message = await sync_to_async(Message.objects.create)(
-            author=sender,
-            content=content,
-            room=room
-        )
+        if room_id:
+            room = await sync_to_async(Room.objects.get)(id=room_id)
+            message = await sync_to_async(Message.objects.create)(
+                author=sender,
+                content=content,
+                room=room
+            )
 
         await self.channel_layer.group_send(
             self.room_group_name,
