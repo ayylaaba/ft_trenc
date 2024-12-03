@@ -213,12 +213,12 @@ export const socketFunction = async () => {
                     }
                     const onlineIcon = document.querySelector(`#online-icon-${data.data.id}`);
                     console.log("the icon: ", onlineIcon);
-                    if (data.data.online_status) {
+                    if (data.data.online_status && onlineIcon) {
                         createToast(data.data.username, 'just now');
                         onlineIcon.style.color = "green";
                         onlineIcon.style.filter = "drop-shadow(0 0 1px green)";
                         localStorage.setItem(`online_status_${data.data.id}`, 'online');  // Store online status
-                    } else if (!data.data.online_status) {
+                    } else if (!data.data.online_status && onlineIcon) {
                         onlineIcon.style.color = "red";
                         onlineIcon.style.filter = "drop-shadow(0 0 1px red)";
                         localStorage.setItem(`online_status_${data.data.id}`, 'offline');  // Store offline status

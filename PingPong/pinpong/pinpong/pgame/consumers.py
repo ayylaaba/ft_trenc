@@ -6,15 +6,16 @@ import asyncio, math
 from datetime import datetime
 from channels.layers import get_channel_layer
 import requests
+import time
 
 connected_players = {}
+matches = {}
 width = 600
 height = 300
 hh = 80
 ww = 5
 paddle_speed = 1
 score_to_win = 5
-matches = {}
 
 class ball:
     def __init__(self, x, y):
@@ -199,9 +200,6 @@ class PingPongConsumer(AsyncWebsocketConsumer):
         
     async def receive(self, text_data):
         data = json.loads(text_data)
-        match = matches.get(self.room_group_name)
-        if not match:
-            return 
         if data.get('type') == 'START':
             if not connected_players[self.room_group_name]["user1"]:
                 connected_players[self.room_group_name]["user1"] = data.get("message")["id"]
@@ -212,12 +210,16 @@ class PingPongConsumer(AsyncWebsocketConsumer):
         if data.get('type') == 'move':
             move = data.get('move')
             padd = data.get('pad_num')
+            match = matches.get(self.room_group_name)
+            if not match:
+                return 
             if (padd == 1):
                 match.p1.change_direction(move)
                 match.p1.move()
             else:
                 match.p2.change_direction(move)
                 match.p2.move()
+
         if (data.get('type') == 'local'):
             self.gameType = "local"
             await self.channel_layer.group_send(
@@ -230,10 +232,14 @@ class PingPongConsumer(AsyncWebsocketConsumer):
         )
             return
         if data.get('type') == 'start':
+            match = matches.get(self.room_group_name)
+            if not match:
+                return 
             asyncio.create_task(self.start_game_loop())
+
         if (data.get('type') == 'close'):
             self.disconnect(1000)
-            print("before descon", flush=True)
+
         if data.get('type') == "DUSER":
             if connected_players[self.room_group_name]["user1"] == connected_players[self.room_group_name]["user2"]:
                 await self.channel_layer.group_send(
@@ -257,7 +263,6 @@ class PingPongConsumer(AsyncWebsocketConsumer):
                         'event': 'USERS'
                     }
                 )
-        
 
     async def send_message(self, event):
         await self.send(text_data=json.dumps({
@@ -314,7 +319,9 @@ class PingPongConsumer(AsyncWebsocketConsumer):
                         'paddle2': paddle_data2
                     }
                 )
-                await asyncio.sleep(0.009)
+                await asyncio.sleep(0.005)
+
+
     async def game_state(self, event):
         """Send ball position to all connected clients"""
         ball_data = event['ball']

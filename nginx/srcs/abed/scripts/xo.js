@@ -131,7 +131,7 @@ function postMatch()
 {
     console.log("match result is ", matchdata.result);
     if (matchdata.result == 0)
-        matchdata.x_result = "lose";
+        matchdata.x_result = "loss";
     else if (matchdata.result == 1)
         matchdata.x_result = "won";
     else

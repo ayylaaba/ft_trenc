@@ -8,16 +8,27 @@ from .serializers import ProomSerializer
 class RoomListCreateAPIView(APIView):
     
     def get(self, request):
-        rooms = Proom.objects.filter(players__lt=2)
-        print("it is empty", rooms.exists())
-        print("room size is ", rooms.__sizeof__())
-        if rooms.exists():
-            room = rooms.first()
-            room.players += 1
-            print("room player are ", room.players)
-            room.save()
-            serializer = ProomSerializer(room)
-            return Response(serializer.data)
+        password = request.query_params.get('password') 
+        if password:
+            room = Proom.objects.filter(is_reserved=True, password=password).first()
+            if room:
+                if room.players < 2:  
+                    room.players += 1
+                    room.save()
+                    serializer = ProomSerializer(room)
+                    return Response(serializer.data)
+                return Response({"message": "No such room exist "}, status=400)
+        else:
+            rooms = Proom.objects.filter(players__lt=2)
+            print("it is empty", rooms.exists())
+            print("room size is ", rooms.__sizeof__())
+            if rooms.exists():
+                room = rooms.first()
+                room.players += 1
+                print("room player are ", room.players)
+                room.save()
+                serializer = ProomSerializer(room)
+                return Response(serializer.data)
         return Response({"message": "No available rooms"}, status=404)
 
     def post(self, request):

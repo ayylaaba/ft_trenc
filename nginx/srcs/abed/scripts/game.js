@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 	{
 		console.log("match result is ", matchdata.result);
 		if (matchdata.result == 0)
-			matchdata.x_result = "lose";
+			matchdata.x_result = "loss";
 		else
 			matchdata.x_result = "won";
 	
