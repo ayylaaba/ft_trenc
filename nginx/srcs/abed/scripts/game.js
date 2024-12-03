@@ -2,7 +2,7 @@ import { rplayers } from "./registers.js";
 
 var socket = null;
 
-document.addEventListener("DOMContentLoaded", () =>  {
+// document.addEventListener("DOMContentLoaded", () =>  {
 	
 	const canvas = document.getElementById('canvas');
 	canvas.width = 600; 
@@ -813,4 +813,4 @@ async function fetchRoom() {
 	const play_button = document.querySelector("#play-button");
 	play_button.addEventListener("click", handlePlayBtn);
 
-});
+// });

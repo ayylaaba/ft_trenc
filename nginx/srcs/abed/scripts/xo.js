@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () =>  {
+// document.addEventListener("DOMContentLoaded", () =>  {
     const app = document.getElementById("app");
     const startContainer = document.createElement("div");
     const gameContainer = document.createElement("div");
@@ -187,7 +187,7 @@ async function fetchRoom() {
     }
 }
 
-async function createRoom() {
+export async  function createRoom() {
     try {
         const response = await fetch('http://127.0.0.1:8001/api/xrooms/', {
             method: 'POST',
@@ -208,6 +208,8 @@ async function createRoom() {
         console.error("Error creating room:", error);
     }
 }
+
+
 function disconnect() {
     if (socket && socket.readyState === WebSocket.OPEN) {
         console.log("in closed");
@@ -565,5 +567,5 @@ function startGame() {
 
     const closeBtn = document.querySelector(".btn-close");
     closeBtn.addEventListener("click", closeGame);
-});
+// });
 /********  new    ********* */

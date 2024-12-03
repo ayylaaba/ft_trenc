@@ -10,7 +10,20 @@ import { friendsPart, friendsFunction } from "./friends.js";
 import { get_csrf_token } from "./register.js";
 import { newDataFunc } from "../script.js";
 import { socketFunction } from "./socket.js";
+import { createRoom } from "./game.js";
 
+
+/************************* */
+
+function generateRoomCode() {
+    return  Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+}
+
+
+
+
+/********************************** */
 const notifButton = document.querySelector(".search-icons .btn");
 const profBtn = document.querySelector("#profile-pict .btn");
 
@@ -186,6 +199,7 @@ const data_characters = async () => {
     const characters = await friendsFunction();
     const thisCurrUser = await newDataFunc();
     const chats1 = document.querySelector("#chats");
+    //kharjha mnhana
     const thisSocket = await socketFunction();
     let room_id = 0;
     let check = "";
@@ -271,12 +285,16 @@ const data_characters = async () => {
                         document.getElementById(`play-${character.id}`).addEventListener('click', async function (e) {
                             
                             if (check.etat === false) {
+                                //create room with code
+                                let roomCode = generateRoomCode();
+                                createRoom();
                                 thisSocket.send(JSON.stringify({
                                     'type': 'requestFriend',
                                     'recipient_id': character.id,
                                     'sender_id': thisCurrUser.id,
                                     'sender': thisCurrUser.username,
-                                    'recipient': character.username
+                                    'recipient': character.username,
+                                    'roomcode': roomCode
                                 }));
                             }
                             else{
