@@ -19,6 +19,7 @@ var socket = null;
 	let noMatch = false;
 	let ballPosition = { x: 400, y: 200 }; 
 	let ballRadius = 10;
+	let is_chat = false;
 	let paddle1 = {
         x: 10,        
         y: 110,       
@@ -154,6 +155,37 @@ var socket = null;
 		}
 	}
 
+	export function displayGame(){
+		parent.append(header, container);
+		bodyElement.append(parent);
+		parent.append(header, container, closeBtn);
+		header.style.display = "flex";
+		container.style.display = "flex";
+		parent.style.display = "flex";
+		gameType = 'remote';
+		container.style.display = "none";
+		header.style.display = "none";
+		parent.append(app);
+		app.style.display = "flex";
+		startContainer.classList.add("active");
+		startContainer.style.display = "block";
+	}
+	function hideGame(){
+		parent.append(header, container);
+		bodyElement.append(parent);
+		parent.append(header, container, closeBtn);
+		header.style.display = "none";
+		container.style.display = "none";
+		parent.style.display = "none";
+		gameType = 'remote';
+		container.style.display = "none";
+		header.style.display = "none";
+		parent.append(app);
+		app.style.display = "none";
+		startContainer.classList.add("active");
+		startContainer.style.display = "block";
+	}
+
 	function fetchcrtf(){
 		fetch('https://localhost/get_csrf_token/', {
 			method: 'GET',
@@ -224,6 +256,10 @@ var socket = null;
 					'is_reserved':is_reserved
 				})
 			})
+			if (is_reserved){
+				console.log("Hollllllllllllllllllllllllllllllllllllllllllllllllllllllllllaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+				is_chat = true;
+			}
 	    	let data = await res.json()
 	    	    roomCode = data.code;
 				console.log("game room code is ", roomCode);
@@ -254,13 +290,14 @@ export async function fettchTheRoom(Theroom){
             console.log("No available rooms. Creating a new room...");
             return await createRoom(0);
         }
-        
+        is_chat = true
         const room = await response.json();
         console.log("Fetched room:", room);
 
 
             console.log(`Joining room ${room.code} with ${room.players} players.`);
             roomCode = room.code;
+			gameType = 'remote'
             connectWebSocket();
     } catch (error) {
         console.error("Error fetching or creating room:", error);
@@ -371,6 +408,7 @@ export async function fetchRoom() {
 	function start_game(){
 		console.log("start")
 		console.log("tourn mod");
+		fetchUser();
 		wait_page();
 		fetchcrtf();
         socket.send(JSON.stringify({
@@ -388,6 +426,7 @@ export async function fetchRoom() {
 		resetDOM()
 		runAnimation();
 		setTimeout(() => {
+			console.log("game start here")
 			socket.send(JSON.stringify({ type: "start"}));
 			if (!noMatch)
 				gameContainer.style.display = "block";
@@ -398,7 +437,7 @@ export async function fetchRoom() {
             "type": "DUSER",
             "message": ""
         }));
-
+		console.log("out of here")
 		gameStart = true;
 
 	}
@@ -537,6 +576,11 @@ export async function fetchRoom() {
 				matchdata.level -= 1;
 			}
 			postMatch();
+			if (is_chat){
+				setTimeout(() => {
+					hideGame()
+				}, 2500)
+			}
 			document.querySelector("#play-again").style.display = "block";
 		}
 		else 

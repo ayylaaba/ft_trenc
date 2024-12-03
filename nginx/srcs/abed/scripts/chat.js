@@ -350,12 +350,6 @@ const data_characters = async () => {
             const picTag = document.querySelector("#chat-pic");
             picTag.style.backgroundImage = `url("${character.imageProfile}")`;
             document.querySelector("#secondd h3").innerHTML = character.username;
-
-            picTag.addEventListener('click',  () => {
-                chatPage.style.display = "none";
-                profileId.style.display = "flex";
-                
-            });
             // =============== Modify here ==============
 
             console.log("user id ", character.id);

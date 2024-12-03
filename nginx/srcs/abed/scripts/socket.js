@@ -3,6 +3,7 @@ import { mainFunction, lookForUsers } from "./home.js";
 import { notificationFunction, notifBtn } from "./notification.js";
 import { createRoom } from "./game.js";
 import { fettchTheRoom  } from "./game.js";
+import { displayGame } from "./game.js"
 
 export let flag = 0;
 export let socket = null;
@@ -85,6 +86,7 @@ export const socketFunction = async () => {
                     let dataGame =  await createRoom(1);
                     roomCode = dataGame.code;
                     console.log("room code ", roomCode)
+                    displayGame();
                     socket.send(JSON.stringify ({
                         'type': 'response',
                         'sender' : sender,
@@ -126,6 +128,7 @@ export const socketFunction = async () => {
                     let roomToGET = data['roomcode']
                     console.log('check is true');
                     fettchTheRoom(roomToGET);
+                    displayGame();
                 }
                 else {
                     console.log('check is false');
