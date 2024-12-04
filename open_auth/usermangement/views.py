@@ -21,24 +21,29 @@ from django.core.cache   import cache
 # Create your views here.
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def     get_user(request):
-    if request.method == 'GET':
-        user = request.user
-        if user.is_authenticated:
-            cache_key = f"user_profile_{user.id}"
-            cached_data = cache.get(cache_key)
-            if cached_data:
-                print(f"Returning cached data for user {user.id}")
-                return JsonResponse({'status': 'success', 'data': cached_data}, status=200)
-            serialize = ProfileSerializer(instance=user)
-            cache.set(cache_key, serialize.data)  # Cache fresh data
-            print("\033[1;38m data ===> ", serialize.data)
-            return JsonResponse ({"status" : "success",
-             "data" : serialize.data})
-        return JsonResponse ({"status" : "failed",
-                "error" : "User Not Authenticated"})
-    return JsonResponse ({"status" : "failed", 
-            "error" : "method Not allowed"})
+def get_user(request):
+    user = request.user
+
+    if not user.is_authenticated:
+        return JsonResponse({"status": "failed", "error": "User Not Authenticated"}, status=401)
+
+    # Cache key
+    cache_key = f"user_profile_{user.id}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data:
+        print("\033[1;38m Serving from cache ===> ", cached_data)
+        return JsonResponse({"status": "success", "data": cached_data}, status=200)
+
+
+    # Fetch fresh data and cache it
+    serialize = ProfileSerializer(instance=user)
+    fresh_data = serialize.data
+    cache.set(cache_key, fresh_data, timeout=None)  # Cache fresh data indefinitely
+
+    print("\033[1;38m user data ===> ", fresh_data)
+    return JsonResponse({"status": "success", "data": fresh_data}, status=200)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -78,29 +83,38 @@ def update_user(request):
     if not user.is_authenticated:
         return JsonResponse({'status': 'failed', 'data': 'User is not authenticated'}, status=401)
     
-    # Handle file uploads for imageProfile
-    if 'imageProfile' in request.FILES:
-        request.data['imageProfile'] = request.FILES['imageProfile']
+    # Make a mutable copy of the request data
+    data = request.data.copy()
 
-    # Use request.data instead of request.body
-    data  = request.data
-    
-    if not data:
-        return JsonResponse({'status': 'failed', 'data': 'Request body is empty'}, status=400)
+    # Handle imageProfile: retain the old image if not provided
+    if 'imageProfile' not in request.FILES:
+        data['imageProfile'] = user.imageProfile  # Keep the existing image value
 
-    # check if data is a json form by method isinstance "dict" mean data is a dic or not
-    if  not isinstance(data, dict):
-        return JsonResponse({'status': 'failed', 'data': 'Expected a JSON object'}, status=400)
-    
-    if user.email == request.data['email']:
-        return JsonResponse({'status': 'failed', 'data': 'must to change email'}, status=400)
-    
+    # Check if the email is unchanged
+    if user.email == data.get('email'):
+        return JsonResponse({'status': 'failed', 'data': 'Must change email'}, status=400)
+
+    # Invalidate the cache for the user
+    cache_key = f"user_profile_{user.id}"
+    cache.delete(cache_key)
+
+    # Update user data
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
-
     if update_serializer.is_valid():
         update_serializer.save()
-    print('Updated data === ', update_serializer.data)
-    return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200) 
+
+        # Fetch fresh data from the database to ensure the latest data is used
+        user.refresh_from_db()  # Ensure that the user object is up to date with the database
+
+        # Refresh cache with updated data
+        last_update = ProfileSerializer(instance=user).data
+        cache.set(cache_key, last_update, timeout=None)
+
+        print('Updated data === ', last_update)
+        return JsonResponse({'status': 'success', 'data': last_update}, status=200)
+
+    return JsonResponse({'status': 'failed', 'data': update_serializer.errors}, status=400)
+
 
 from django.db.models import Q  # Add this import
 

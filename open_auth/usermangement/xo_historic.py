@@ -1,10 +1,10 @@
 from oauth.models               import User_info
 from .models                    import MatchHistoric
-from .serializer                 import  MatchHistoricSerialzer, UserInfoSerializer
+from .serializer                import  MatchHistoricSerialzer, UserInfoSerializer
 from    django.http             import JsonResponse
 from rest_framework.decorators  import api_view
-from django.contrib.auth import authenticate, login, logout
-from django.core.cache import cache
+from django.contrib.auth        import authenticate, login, logout
+from django.core.cache          import cache
 
 @api_view(['POST'])
 def store_match(request):
@@ -21,14 +21,6 @@ def store_match(request):
     # Update user level and score
     user_db.level = request.data.get('level')
     user_db.score = request.data.get('score')
-    print ("score : ", request.data.get('score'))
-    print ("result : ", request.data.get('result'))
-
-    if request.data.get('result') == "won":
-        user_db.win  += 1
-    if request.data.get('result') == "loss" and user_db.loss > 0:
-        user_db.loss -= 1
-
     user_db.save()
     user_db.refresh_from_db()  # Ensure fresh data is loaded from DB
 
@@ -38,7 +30,7 @@ def store_match(request):
 
     # Update cache with the latest data
     serialize_user = UserInfoSerializer(user_db)
-    cache.set(cache_key, serialize_user.data)
+    cache.set(cache_key, serialize_user.data, timeout=None)
 
     # Store match data
     match_serialize = MatchHistoricSerialzer(data=request.data)
@@ -47,7 +39,6 @@ def store_match(request):
         return JsonResponse({'data': match_serialize.data, 'status': '200'})
 
     return JsonResponse({'data': match_serialize.errors, 'status': '400'})
-
 
 @api_view(['GET'])
 def get_match_history(request):
@@ -101,7 +92,7 @@ def get_curr_user(request):
 
     # Serialize and cache fresh user data
     serialize_user = UserInfoSerializer(user_db)
-    cache.set(cache_key, serialize_user.data)  # Cache the latest data
+    cache.set(cache_key, serialize_user.data, timeout=None)  # Cache the latest data
     print("\033[1;33m Current user data -> : ", serialize_user.data, flush=True)
 
     return JsonResponse({'status': '200', 'data': serialize_user.data})
