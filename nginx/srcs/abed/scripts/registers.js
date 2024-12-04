@@ -8,12 +8,27 @@ const player5 = document.getElementById("player5");
 const player6 = document.getElementById("player6");
 const player7 = document.getElementById("player7");
 const player8 = document.getElementById("player8");
+const commingUp = document.createElement("div");
+commingUp.className = "comingUp";
+commingUp.innerHTML = `
+	<h1>Next Match : </h1>
+	<hr>
+	<div class="announce">
+		<h1 id="announce1"> Next Match:</h1>
+		<h1 id="announce2"> Next Match:</h1>
+	</div>
+	<div class="pressEnter">
+		<h2> Press enter....<h2>
+	</div>
+	`;
 let sameName = false;
 let bracket = [];
-
+let retBracket = [];
 
 export function rplayers(){
-	return bracket;
+	retBracket = bracket;
+	bracket = [];
+	return retBracket;
 }
 
 const handleSubmit = (e) => {
@@ -26,6 +41,7 @@ const hide = (element) => {
 }
 
 const show = (element) => {
+	console.log("IN prog2");
 	element.style.display = 'flex';
 	const parent = document.querySelector("#choose-mode");
 	parent.append(element);
@@ -34,6 +50,7 @@ const show = (element) => {
 const randomNumber = (i) =>{
 	return(Math.floor(Math.random() * i));
 }
+
 
 const fill = (element, pvalue, i, bracket) => {
 	let deleter = randomNumber(i);
@@ -51,6 +68,12 @@ form.addEventListener('submit', handleSubmit);
 const validateInput = () =>{
 	
 	let pValue = [];
+	document.getElementById("1stbracket").value = "";
+	document.getElementById("2ndbracket").value = "";
+	document.getElementById("3rdbracket").value = "";
+	document.getElementById("4thbracket").value = "";
+	document.getElementById("Finalist1").value = "";
+	document.getElementById("Finalist2").value = "";
 	pValue[0] = player1.value.trim();
 	pValue[1] = player2.value.trim();
 	pValue[2] = player3.value.trim();
@@ -59,13 +82,15 @@ const validateInput = () =>{
 	pValue[5] = player6.value.trim();
 	pValue[6] = player7.value.trim();
 	pValue[7] = player8.value.trim();
+	console.log('=====', pValue);
+	
 	let i = 8;
 	sameName = false;
 	for (let i = 0;i < pValue.length;i++)
 	{
 		for(let j = i + 1; j < pValue.length; j++)
 		{
-			if (pValue[i] == pValue[j])
+			if (pValue[i] == pValue[j] || pValue[j].length > 8)
 			{
 				sameName = true;
 				console.log("there");
@@ -78,15 +103,27 @@ const validateInput = () =>{
 	if (sameName == true)
 	{
 		console.log("here");
-		// form.addEventListener('submit', handleSubmit);
-		alert("same name");
+		const sameName = document.querySelector("#same-name");
+		sameName.style.display = "flex";
+		setInterval(()=> sameName.style.display = "none", 3000);
 	}
 	else
 	{
+		commingUp.style.display = "flex";
+		const parent = document.querySelector("#choose-mode");
+		parent.append(commingUp);
+		console.log("IN prog");
 		hide(document.querySelector('.container'));
 		show(document.querySelector('.allbrackets'));
 		fill("player1B", pValue, pValue.length, bracket);
 		fill("player2B", pValue, pValue.length, bracket);
+		let curr_matach1 =  bracket[0];
+		let curr_matach2 = bracket[1];
+		document.querySelector(".announce").style.display = "flex";
+		document.querySelector("#announce1").style.color = "#2f93ba";
+		document.querySelector("#announce2").style.color = "#c71539";
+		document.querySelector("#announce1").innerHTML = curr_matach1 + " v";
+		document.querySelector("#announce2").innerHTML = "s " + curr_matach2;
 		fill("player3B", pValue, pValue.length, bracket);
 		fill("player4B", pValue, pValue.length, bracket);
 		fill("player5B", pValue, pValue.length, bracket);
@@ -96,70 +133,4 @@ const validateInput = () =>{
 	}
 	console.log("brackets=====>");
 	console.log(bracket);
-	// console.log(pValue);
-	// if (p1Value === '')
-	// {
-	// 	alert("enter1");
-	// 	setError(player1, "form must be filled");
-	// }
-	// else {
-	// 	setSuccess(player1);
-	// }
-	// if (p2Value === ''){
-	// 	alert("enter 2");
-	// 	setError(player2, "form must be filled");
-	// }
-	// else
-	// 	setSuccess(player2);
-
-	// if (p3Value === '') {
-	// 	alert("enter 3");
-	// 		setError(player3, "form must be filled");
-	// }
-	// else
-	// 		setSuccess(player3);
-	
-	// if (p4Value === '')
-	// 	setError(player4, "form must be filled");
-	// else
-	// 	setSuccess(player4);
-
-	// if (p5Value === '')
-	// 	setError(player5, "form must be filled");
-	// else
-	// 	setSuccess(player5);
-
-	// if (p6Value === '')
-	// 	setError(player6, "form must be filled");
-	// else
-	// 	setSuccess(player6);
-
-	// if (p7Value === '')
-	// 	setError(player7, "form must be filled");
-	// else
-	// 	setSuccess(player7);
-
-	// if (p8Value === '' )
-	// 	setError(player8, "form must be filled");
-	// else
-	// 	setSuccess(player8);
 }
-
-// const setError = (element, message) => {
-// 	const inputControl = element.parentElement;
-// 	const errorDisplay = inputControl.querySelector('error');
-// 	console.log("error: ", errorDisplay);
-
-// 	errorDisplay.innerText = message;
-// 	errorDisplay.classlist.add('error');
-// 	errorDisplay.classlist.remove('success');
-// }
-
-// const setSuccess = (element) => {
-// 	const inputControl = element.parentElement;
-// 	const errorDisplay = inputControl.querySelector('.error');
-// 	errorDisplay.innerText = '';
-
-// 	errorDisplay.classlist.add('success');
-// 	errorDisplay.classlist.remove('error');
-// }

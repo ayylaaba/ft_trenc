@@ -27,109 +27,112 @@
 </head>
 <body>
     <!-- oussama tournament -->
-        <div class ="container">
-            <form id="form">
-                <h1>Registration</h1>
-                <div class ="input-control">
-                    <input id="player1" name="1st player" type="text" placeholder="1st player" required>
+    <div class ="container">
+        <form id="form">
+            <h1>Registration</h1>
+            <div id="same-name" class="alert alert-danger" role="alert" style="display: none;">
+                Same name or Long name (just 8 characters or less)!
+            </div>
+            <div class ="input-control">
+                <input id="player1" name="1st player" type="text" placeholder="1st player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player2" name="2nd player" type="text" placeholder="2nd player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player3" name="3rd player" type="text" placeholder="3rd player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player4" name="4th player" type="text" placeholder="4th player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player5" name="5th player" type="text" placeholder="5th player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player6" name="6th player" type="text" placeholder="6th player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player7" name="7th player" type="text" placeholder="7th player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player8" name="Last player" type="text" placeholder="8th player" required>
+            </div>
+            <div id="submittt">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+    <div class="allbrackets">
+        <div class="fistbracketss">
+            <form id="Match1" class="match-unit">
+                <h2>1st Match</h2>
+                <div class = "input-control">
+                    <input id="player1B" name="1st player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player2" name="2nd player" type="text" placeholder="2nd player" required>
+                <div class = "input-control">
+                    <input id="player2B" name="2st player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player3" name="3rd player" type="text" placeholder="3rd player" required>
+            </form>
+            <form id="Match2" class="match-unit">
+                <h2>2nd Match</h2>
+                <div class = "input-control">
+                    <input id="player3B" name="3rd player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player4" name="4th player" type="text" placeholder="4th player" required>
+                <div class = "input-control">
+                    <input id="player4B" name="=4th player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player5" name="5th player" type="text" placeholder="5th player" required>
+            </form>
+            <form id="Match3" class="match-unit">
+                <h2>3rd Match</h2>
+                <div class = "input-control">
+                    <input id="player5B" name="5th player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player6" name="6th player" type="text" placeholder="6th player" required>
+                <div class = "input-control">
+                    <input id="player6B" name="6th player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player7" name="7th player" type="text" placeholder="7th player" required>
+            </form>
+            <form id="Match4" class="match-unit">
+                <h2>4th Match</h2>
+                <div class = "input-control">
+                    <input id="player7B" name="7th player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player8" name="Last player" type="text" placeholder="8th player" required>
-                </div>
-                <div class ="submit">
-                <input type="submit" value="Submit"></input>
+                <div class = "input-control">
+                    <input id="player8B" name="8th player" type="text" disabled>
                 </div>
             </form>
         </div>
-        <div class="allbrackets">
-            <div class="fistbracketss">
-                <form id="Match1" class="match-unit">
-                    <h2>1st Match</h2>
-                    <div class = "input-control">
-                        <input id="player1B" name="1st player" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="player2B" name="2st player" type="text" disabled>
-                    </div>
-                </form>
-                <form id="Match2" class="match-unit">
-                    <h2>2nd Match</h2>
-                    <div class = "input-control">
-                        <input id="player3B" name="3rd player" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="player4B" name="=4th player" type="text" disabled>
-                    </div>
-                </form>
-                <form id="Match3" class="match-unit">
-                    <h2>3rd Match</h2>
-                    <div class = "input-control">
-                        <input id="player5B" name="5th player" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="player6B" name="6th player" type="text" disabled>
-                    </div>
-                </form>
-                <form id="Match4" class="match-unit">
-                    <h2>4th Match</h2>
-                    <div class = "input-control">
-                        <input id="player7B" name="7th player" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="player8B" name="8th player" type="text" disabled>
-                    </div>
-                </form>
-            </div>
-            <div class="semifinals">
-                <form id="Semi-final1" class="match-unit">
-                    <h2>Semi Final</h2>
-                    <div class = "input-control">
-                        <input id="1stbracket" name="1st Bracket Winner" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="2ndbracket" name="2nd Bracket Winner" type="text" disabled>
-                    </div>
-                </form>
-                <form id="Semi-final2" class="match-unit">
-                    <h2>Semi Final</h2>
-                    <div class = "input-control">
-                        <input id="1stbracket" name="3rd Bracket Winner" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="4thbracket" name="4th Bracket Winner" type="text" disabled>
-                    </div>
-                </form>
-            </div>
-            <div class="Finals">
-                <form id="Finals" class="match-unit">
-                    <h2>Finals</h2>
-                    <div class = "input-control">
-                        <input id="Finalist1" name="1st Finalist" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="Finalist1" name="2nd Finalist" type="text" disabled>
-                    </div>
-                </form>
-            </div>
+        <div class="semifinals">
+            <form id="Semi-final1" class="match-unit">
+                <h2>Semi Final</h2>
+                <div class = "input-control">
+                    <input id="1stbracket" name="1st Bracket Winner" type="text" disabled>
+                </div>
+                <div class = "input-control">
+                    <input id="2ndbracket" name="2nd Bracket Winner" type="text" disabled>
+                </div>
+            </form>
+            <form id="Semi-final2" class="match-unit">
+                <h2>Semi Final</h2>
+                <div class = "input-control">
+                    <input id="3rdbracket" name="3rd Bracket Winner" type="text" disabled>
+                </div>
+                <div class = "input-control">
+                    <input id="4thbracket" name="4th Bracket Winner" type="text" disabled>
+                </div>
+            </form>
         </div>
+        <div class="Finals">
+            <form id="Finals" class="match-unit">
+                <h2>Finals</h2>
+                <div class = "input-control">
+                    <input id="Finalist1" name="1st Finalist" type="text" disabled>
+                </div>
+                <div class = "input-control">
+                    <input id="Finalist2" name="2nd Finalist" type="text" disabled>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- toast to apply later when someone is loggedin -->
     <div id="freeze"></div>
     <div id="error" class="error_style" style="display: none;">

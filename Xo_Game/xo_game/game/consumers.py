@@ -51,14 +51,14 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                 {'type': 'send_message', 'message': 'Waiting for the second player...', 'event': 'wait'}
             )
     async def disconnect(self, close_code):
-        player_left_index = None
+        player_left = None
         if self.room_group_name in connected_players:
             if self.channel_name in connected_players[self.room_group_name]["channels"]:
-                # connected_players[self.room_group_name].remove(self.channel_name)
-                # player_left_index = connected_players[self.room_group_name]["channels"].index(self.channel_name)
-                player_left_index = connected_players[self.room_group_name]["channels"].index(self.channel_name)
-                player_left = 'X' if player_left_index == 0 else 'O'  # Assuming the first player is 'X' and the second is 'O'
+                player_left = connected_players[self.room_group_name]["channels"].index(self.channel_name)
+                print("this is working ", player_left, flush=True)
+                player_left = 'X' if player_left == 0 else 'O' 
                 connected_players[self.room_group_name]["channels"].remove(self.channel_name)
+                print("this is working ", player_left, flush=True)
         if len(connected_players[self.room_group_name]["channels"]) == 1:
             await self.channel_layer.group_send(
                 self.room_group_name,

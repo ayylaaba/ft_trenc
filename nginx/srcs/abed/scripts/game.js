@@ -126,6 +126,38 @@ var socket = null;
 		if (socket && socket.readyState === WebSocket.OPEN) {
 			console.log("in closed");
 			socket.send(JSON.stringify({ type: "close" }));
+			if (gameStart){
+				if (matchdata.id == 0)
+					fetchUser();
+				fetchcrtf();
+				matchdata.level -= 1;
+				matchdata.score -= 20;
+				let postdata = 
+				{
+					id : matchdata.id,
+					user : matchdata.id,
+					opponent: matchdata.opponent,
+					result: "loss",
+					level:  matchdata.level,
+					score: matchdata.score,
+					Type: "PONG"
+				}
+				if (postdata.level < 0)
+					postdata.level = 0;
+				if (postdata.score < 0)
+					postdata.score = 0;
+				console.log("crtf ", crtf);
+				console.log("postdata ",postdata);
+				fetch('https://localhost/user/store_match/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': crtf
+					},
+					body: JSON.stringify(postdata)
+				})
+				
+			}
 		}
 	});
 
@@ -171,19 +203,15 @@ var socket = null;
 		startContainer.style.display = "block";
 	}
 	function hideGame(){
-		parent.append(header, container);
-		bodyElement.append(parent);
-		parent.append(header, container, closeBtn);
 		header.style.display = "none";
 		container.style.display = "none";
 		parent.style.display = "none";
 		gameType = 'remote';
 		container.style.display = "none";
 		header.style.display = "none";
-		parent.append(app);
 		app.style.display = "none";
-		startContainer.classList.add("active");
-		startContainer.style.display = "block";
+		gameContainer.style.display = "none";
+		game_over.style.display = "none";
 	}
 
 	function fetchcrtf(){
@@ -256,17 +284,15 @@ var socket = null;
 					'is_reserved':is_reserved
 				})
 			})
-			if (is_reserved){
-				console.log("Hollllllllllllllllllllllllllllllllllllllllllllllllllllllllllaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+			if (is_reserved)
 				is_chat = true;
-			}
 	    	let data = await res.json()
-	    	    roomCode = data.code;
-				console.log("game room code is ", roomCode);
-	    	    console.log("Created new room with code: ", roomCode); 
-	    	    wait_page();
-	    	    connectWebSocket();
-				return data;
+	    	roomCode = data.code;
+			console.log("game room code is ", roomCode);
+	    	console.log("Created new room with code: ", roomCode); 
+	    	wait_page();
+	    	connectWebSocket();
+			return data;
 		}
 	    catch(error )
 		{
@@ -286,10 +312,6 @@ export async function fettchTheRoom(Theroom){
 	try{
 		console.log("the room code is ", Theroom);
 		const response = await fetch(`http://127.0.0.1:8002/api/fprooms/room/${Theroom}/`);
-        if (!response.ok) {
-            console.log("No available rooms. Creating a new room...");
-            return await createRoom(0);
-        }
         is_chat = true
         const room = await response.json();
         console.log("Fetched room:", room);
@@ -441,7 +463,6 @@ export async function fetchRoom() {
 		gameStart = true;
 
 	}
-
 	function playTournemt(){
 		console.log("this bracket have ", bracket);
 		console.log("this semi bracket have ", semi);
@@ -466,7 +487,6 @@ export async function fetchRoom() {
 			startContainer.classList.remove("active");
 			startContainer.style.display = "none";
 			pmatch += 1;
-
 		}
 	}
 	function update_tournment(){
@@ -474,11 +494,15 @@ export async function fetchRoom() {
 		app.style.display = "none";
 		let Tournament = document.querySelector('.allbrackets');
 		Tournament.style.display = "flex";
-		let curr_matach1 = " Blue is " + bracket[0];
-		let curr_matach2 = " Red is " + bracket[1];
+		let curr_matach1 =   bracket[0];
+		let curr_matach2 =  bracket[1];
+		document.querySelector('.comingUp').style.display = 'flex';
+		document.querySelector(".announce").style.display = "flex";
+		document.querySelector("#announce1").style.color = "#2f93ba";
+		document.querySelector("#announce2").style.color = "#c71539";
+		document.querySelector("#announce1").innerHTML = curr_matach1 + " v";
+		document.querySelector("#announce2").innerHTML = "s " + curr_matach2;
 
-		document.querySelector("#announce1").innerHTML = curr_matach1 + " vs ";
-		document.querySelector("#announce2").innerHTML = curr_matach2;
 		// update player 
 	}
 
@@ -516,6 +540,7 @@ export async function fetchRoom() {
 						document.getElementById("4thbracket").value = semi[3];
 					if (bracket.length - 2 > 0)
 						bracket.splice(0, 2);
+					gameStart = false
 				}
 				else if (pmatch <= 6 && pmatch > 4){
 					if (winner == '0')
@@ -527,6 +552,7 @@ export async function fetchRoom() {
 					else if (final.length == 2)
 						document.getElementById("Finalist2").value = final[1];
 					semi.splice(0, 2);
+					gameStart = false
 				}
 				if (pmatch == 7)
 				{
@@ -536,6 +562,7 @@ export async function fetchRoom() {
 					else
 						isTourn = true;
 					console.log(" the winner is ", final[1])
+					gameStart = false
 					// announce Winner and pmatch = 0 and game start
 					//anounceWiner();
 				}
@@ -545,6 +572,7 @@ export async function fetchRoom() {
 
 		else if (gameType == "remote")
 		{
+			gameStart = false
 			console.log("pad num is ", pad_num, "winner iis ",parseInt(winner) )
 			if (pad_num == parseInt(winner))
 			{
@@ -581,10 +609,12 @@ export async function fetchRoom() {
 					hideGame()
 				}, 2500)
 			}
-			document.querySelector("#play-again").style.display = "block";
+			if (!is_chat)
+				document.querySelector("#play-again").style.display = "block";
 		}
 		else 
 		{
+			gameStart = false
 			if (0 == parseInt(winner))
 				{
 					gameContainer.style.display = "none";
@@ -752,8 +782,11 @@ export async function fetchRoom() {
 			if (Array.isArray(bracket) && bracket.length) 
 			{
 				console.log("successfully!");
-				if (!isTourn)
+				if (!isTourn && !gameStart)
+				{
+					document.querySelector('.comingUp').style.display = 'none';
 					playTournemt();
+				}
 			} 
 			else 
 			{
@@ -787,7 +820,16 @@ export async function fetchRoom() {
 	/* ************************************ Abed Changes ******************************************* */
 	
 	const handlePlayBtn = () => {
-
+		const freeze = document.querySelector("#freeze");
+		freeze.classList.add("unclick");
+		const design = document.querySelector("#design");
+		design.style.filter = "blur(3px)";
+		const games = document.querySelector("#games");
+		games.style.filter = "blur(3px)";
+		const nav = document.querySelector("#nav");
+		nav.style.filter = "blur(3px)";
+		// const same = document.querySelector(".same-User");
+		// same.style.display = "none";
 		// --------------------------------- //
 		parent.append(header, container);
 		bodyElement.append(parent);
@@ -835,6 +877,10 @@ export async function fetchRoom() {
 		}
 		twoPlayers.addEventListener("click", handleLocaleGame);
 		const closeGame = () => {
+			freeze.classList.remove("unclick");
+			document.querySelector("#design").style.filter = "blur(0px)";
+			document.querySelector("#games").style.filter = "blur(0px)";
+			document.querySelector("#nav").style.filter = "blur(0px)";
 			parent.style.display = "none";
 			startContainer.classList.remove("active");
 			startContainer.style.display = "none";
@@ -862,6 +908,7 @@ export async function fetchRoom() {
 		document.querySelector("#play-again").style.display = "none";
 		roomCode = "";
 		room_is_created = false;
+		gameStart = false
 		pad_num = 0;
 		semi = [];
 		final = [];
@@ -883,5 +930,7 @@ export async function fetchRoom() {
     document.querySelector("#play-again").addEventListener("click", playAgain);
 	const play_button = document.querySelector("#play-button");
 	play_button.addEventListener("click", handlePlayBtn);
+	const pingPong = document.querySelector("#ping-pong");
+	pingPong.addEventListener("click", handlePlayBtn);
 
 // });

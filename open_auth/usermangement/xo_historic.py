@@ -26,8 +26,8 @@ def store_match(request):
 
     if request.data.get('result') == "won":
         user_db.win  += 1
-    if request.data.get('result') == "loss" and user_db.loss > 0:
-        user_db.loss -= 1
+    if request.data.get('result') == "loss":
+        user_db.loss += 1
 
     user_db.save()
     user_db.refresh_from_db()  # Ensure fresh data is loaded from DB
@@ -37,11 +37,11 @@ def store_match(request):
     cache.delete(cache_key)
 
     # Update cache with the latest data
-    serialize_user = UserInfoSerializer(user_db)
+    serialize_user = UserInfoSerializer(user_db, partial=True)
     cache.set(cache_key, serialize_user.data)
 
     # Store match data
-    match_serialize = MatchHistoricSerialzer(data=request.data)
+    match_serialize = MatchHistoricSerialzer(data=request.data, partial=True)
     if match_serialize.is_valid():
         match_serialize.save()
         return JsonResponse({'data': match_serialize.data, 'status': '200'})

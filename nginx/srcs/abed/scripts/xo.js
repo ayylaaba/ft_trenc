@@ -21,6 +21,7 @@
         userName:"",
         openName:"",
     };
+    let gameStart = false;
     // const leftGameContainer = document.createElement("div");
 
     startContainer.className = "start-container";
@@ -69,7 +70,7 @@
         <h2 id="result" ></h2>
         `;
     Suser.innerHTML = `
-        <h2 id="sameUser"> you can't Play with yourself</h2>
+        <h2 id="sameUser"> you can't Play against yourself</h2>
     `;
     app.appendChild(startContainer);
     app.appendChild(gameContainer);
@@ -80,6 +81,49 @@
     let roomCode =null;
     let currentTurn = 'X'; 
     let room_is_created = false;
+
+
+
+    window.addEventListener("beforeunload", (event) => {
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			alert("GOOD")
+			socket.send(JSON.stringify({ type: "close" }));
+			if (gameStart){
+				if (matchdata.id == 0)
+					fetchUser();
+
+				fetchcrtf();
+				matchdata.level -= 1;
+				matchdata.score -= 10;
+				let postdata = 
+				{
+					id : matchdata.id,
+					user : matchdata.id,
+					opponent: matchdata.opponent,
+					result: "loss",
+					level:  matchdata.level,
+					score: matchdata.score,
+					Type: "PONG"
+				}
+				if (postdata.level < 0)
+					postdata.level = 0;
+				if (postdata.score < 0)
+					postdata.score = 0;
+				console.log("crtf ", crtf);
+				console.log("postdata ",postdata);
+				fetch('https://localhost/user/store_match/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': crtf
+					},
+					body: JSON.stringify(postdata)
+				})
+				
+			}
+		}
+	});
+
 
 async function fetchUser(){
     const res = await fetch('https://localhost/user/get_curr_user/', {
@@ -255,6 +299,7 @@ function startGame() {
             "event": "DUSER",
             "message": ""
         }));
+        gameStart = true;
 
    }
 
@@ -393,12 +438,15 @@ function startGame() {
             }
             if (charChoice == 'X'){
                 document.getElementById("enemyXo").textContent = `O is ${matchdata.openName }`;
+
                 document.getElementById("enemyXo").style.backgroundColor = "#08D9D6"
+                 document.getElementById("enemyXo").style.display = "flex";
             }
             else{
 
                 document.getElementById("enemyXo").textContent = `X is ${matchdata.openName }`;
                 document.getElementById("enemyXo").style.backgroundColor = "#FF2E63"
+                 document.getElementById("enemyXo").style.display = "flex";
             }
             console.log("message.userName", message)
             console.log("Update Match ", matchdata.id, " ope ", matchdata.opponent);
@@ -412,49 +460,35 @@ function startGame() {
         }
         function initializeGame() {
             console.log("intitialze fuction");
-            document.getElementById("alert_move").textContent = `Your are ${charChoice}`;
+            document.getElementById("alert_move").textContent = `You are ${charChoice}`;
+            document.getElementById("alert_move").display = "flex";
             startGame();
         }
 
         function left_game(message){
-            alert("on left game");
-            if (message === 'X')
+            console.log("message is ", message,  "CHar ",  charChoice);
+            if (message === charChoice)
             {
-                    document.querySelector("#result").innerHTML = 'O' + " won";
-                    if (message === matchdata.chose)
-                    {
-                            matchdata.result = 0;
-                            matchdata.level -=1; 
-                            matchdata.score -=10;
-                    }
-                    else
-                    {
-                        matchdata.result = 1;
-                        matchdata.level += 1; 
-                        matchdata.score +=15; 
-                    } 
+                    matchdata.result = 0;
+                    matchdata.level -=1; 
+                    matchdata.score -=10;
             }
             else
             {
-                document.querySelector("#result").innerHTML = 'X' + " won";
-                if (message === matchdata.chose)
-                {
-                        matchdata.result = 0;
-                        matchdata.level -=1;
-                        matchdata.score -=10;
-                }
-                else
-                {
-                    matchdata.result = 1;
-                    matchdata.level += 1;
-                    matchdata.score +=15; 
-                } 
-            }
+                matchdata.result = 1;
+                matchdata.level += 1; 
+                matchdata.score +=15; 
+            } 
+            if (message == 'X')
+                message = 'O'
+            else
+                message = 'X'
             resetGame(message);
             console.log("this one left");
         }
         function resetGame(message) {
             is_gameOver = true;
+            gameStart = true;
             let curr_winner;
             console.log("charChoice ", matchdata.charChoice, "userName", matchdata.userName, "openName", matchdata.openName)
             if (charChoice == message)
@@ -515,6 +549,7 @@ function startGame() {
         startContainer.style.display = "block";
         showResult.classList.remove("active");
         document.getElementById("alert_move").textContent = `Your are ${charChoice}`;
+        document.getElementById("alert_move").style.display = "flex";
         document.querySelector(".bg").style.left = "0";
         document.querySelector("#result").innerHTML = "";
         document.querySelector("#pplay-again").style.display = "none";
@@ -551,6 +586,13 @@ function startGame() {
     const closeGame = () => {
         freeze.classList.remove("unclick");
         playAgain();
+        if (gameStart){
+            matchdata.level -= 1;
+            matchdata.score -= 10;
+            matchdata.result = 0;
+        }
+        disconnect()
+        postMatch()
         app.style.display = "none";
         document.querySelector("#design").style.filter = "blur(0px)";
         document.querySelector("#games").style.filter = "blur(0px)";
