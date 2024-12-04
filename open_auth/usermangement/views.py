@@ -27,23 +27,21 @@ def get_user(request):
     if not user.is_authenticated:
         return JsonResponse({"status": "failed", "error": "User Not Authenticated"}, status=401)
 
-    # Cache key
-    cache_key = f"user_profile_{user.id}"
-    cached_data = cache.get(cache_key)
+    # Check if session has the latest user data
+    user_data_from_session = request.session.get('user_data', None)
 
-    if cached_data:
-        print("\033[1;38m Serving from cache ===> ", cached_data)
-        return JsonResponse({"status": "success", "data": cached_data}, status=200)
+    if user_data_from_session:
+        print ("Session Info")
+        # If session has valid user data, return it
+        return JsonResponse({"status": "success", "data": user_data_from_session}, status=200)
 
-
-    # Fetch fresh data and cache it
     serialize = ProfileSerializer(instance=user)
     fresh_data = serialize.data
-    cache.set(cache_key, fresh_data, timeout=None)  # Cache fresh data indefinitely
+    request.session['user_data'] = fresh_data  # Update session
+    request.session.modified = True  # Mark session as modified to ensure saving
 
     print("\033[1;38m user data ===> ", fresh_data)
     return JsonResponse({"status": "success", "data": fresh_data}, status=200)
-
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -65,8 +63,7 @@ def profile(request):
                 'status': 'failed'
             }, status=400)
     else:
-        return JsonResponse({
-            'data': None,  # Return None or an empty dict in case of failure
+        return JsonResponse({'data': None,  # Return None or an empty dict in case of failure
             'status': 'failed'
         }, status=400)
 
@@ -95,8 +92,8 @@ def update_user(request):
         return JsonResponse({'status': 'failed', 'data': 'Must change email'}, status=400)
 
     # Invalidate the cache for the user
-    cache_key = f"user_profile_{user.id}"
-    cache.delete(cache_key)
+    # cache_key = f"user_profile_{user.id}"
+    # cache.delete(cache_key)
 
     # Update user data
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
@@ -104,14 +101,15 @@ def update_user(request):
         update_serializer.save()
 
         # Fetch fresh data from the database to ensure the latest data is used
-        user.refresh_from_db()  # Ensure that the user object is up to date with the database
+        # user.refresh_from_db()  # Ensure that the user object is up to date with the database
 
+        request.session['user_data'] = update_serializer.data
         # Refresh cache with updated data
-        last_update = ProfileSerializer(instance=user).data
-        cache.set(cache_key, last_update, timeout=None)
+        # last_update = ProfileSerializer(instance=user).data
+        # cache.set(cache_key, last_update, timeout=None)
 
-        print('Updated data === ', last_update)
-        return JsonResponse({'status': 'success', 'data': last_update}, status=200)
+        # print('Updated data === ', last_update)
+        return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200)
 
     return JsonResponse({'status': 'failed', 'data': update_serializer.errors}, status=400)
 

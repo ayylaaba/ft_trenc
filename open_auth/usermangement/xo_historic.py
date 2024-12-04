@@ -21,21 +21,25 @@ def store_match(request):
     # Update user level and score
     user_db.level = request.data.get('level')
     user_db.score = request.data.get('score')
+
+    print("\033[1;32m user -> ", user)
+    print("\033[1;32m user_db.level -> ", user_db.level, flush="")
+    print("\033[1;32m user_db.score -> ", user_db.score)
+
     user_db.save()
     user_db.refresh_from_db()  # Ensure fresh data is loaded from DB
 
-    # Invalidate cache for the user
-    cache_key = f"user_profile_{user.id}"
-    cache.delete(cache_key)
-
-    # Update cache with the latest data
     serialize_user = UserInfoSerializer(user_db)
-    cache.set(cache_key, serialize_user.data, timeout=None)
+    request.session['user_data'] = serialize_user.data  # Update session
+    request.session.modified = True 
+
+    print ("user info : ",serialize_user.data)
 
     # Store match data
     match_serialize = MatchHistoricSerialzer(data=request.data)
     if match_serialize.is_valid():
         match_serialize.save()
+        print("\033[1;37m Match Saved-> ")
         return JsonResponse({'data': match_serialize.data, 'status': '200'})
 
     return JsonResponse({'data': match_serialize.errors, 'status': '400'})
@@ -75,24 +79,11 @@ def get_curr_user(request):
     user = request.user
 
     if not user.is_authenticated:
-        return JsonResponse({'status': '400', 'data': 'User is not authenticated'})
+        return JsonResponse({"status": "failed", "error": "User Not Authenticated"}, status=401)
 
-    try:
-        user_db = User_info.objects.get(id=user.id)  # Fetch fresh user data from DB
-    except User_info.DoesNotExist:
-        return JsonResponse({'status': '404', 'data': 'User not found'})
-
-    # Cache management
-    cache_key = f"user_profile_{user.id}"
-    cached_data = cache.get(cache_key)
-
-    if cached_data:
-        print(f"Returning cached data for user {user.id}")
-        return JsonResponse({'status': '200', 'data': cached_data})
-
-    # Serialize and cache fresh user data
-    serialize_user = UserInfoSerializer(user_db)
-    cache.set(cache_key, serialize_user.data, timeout=None)  # Cache the latest data
-    print("\033[1;33m Current user data -> : ", serialize_user.data, flush=True)
-
-    return JsonResponse({'status': '200', 'data': serialize_user.data})
+    serialize = UserInfoSerializer(instance=user)
+    fresh_data = serialize.data
+    request.session['user_data'] = fresh_data  # Update session
+    request.session.modified = True  # Mark session as modified to ensure saving
+    print("\033[1;38m user data ===> ", fresh_data)
+    return JsonResponse({"status": "success", "data": fresh_data}, status=200)

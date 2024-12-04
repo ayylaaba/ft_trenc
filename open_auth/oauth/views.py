@@ -15,8 +15,10 @@ from django.core.files                  import File
 from channels.layers                    import get_channel_layer
 from asgiref.sync                       import async_to_sync
 from usermangement .serializer          import ProfileSerializer
+from usermangement.serializer           import UserInfoSerializer 
 import os
 import requests
+from django.contrib.sessions.models     import Session
 
 
 client_id = os.getenv("CLIENT_ID")
@@ -53,28 +55,33 @@ def     register_vu(request):
 @csrf_exempt
 @api_view(['POST'])
 def     logout_vu(request):
-    user = request.user
+    # user = request.user
+
+    # user_db = User_info.objects.get(id=user.id)
+
+    # user_db.online_status = False
+    # user_db.save()
     
-    user.online_status = False
-    user.save()
-    
-    frends = user.friends.all()  
-    channel_layer = get_channel_layer()
-    for friend_of_user in frends:
-        async_to_sync(channel_layer.group_send)(
-            f'user_{friend_of_user.id}',
-            {
-                'type': 'notify_user_status',
-                'data':
-                {
-                    'id': user.id,
-                    'username':user.username,
-                    'online_status': False
-                }
-            }
-        )
+    # frends = user.friends.all()  
+    # channel_layer = get_channel_layer()
+    # for friend_of_user in frends:
+    #     async_to_sync(channel_layer.group_send)(
+    #         f'user_{friend_of_user.id}',
+    #         {
+    #             'type': 'notify_user_status',
+    #             'data':
+    #             {
+    #                 'id': user.id,
+    #                 'username':user.username,
+    #                 'online_status': False
+    #             }
+    #         }
+    #     )
     if request.method == 'POST':
-        logout(request)
+        # logout(request)
+        print("\033[1;39m session removed -> ", request.session.get('user_data', 'No user data'))
+        # request.session.flush()
+        print("\033[1;39m session removed -> ", request.session.get('user_data', 'No user data'))
         return (JsonResponse({'status':'success'}))
     else :
         return (JsonResponse({'status':'faild'}))
@@ -82,6 +89,21 @@ def     logout_vu(request):
 @csrf_exempt
 @api_view(['POST'])
 def login_vu(request):
+
+    user = request.user
+    user_db = User_info.objects.get(id=user.id)
+    serialize_user = UserInfoSerializer(user_db)
+    user_data_from_session = request.session.get('user_data', None)
+
+    print("\033[1;38m user  before ********* ", serialize_user.data)
+    print("\033[1;38m user session ********* ", user_data_from_session)
+
+    serializer = UserInfoSerializer(user_db, data=user_data_from_session, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+
+    print("\033[1;38m user  after ********* ", serializer.data)
+
     username = request.data.get('username')
     password = request.data.get('password')
 
@@ -91,15 +113,17 @@ def login_vu(request):
         return Response({"status": False, "error": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
     # Log the user in
     login(request, user)
-    # from now django will know that this user who make a request and will be update in case other user login 
-    # Example: Print session data
-    print(f"Session Data: {request.session.items()}")
 
-    token, created = Token.objects.get_or_create(user=user)
-    serialize_user = CustmerSerializer(instance=user)
-    return Response({"token": token.key, "data": serialize_user.data, "status":"success"})
-
-from django.contrib.sessions.models import Session
+    # Serialize the user data
+    # serialize_user = UserInfoSerializer(serializer)
+    print("\033[1;32m UserInfoSerializer -> ", serializer.data)
+    # Store the serialized user data in the session
+    request.session['user_data'] = serializer.data
+    request.session.modified = True  # Ensure that the session is saved
+    user_data_from_session = request.session.get('user_data', None)
+    if user_data_from_session:
+        print(f"after login User data from session: {user_data_from_session}")
+    return Response({"data": serializer.data, "status":"success"})
 
 def     oauth_authorize(request): 
 
