@@ -25,14 +25,7 @@ def     get_user(request):
     if request.method == 'GET':
         user = request.user
         if user.is_authenticated:
-            cache_key = f"user_profile_{user.id}"
-            cached_data = cache.get(cache_key)
-            if cached_data:
-                print(f"Returning cached data for user {user.id}")
-                return JsonResponse({'status': 'success', 'data': cached_data}, status=200)
             serialize = ProfileSerializer(instance=user)
-            cache.set(cache_key, serialize.data)  # Cache fresh data
-            print("\033[1;38m data ===> ", serialize.data)
             return JsonResponse ({"status" : "success",
              "data" : serialize.data})
         return JsonResponse ({"status" : "failed",
@@ -65,42 +58,41 @@ def profile(request):
             'status': 'failed'
         }, status=400)
 
-@csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def update_user(request):
     print("Entered update_user view")
 
-    if request.method != 'POST':
-        return JsonResponse({'status': 'failed', 'data': 'Invalid request method'}, status=400)
-
     user = request.user
 
-    if not user.is_authenticated:
-        return JsonResponse({'status': 'failed', 'data': 'User is not authenticated'}, status=401)
-    
     # Handle file uploads for imageProfile
-    if 'imageProfile' in request.FILES:
-        request.data['imageProfile'] = request.FILES['imageProfile']
+    data = request.data.copy()  # Create a mutable copy of the request data
 
-    # Use request.data instead of request.body
-    data  = request.data
-    
+    if 'imageProfile' in request.FILES:
+        data['imageProfile'] = request.FILES['imageProfile']
+    else:
+        data.pop('imageProfile', None)  # Ensure imageProfile isn't sent if not provided
+
     if not data:
         return JsonResponse({'status': 'failed', 'data': 'Request body is empty'}, status=400)
 
-    # check if data is a json form by method isinstance "dict" mean data is a dic or not
-    if  not isinstance(data, dict):
+    # Check if data is in JSON format
+    if not isinstance(data, dict):
         return JsonResponse({'status': 'failed', 'data': 'Expected a JSON object'}, status=400)
-    
-    if user.email == request.data['email']:
-        return JsonResponse({'status': 'failed', 'data': 'must to change email'}, status=400)
-    
+
+    # Check for email uniqueness
+    if 'email' in data and user.email == data['email']:
+        return JsonResponse({'status': 'failed', 'data': 'Must change email'}, status=400)
+
+    # Serialize and update user data
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
 
     if update_serializer.is_valid():
         update_serializer.save()
-    print('Updated data === ', update_serializer.data)
-    return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200) 
+        print('Updated data === ', update_serializer.data)
+        return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200)
+
+    return JsonResponse({'status': 'failed', 'errors': update_serializer.errors}, status=400)
 
 from django.db.models import Q  # Add this import
 
@@ -353,6 +345,7 @@ def reject_request(request, receiver_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Ensure the user is logged in
 def ChangePassword(request):
+
     user = request.user
     data = request.data
 
@@ -373,6 +366,10 @@ def ChangePassword(request):
                 user.username = new_username  # Update the username
 
     # Check if old password is correct
+    print ("old_password ", old_password)
+    print ("new_password ", new_password)
+    print ("user ", user)
+    print("printi chi l3aba ", user.check_password(old_password)) 
     if not user.check_password(old_password):
         return JsonResponse({"error": "Old password is incorrect."}, status=400)
 
@@ -381,7 +378,6 @@ def ChangePassword(request):
     user.set_password(new_password)
     user.save()
 
-    # Update the session with the new password (to prevent logging out)
     update_session_auth_hash(request, user)
 
     return JsonResponse({"status": "Password changed successfully!"}, status=200)

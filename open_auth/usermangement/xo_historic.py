@@ -21,7 +21,7 @@ def store_match(request):
     # Update user level and score
     user_db.level = request.data.get('level')
     user_db.score = request.data.get('score')
-    print ("score : ", request.data.get('score'))
+    print ("score : ",  request.data.get('score'))
     print ("result : ", request.data.get('result'))
 
     if request.data.get('result') == "won":
@@ -31,14 +31,6 @@ def store_match(request):
 
     user_db.save()
     user_db.refresh_from_db()  # Ensure fresh data is loaded from DB
-
-    # Invalidate cache for the user
-    cache_key = f"user_profile_{user.id}"
-    cache.delete(cache_key)
-
-    # Update cache with the latest data
-    serialize_user = UserInfoSerializer(user_db, partial=True)
-    cache.set(cache_key, serialize_user.data)
 
     # Store match data
     match_serialize = MatchHistoricSerialzer(data=request.data, partial=True)
@@ -91,17 +83,5 @@ def get_curr_user(request):
     except User_info.DoesNotExist:
         return JsonResponse({'status': '404', 'data': 'User not found'})
 
-    # Cache management
-    cache_key = f"user_profile_{user.id}"
-    cached_data = cache.get(cache_key)
-
-    if cached_data:
-        print(f"Returning cached data for user {user.id}")
-        return JsonResponse({'status': '200', 'data': cached_data})
-
-    # Serialize and cache fresh user data
     serialize_user = UserInfoSerializer(user_db)
-    cache.set(cache_key, serialize_user.data)  # Cache the latest data
-    print("\033[1;33m Current user data -> : ", serialize_user.data, flush=True)
-
     return JsonResponse({'status': '200', 'data': serialize_user.data})

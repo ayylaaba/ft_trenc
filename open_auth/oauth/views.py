@@ -76,8 +76,7 @@ def     logout_vu(request):
     if request.method == 'POST':
         logout(request)
         return (JsonResponse({'status':'success'}))
-    else :
-        return (JsonResponse({'status':'faild'}))
+    return (JsonResponse({'status':'faild'}))
 
 @csrf_exempt
 @api_view(['POST'])
@@ -89,15 +88,9 @@ def login_vu(request):
     user = authenticate(username=username, password=password)
     if user is None:
         return Response({"status": False, "error": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
-    # Log the user in
     login(request, user)
-    # from now django will know that this user who make a request and will be update in case other user login 
-    # Example: Print session data
-    print(f"Session Data: {request.session.items()}")
-
-    token, created = Token.objects.get_or_create(user=user)
     serialize_user = CustmerSerializer(instance=user)
-    return Response({"token": token.key, "data": serialize_user.data, "status":"success"})
+    return Response({"data": serialize_user.data, "status":"success"})
 
 from django.contrib.sessions.models import Session
 

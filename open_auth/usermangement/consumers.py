@@ -6,7 +6,7 @@ from oauth.models        import User_info
 
 class FriendRequestConsumer(WebsocketConsumer):
 
-    def connect(self):
+    async def connect(self):
         self.user = self.scope["user"]
         print(f"Connected user: {self.user}")
         if self.user.is_authenticated and isinstance(self.user, User_info):
@@ -21,7 +21,7 @@ class FriendRequestConsumer(WebsocketConsumer):
             print("Anonymous user connected")
             self.close()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         print ('\033[1;32m Disconnect it \n')
         self.user = self.scope["user"]
         self.user.online_status = False
@@ -30,7 +30,7 @@ class FriendRequestConsumer(WebsocketConsumer):
         self.notify_to_curr_user_form_friends()
         async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         data = json.loads(text_data)
 
         print('>>>>>>>> type', data.get('type'))
