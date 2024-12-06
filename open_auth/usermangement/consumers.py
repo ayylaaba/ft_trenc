@@ -30,9 +30,9 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
         print ('\033[1;32m Disconnect it \n')
         self.user = self.scope["user"]
         self.user.online_status = False
-        self.user.save()
-        self.update_user_status(False)
-        self.notify_to_curr_user_form_friends()
+        await sync_to_async(self.user.save)() 
+        await self.update_user_status(False)
+        await self.notify_to_curr_user_form_friends()
         print("this 4", flush=True)
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
