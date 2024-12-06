@@ -39,8 +39,22 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
 
-        print('>>>>>>>> type', data.get('type'))
+        if data.get('type') == 'notif':
 
+            recipient_id = data['id']
+            sender_id = data['senderID']
+
+            friends = self.user.friends.all()
+            for friend in friends:
+                if friend.id == recipient_id:
+                    await self.channel_layer.group_send(
+                    f'user_{friend.id}',
+                    {
+                        'type': "receive_norif",
+                        'friend': recipient_id,
+                        'senderID': sender_id
+                    }
+                )
         if data.get('type') == 'requestFriend':
 
             recipient_id = data['recipient_id']

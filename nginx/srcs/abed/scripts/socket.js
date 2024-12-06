@@ -1,15 +1,14 @@
 import { friendsFunction, suggestionsFunction, requestsFunction, createRequestCards, createFriendCards, createSuggestionCard, sendIdToBackend } from "./friends.js";
 import { mainFunction, lookForUsers } from "./home.js";
 import { notificationFunction, notifBtn } from "./notification.js";
-import { createRoom } from "./game.js";
-import { fettchTheRoom  } from "./game.js";
-import { displayGame } from "./game.js"
+import { fettchTheRoom, displayGame, createRoom  } from "./game.js";
+import { chatPage } from "./chat.js";
 
 export let flag = 0;
 export let socket = null;
 export let check_status = false;
 let count = 0;
-let roomCode
+let roomCode;
 
 export const createToast = (message, timeAgo) => {
     // Create toast HTML structure
@@ -62,9 +61,23 @@ export const socketFunction = async () => {
             const sender = data['author'];
             const sender_id = data['senderId'];
             
+            if (data.type === 'receive_norif') {
+                const computedStyle = window.getComputedStyle(chatPage);
+                if (computedStyle.display === "none") {
+                    const chatIcone = document.querySelector("#chat");
+                    chatIcone.append(bellNotif);
+                    localStorage.setItem("messageNotif", "true");
+                    localStorageTracking("messageNotif", bellNotif, chatIcone);
+                    console.log("The div has display: none.");
+                }
+                // ----------- second part -------------- //
+                const user = document.getElementById(`user-${thisid}`);
+                console.log("res id: ", thisid);
+                user.append(bellNotifUser);
+                localStorage.setItem(`messageUser-${thisid}`, "true");
+                localStorageTracking(`messageUser-${thisid}`, bellNotifUser, user);
+            }
             if (data.type === 'play_invitation') {
-                
-                console.log('check yes', count);
 
                 const _confirm = `
                     <p>You have been invited to pong match with ${sender}</p>
@@ -117,13 +130,10 @@ export const socketFunction = async () => {
             }
             if (data.type === 'response_invitation') {
 
-                count = 1;
                 const _confirm = data['confirmation'];
                 const recipient = data['recipient'];
-                
-                console.log('-------------> helloooo');
 
-                if (_confirm){
+                if (_confirm) {
                     console.log("room code in case accept ", data['roomcode'])
                     let roomToGET = data['roomcode']
                     console.log('check is true');
@@ -131,6 +141,7 @@ export const socketFunction = async () => {
                     displayGame();
                 }
                 else {
+                    // should sent a refuse message ---------- 
                     console.log('check is false');
                 }
             }

@@ -1,7 +1,6 @@
 export const chatButton = document.querySelector("#chat");
 export const chatPage = document.querySelector("#chat-part");
 let chatSocket = null;
-let roomCode;
 let thisSocket = null;
 
 import { profileId } from "./profile.js";
@@ -11,14 +10,9 @@ import { rankPart } from "./rank.js";
 import { friendsPart, friendsFunction } from "./friends.js";
 import { get_csrf_token } from "./register.js";
 import { newDataFunc } from "../script.js";
-import { socketFunction } from "./socket.js";
-import { createRoom } from "./game.js";
+import { socketFunction, localStorageTracking, bellNotifUser, bellNotif } from "./socket.js";
 
 
-/************************* */
-
-
-/********************************** */
 const notifButton = document.querySelector(".search-icons .btn");
 const profBtn = document.querySelector("#profile-pict .btn");
 
@@ -44,6 +38,23 @@ bodyElement.addEventListener("click", (event)=> {
     }
 })
 
+export const popupCard = (message) => {
+    const cardDiv = document.createElement("div");
+    cardDiv.id = "card-div";
+    const bodyElement = document.querySelector("body");
+    const paragraph = document.createElement("p");
+    paragraph.id = "paragraph-id";
+    paragraph.innerHTML = `${message}`;
+    const buttonn = document.querySelector("button");
+    buttonn.id = "pop-btn";
+    buttonn.innerHTML = "Ok";
+    cardDiv.append(paragraph, buttonn);
+    bodyElement.append(cardDiv);
+    setTimeout(()=> {
+        cardDiv.style.display = "none";
+    }, 3000);
+}
+
 export const chatFunction = async () => {
     profileId.style.display = "none";
     main.style.display = "none";
@@ -51,6 +62,8 @@ export const chatFunction = async () => {
     rankPart.style.display = "none";
     friendsPart.style.display = "none";
     chatPage.style.display = "block";
+    localStorage.setItem("messageNotif", "false");
+    bellNotif.remove();
     const chats = document.querySelector("#chats");
     document.querySelector('#chat-pic').style.display = 'none';
     document.querySelector('#input-group-chat').style.display = 'none';
@@ -194,7 +207,6 @@ const data_characters = async () => {
     const characters = await friendsFunction();
     const thisCurrUser = await newDataFunc();
     const chats1 = document.querySelector("#chats");
-    //kharjha mnhana
     thisSocket = await socketFunction();
     let room_id = 0;
     let check = "";
@@ -211,6 +223,7 @@ const data_characters = async () => {
                 </p>
                 `;
                 const user = document.createElement("div");
+                user.id = `user-${character.id}`;
                 user.classList.add("user");
                 user.innerHTML = userStr.trim();
                 let visitId = character.username;
@@ -280,17 +293,17 @@ const data_characters = async () => {
                         document.getElementById(`play-${character.id}`).addEventListener('click', async function (e) {
                             
                             if (check.etat === false) {
- 
-                                thisSocket.send(JSON.stringify({
+                                thisSocket.send(JSON.stringify ({
                                     'type': 'requestFriend',
                                     'recipient_id': character.id,
                                     'sender_id': thisCurrUser.id,
                                     'sender': thisCurrUser.username,
-                                    'recipient': character.username,
+                                    'recipient': character.username
                                 }));
                             }
-                            else{
-                                alert(`You blocked ${character.username}`);
+                            else {
+                                console.log('yooooooooooooooooooooooo');
+                                popupCard(`You blocked ${character.username}`);
                             }
                         });
                 
@@ -358,7 +371,7 @@ const data_characters = async () => {
             console.log(`Room name: ${room_id}`);
             showRoom(character.username, thisCurrUser.username);
             if (check.etat === false && check.blocker !== character.username) {
-                    initWebSocket(room_id, character.username);
+                    initWebSocket(room_id, character.username, character.id);
             }
             else {
                 const inputChat = document.querySelector('#input-group-chat');
@@ -375,9 +388,16 @@ const data_characters = async () => {
         if (check.blocker === character.username) {
             document.getElementById(`user-${character.id}`).disabled = true;
         }
+        const messageNotification = localStorage.getItem(`messageUser-${character.id}`); //bellNotifUser
+        if (messageNotification === "true") {
+            const user = document.getElementById(`user-${character.id}`);
+            user.append(bellNotifUser);
+            // const chatIcone = document.querySelector("#chat");
+            localStorageTracking(`messageUser-${character.id}`, bellNotifUser, user);
+        }
     }
 
-    function initWebSocket(roomId, username) {
+    function initWebSocket(roomId, username, userID) {
 
         if (chatSocket !== null) {
             chatSocket.close();
@@ -443,6 +463,11 @@ const data_characters = async () => {
                 }));
                 messageinput.value = '';
                 scrollToBottom();
+                thisSocket.send(JSON.stringify ({
+                    'type': "notif",
+                    'id': userID,
+                    'senderID': thisCurrUser.id
+                }));
             }
             else {
                 messageinput.value = '';
@@ -450,34 +475,3 @@ const data_characters = async () => {
         };
     }
 };
-
-// const sendMsg = document.querySelector("#something");
-
-// const frontChat = (event)=> {
-//     // alert("chat enter");
-//     if (sendMsg.value != "friend" && sendMsg.value != "alaykum salam") { // you are the sender;
-//         const msg = document.createElement("div");
-//         msg.classList.add("my-msg");
-//         document.querySelector("#msgs").appendChild(msg);
-//         msg.innerHTML = `${sendMsg.value}`;
-//         sendMsg.value = "";
-//         scrollToBottom();
-//     } else {                                                            // you are the receiver;
-//         const msg = document.createElement("div");
-//         document.querySelector("#msgs").appendChild(msg);
-//         msg.classList.add("friend-msg");
-//         msg.innerHTML = `${sendMsg.value}`;
-//         sendMsg.value = "";
-//         scrollToBottom();
-//     }
-// }
-
-// const sendMsgBtn = document.querySelector("#input-group-text-chat");
-// sendMsgBtn.addEventListener("click", frontChat);
-// if (sendMsg) {
-//     sendMsg.addEventListener("keydown", (event)=> {
-//         if (event.key === "Enter") {
-//             frontChat();
-//         }
-//     });
-// }
