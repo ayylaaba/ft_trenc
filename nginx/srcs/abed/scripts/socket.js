@@ -43,7 +43,7 @@ export const socketFunction = async () => {
     if (isLoggedIn && !flag) {
         console.log("the flag: ", flag);
         await friendsFunction(); // create friends cards first.
-        socket = new WebSocket('wss://localhost/wss/friend_requests/');
+        socket = new WebSocket('wss://10.14.9.6:8082/wss/friend_requests/');
         socket.onopen = function() {
                 console.log('WebSocket connection established');
                 flag++;

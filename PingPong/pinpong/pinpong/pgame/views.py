@@ -9,8 +9,8 @@ class RoomListCreateAPIView(APIView):
     
     def get(self, request):
         rooms = Proom.objects.filter(players__lt=2)
-        print("it is empty", rooms.exists())
-        print("room size is ", rooms.__sizeof__())
+        print("it is empty", rooms.exists(), flush=True)
+        print("room size is ", rooms.__sizeof__(), flush=True)
         if rooms.exists():
             room = rooms.first()
             room.players += 1
