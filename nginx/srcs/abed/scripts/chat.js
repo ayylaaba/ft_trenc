@@ -213,7 +213,6 @@ const data_characters = async () => {
 
     characters.forEach(character => {
         
-        console.log('------------> ', chatSocket);
         const userStr = `
             <p>${character.username} </p>
             <p class="user-dots">

@@ -150,11 +150,17 @@ loginBtn.addEventListener("click", ()=> {
 
 // const onlineColor = document.querySelector(".frd-sug-img i");
 
-import { flag, socketFunction } from "./scripts/socket.js";
+import { flag, socketFunction, localStorageTracking, bellNotif } from "./scripts/socket.js";
 
 window.addEventListener('popstate', ()=> navigateTo("forback")); // this is to check navigation backward or forward;
 
 document.addEventListener("DOMContentLoaded", () => { // this is on reload page (refresh);
+    const messageNotification = localStorage.getItem("messageNotif");
+    if (messageNotification === "true") {
+        const chatIcone = document.querySelector("#chat");
+        chatIcone.append(bellNotif);
+        localStorageTracking("messageNotif", bellNotif, chatIcone);
+    }
     navigateTo("current");
     if (!flag) {
         socketFunction();

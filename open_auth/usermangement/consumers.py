@@ -44,7 +44,7 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
             recipient_id = data['id']
             sender_id = data['senderID']
 
-            friends = self.user.friends.all()
+            friends = await sync_to_async(list)(self.user.friends.all())
             for friend in friends:
                 if friend.id == recipient_id:
                     await self.channel_layer.group_send(
@@ -161,6 +161,16 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
                     'online_status'    : friend_status
                 }
             }))
+
+    async def receive_norif(self, event):
+        _id = event['friend']
+        senderID = event['senderID']
+
+        await self.send(text_data=json.dumps ({
+            'type': 'receive_norif',
+            'recipient_id': _id,
+            'senderID': senderID
+        }))
 
     async def response_block(self, event):
         block_id = event['block_id']

@@ -41,6 +41,21 @@ export const createToast = (message, timeAgo) => {
     }, 6000);
 }
 
+
+export const localStorageTracking = async (str, toRemove, target) => {
+    target.addEventListener("click", () => {
+        localStorage.setItem(str, "false");
+        toRemove.remove();
+    });
+}
+
+export const bellNotif = document.createElement("div");
+bellNotif.id = "message-notif";
+
+export const bellNotifUser = document.createElement("div");
+bellNotifUser.classList.add("user-notiff");
+
+
 export const socketFunction = async () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isLoggedIn && !flag) {
@@ -60,6 +75,7 @@ export const socketFunction = async () => {
             const recipient = data.recipient;
             const sender = data['author'];
             const sender_id = data['senderId'];
+            const thisid = data['senderID'];
             
             if (data.type === 'receive_norif') {
                 const computedStyle = window.getComputedStyle(chatPage);
