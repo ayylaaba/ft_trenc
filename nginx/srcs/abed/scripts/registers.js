@@ -8,19 +8,19 @@ const player5 = document.getElementById("player5");
 const player6 = document.getElementById("player6");
 const player7 = document.getElementById("player7");
 const player8 = document.getElementById("player8");
-const commingUp = document.createElement("div");
-commingUp.className = "comingUp";
-commingUp.innerHTML = `
-	<h1>Next Match : </h1>
-	<hr>
-	<div class="announce">
-		<h1 id="announce1"> Next Match:</h1>
-		<h1 id="announce2"> Next Match:</h1>
-	</div>
-	<div class="pressEnter">
-		<h2> Press enter....<h2>
-	</div>
-	`;
+const commingUp = document.getElementById("comingUp");
+// commingUp.className = "comingUp";
+// commingUp.innerHTML = `
+// 	<h1>Next Match : </h1>
+// 	<hr>
+// 	<div class="announce">
+// 		<h1 id="announce1"> Next Match:</h1>
+// 		<h1 id="announce2"> Next Match:</h1>
+// 	</div>
+// 	<div class="pressEnter">
+// 		<h2> Press enter....<h2>
+// 	</div>
+// 	`;
 let sameName = false;
 let bracket = [];
 let retBracket = [];
@@ -109,9 +109,9 @@ const validateInput = () =>{
 	}
 	else
 	{
-		commingUp.style.display = "flex";
-		const parent = document.querySelector("#choose-mode");
-		parent.append(commingUp);
+		// commingUp.style.display = "flex";
+		// const parent = document.querySelector("#choose-mode");
+		// parent.append(commingUp);
 		console.log("IN prog");
 		hide(document.querySelector('.container'));
 		show(document.querySelector('.allbrackets'));
@@ -119,6 +119,7 @@ const validateInput = () =>{
 		fill("player2B", pValue, pValue.length, bracket);
 		let curr_matach1 =  bracket[0];
 		let curr_matach2 = bracket[1];
+		document.querySelector(".comingUp").style.display = "flex";
 		document.querySelector(".announce").style.display = "flex";
 		document.querySelector("#announce1").style.color = "#2f93ba";
 		document.querySelector("#announce2").style.color = "#c71539";

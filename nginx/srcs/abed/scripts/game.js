@@ -85,6 +85,22 @@ var socket = null;
 	parent.append(header, container);
 	bodyElement.append(parent);
 	parent.append(header, container, closeBtn);
+	const commingUp = document.createElement("div");
+	commingUp.className = "comingUp";
+	commingUp.innerHTML = `
+	<h1 id=nextmatch>Next Match : </h1>
+	<hr>
+	<div class="announce">
+		<h1 id="announce1"> Next Match:</h1>
+		<h1 id="announce2"> Next Match:</h1>
+	</div>
+	<div class="pressEnter">
+		<h2> Press enter....<h2>
+	</div>
+	`;
+	parent.append(commingUp);
+	document.querySelector('.comingUp').style.display = 'none';
+
 
 	startContainer.className = "start-container1";
 	waitContainer.className = "wait-container1";
@@ -273,6 +289,11 @@ var socket = null;
 	export async function  createRoom(is_reserved) {
 		try
 		{
+			let gamemode;
+			if (gameType == "tourn")
+				gamemode = "local"
+			else 
+				gamemode = gameType;
 			const res = await fetch('/pong/prooms/', {
 				method: 'POST',
 				headers: {
@@ -280,7 +301,7 @@ var socket = null;
 				},
 				body: JSON.stringify({
 					"code": generateRoomCode(),
-					"type": gameType,
+					"type": gamemode,
 					'is_reserved':is_reserved
 				})
 			})
@@ -490,7 +511,7 @@ export async function fetchRoom() {
 			pmatch += 1;
 		}
 	}
-	function update_tournment(){
+	function update_tournment(pmatch, winner, color){
 		console.log("this is working ...");
 		app.style.display = "none";
 		let Tournament = document.querySelector('.allbrackets');
@@ -499,10 +520,21 @@ export async function fetchRoom() {
 		let curr_matach2 =  bracket[1];
 		document.querySelector('.comingUp').style.display = 'flex';
 		document.querySelector(".announce").style.display = "flex";
+		document.querySelector(".pressEnter").style.display = "flex";
 		document.querySelector("#announce1").style.color = "#2f93ba";
 		document.querySelector("#announce2").style.color = "#c71539";
 		document.querySelector("#announce1").innerHTML = curr_matach1 + " v";
 		document.querySelector("#announce2").innerHTML = "s " + curr_matach2;
+		if (pmatch == 7)
+		{
+			// commingUp.innerHTML = The Winner is
+			document.querySelector("#announce1").innerHTML = "";
+			document.querySelector("#announce2").style.color = color;
+			document.querySelector("#announce2").innerHTML = "The winner is:";
+			document.querySelector("#nextmatch").style.color = "#BFA100";
+			document.querySelector("#nextmatch").innerHTML = winner;
+			
+		}
 
 		// update player 
 	}
@@ -555,19 +587,29 @@ export async function fetchRoom() {
 					semi.splice(0, 2);
 					gameStart = false
 				}
+				let theWinner ;
+				let color;
 				if (pmatch == 7)
 				{
 					console.log("Game over ")
 					if (winner == '0')
+					{
+						theWinner = final[0]
+						color = "#c71539"
 						console.log(" the winner is ", final[0])
+					}
 					else
+					{
+						theWinner = final[1]
+						color = "#2f93ba"
 						isTourn = true;
-					console.log(" the winner is ", final[1])
+						console.log(" the winner is ", final[1])
+					}
 					gameStart = false
 					// announce Winner and pmatch = 0 and game start
 					//anounceWiner();
 				}
-				update_tournment();
+				update_tournment(pmatch, theWinner, color);
 			}
 		}
 
@@ -786,6 +828,8 @@ export async function fetchRoom() {
 				if (!isTourn && !gameStart)
 				{
 					document.querySelector('.comingUp').style.display = 'none';
+					document.querySelector(".announce").style.display = "none";
+					document.querySelector(".pressEnter").style.display = "none";
 					playTournemt();
 				}
 			} 
@@ -907,6 +951,9 @@ export async function fetchRoom() {
 	const playAgain = () =>{
 		disconnect();
 		document.querySelector("#play-again").style.display = "none";
+		if (gameType == "tourn")
+			document.querySelector('.comingUp').style.display = 'none';
+
 		roomCode = "";
 		room_is_created = false;
 		gameStart = false
@@ -922,8 +969,8 @@ export async function fetchRoom() {
 	    startContainer.style.display = "block";
 		const TournamentContainer = document.querySelector('.container');
 		TournamentContainer.style.display = "none";
-		if (gameType == "tourn")
-			document.querySelector(".comingUp").style.display = "none";
+		// if (gameType == "tourn")
+		document.querySelector(".comingUp").style.display = "none";
 		document.querySelector(".allbrackets").style.display = "none";
 
 	}

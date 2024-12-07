@@ -139,6 +139,7 @@ class PingPongConsumer(AsyncWebsocketConsumer):
                 "user1Name":None,
                 "user2Name":None,
                 "pad_num":None,
+                "type":None,
                 "channels": []
             }
         if len(connected_players[self.room_group_name]['channels']) >= 2:
@@ -200,7 +201,7 @@ class PingPongConsumer(AsyncWebsocketConsumer):
         
     async def receive(self, text_data):
         data = json.loads(text_data)
-        if data.get('type') == 'START':
+        if data.get('type') == 'START' and connected_players[self.room_group_name]["type"] == "local":
             if not connected_players[self.room_group_name]["user1"]:
                 connected_players[self.room_group_name]["user1"] = data.get("message")["id"]
                 connected_players[self.room_group_name]["user1Name"] = data.get("message")["name"]
