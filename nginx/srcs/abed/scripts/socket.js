@@ -62,7 +62,7 @@ export const socketFunction = async () => {
         console.log("the flag: ", flag);
         await friendsFunction(); // create friends cards first.
         //onaciri merg
-        socket = new WebSocket('wss://10.14.9.6:8082/wss/friend_requests/');
+        socket = new WebSocket('wss://' + window.location.hostname + ':8082/wss/friend_requests/');
         socket.onopen = function() {
                 console.log('WebSocket connection established');
                 flag++;
@@ -88,7 +88,7 @@ export const socketFunction = async () => {
                     console.log("The div has display: none.");
                 }
                 // ----------- second part -------------- //
-                const user = document.getElementById(`user-${thisid}`);
+                const user = document.getElementById(`thisUser-${thisid}`);
                 console.log("res id: ", thisid);
                 user.append(bellNotifUser);
                 localStorage.setItem(`messageUser-${thisid}`, "true");
@@ -164,11 +164,12 @@ export const socketFunction = async () => {
             }
             if (data.type === 'response_block') {
 
-                count = 1;
+
                 const block_id = data['block_id'];
                 const etat = data['etat'];
-                const dots = document.querySelector(`#user-${block_id}`);
+                const dots = document.querySelector(`#thisUser-${block_id}`);
                 
+                console.log('id is ', block_id);
                 if (etat === true) {
                     if (dots) {
                         dots.addEventListener('click', function() {

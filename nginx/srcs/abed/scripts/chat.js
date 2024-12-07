@@ -186,7 +186,6 @@ async function is_user_blockes(room_id, username, blocked) {
         return data;
     }
     else {
-
         console.log('fetch isUserBloked not working', response.status, response.statusText);
     }
 }
@@ -222,7 +221,7 @@ const data_characters = async () => {
                 </p>
                 `;
                 const user = document.createElement("div");
-                user.id = `user-${character.id}`;
+                user.id = `thisUser-${character.id}`;
                 user.classList.add("user");
                 user.innerHTML = userStr.trim();
                 let visitId = character.username;
@@ -313,8 +312,7 @@ const data_characters = async () => {
                         block_user(character.username, room_id, thisCurrUser.username);
                         alert(`you block ${character.username}`);
                         blockTag.innerHTML = "Unblock";
-                        console.log("---> from chat send cridentials ", character.id, character.username);
-                        if (thisSocket.readyState === WebSocket.OPEN){
+                        if (thisSocket.readyState === WebSocket.OPEN) {
                             thisSocket.send(JSON.stringify ({
                                 'type': 'request_block',
                                 'recipient_id': character.id,
@@ -384,12 +382,15 @@ const data_characters = async () => {
         
         room_id = await getRoomName(character.username, thisCurrUser.username);
         check = await is_user_blockes(room_id, thisCurrUser.username, character.username);
+        console.log(`blocker ${check.blocker} and ${character.username}`);
         if (check.blocker === character.username) {
-            document.getElementById(`user-${character.id}`).disabled = true;
+            alert(`id is ${character.id}`);
+            const dis = document.querySelector(`#user-${character.id}`);
+            dis.disabled = true;
         }
-        const messageNotification = localStorage.getItem(`messageUser-${character.id}`); //bellNotifUser
+        const messageNotification = localStorage.getItem(`messageUser-${character.id}`);
         if (messageNotification === "true") {
-            const user = document.getElementById(`user-${character.id}`);
+            const user = document.getElementById(`thisUser-${character.id}`);
             user.append(bellNotifUser);
             // const chatIcone = document.querySelector("#chat");
             localStorageTracking(`messageUser-${character.id}`, bellNotifUser, user);
