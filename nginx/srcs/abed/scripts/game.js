@@ -516,8 +516,23 @@ export async function fetchRoom() {
 		app.style.display = "none";
 		let Tournament = document.querySelector('.allbrackets');
 		Tournament.style.display = "flex";
-		let curr_matach1 =   bracket[0];
+		let curr_matach1 =  bracket[0];
 		let curr_matach2 =  bracket[1];
+		if (pmatch == 4)
+		{
+			curr_matach1 =  document.getElementById("1stbracket").value;
+			curr_matach2 =  document.getElementById("2ndbracket").value;
+		}
+		if (pmatch == 5)
+		{
+			curr_matach1 =  document.getElementById("3rdbracket").value;
+			curr_matach2 =  document.getElementById("4thbracket").value;
+		}
+		if (pmatch == 6)
+		{
+			curr_matach1 =  document.getElementById("Finalist1").value;
+			curr_matach2 =  document.getElementById("Finalist2").value;
+		}
 		document.querySelector('.comingUp').style.display = 'flex';
 		document.querySelector(".announce").style.display = "flex";
 		document.querySelector(".pressEnter").style.display = "flex";
@@ -530,10 +545,9 @@ export async function fetchRoom() {
 			// commingUp.innerHTML = The Winner is
 			document.querySelector("#announce1").innerHTML = "";
 			document.querySelector("#announce2").style.color = color;
-			document.querySelector("#announce2").innerHTML = "The winner is:";
+			document.querySelector("#announce2").innerHTML = winner;
+			document.querySelector("#nextmatch").innerHTML = "The winner is:";
 			document.querySelector("#nextmatch").style.color = "#BFA100";
-			document.querySelector("#nextmatch").innerHTML = winner;
-			
 		}
 
 		// update player 
@@ -595,13 +609,13 @@ export async function fetchRoom() {
 					if (winner == '0')
 					{
 						theWinner = final[0]
-						color = "#c71539"
+						color = "#2f93ba"
 						console.log(" the winner is ", final[0])
 					}
 					else
 					{
 						theWinner = final[1]
-						color = "#2f93ba"
+						color = "#c71539"
 						isTourn = true;
 						console.log(" the winner is ", final[1])
 					}
