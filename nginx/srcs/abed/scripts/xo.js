@@ -126,7 +126,7 @@
 
 
 async function fetchUser(){
-    const res = await fetch('https://localhost/user/get_curr_user/', {
+    const res = await fetch('/user/get_curr_user/', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -151,7 +151,7 @@ async function fetchUser(){
     }
 }
 function fetchcrtf(){
-    fetch('https://localhost/get_csrf_token/', {
+    fetch('/get_csrf_token/', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -197,7 +197,7 @@ function postMatch()
         postdata.score = 0;
     console.log("crtf ", crtf);
     console.log("postdata ",postdata);
-    fetch('https://localhost/user/store_match/', {
+    fetch('/user/store_match/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -208,8 +208,7 @@ function postMatch()
 }
 async function fetchRoom() {
     try {
-        const response = await fetch('http://127.0.0.1:8001/api/xrooms/');
-        
+        const response = await fetch('/api/xrooms/');        
         if (!response.ok) {
             console.log("No available rooms. Creating a new room...");
             return await createRoom();
@@ -227,13 +226,13 @@ async function fetchRoom() {
             await createRoom();
         }
     } catch (error) {
-        console.error("Error fetching or creating room:", error);
+        console.error("Error fetching or creating room:", error.message);
     }
 }
 
 export async  function createRoom() {
     try {
-        const response = await fetch('http://127.0.0.1:8001/api/xrooms/', {
+        const response = await fetch('/api/xrooms/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -304,8 +303,10 @@ function startGame() {
    }
 
     function connectWebSocket() {
-        socket = new WebSocket(`ws://127.0.0.1:8001/ws/playx/${roomCode}/`);
-
+        // Get the protocol and host from window.location
+        const host = window.location.host;         // e.g., "example.com:3000"
+        // Construct the WebSocket URL dynamically
+        socket = new WebSocket(`wss://${host}/wss/playx/${roomCode}/`);
         socket.onopen = function() {
             console.log("Here New pr")
         };

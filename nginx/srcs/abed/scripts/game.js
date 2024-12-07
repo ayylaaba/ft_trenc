@@ -162,7 +162,7 @@ var socket = null;
 	});
 
 	async function fetchUser(){
-		const res = await fetch('https://localhost/user/get_curr_user/', {
+		const res = await fetch('/user/get_curr_user/', {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -215,7 +215,7 @@ var socket = null;
 	}
 
 	function fetchcrtf(){
-		fetch('https://localhost/get_csrf_token/', {
+		fetch('/get_csrf_token/', {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -259,7 +259,7 @@ var socket = null;
 			postdata.score = 0;
 		console.log("crtf ", crtf);
 		console.log("postdata ",postdata);
-		fetch('https://localhost/user/store_match/', {
+		fetch('/user/store_match/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -273,7 +273,7 @@ var socket = null;
 	export async function  createRoom(is_reserved) {
 		try
 		{
-			const res = await fetch('http://127.0.0.1:8002/api/prooms/', {
+			const res = await fetch('/pong/prooms/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -311,7 +311,7 @@ var socket = null;
 export async function fettchTheRoom(Theroom){
 	try{
 		console.log("the room code is ", Theroom);
-		const response = await fetch(`http://127.0.0.1:8002/api/fprooms/room/${Theroom}/`);
+		const response = await fetch(`/pong/prooms//fprooms/room/${Theroom}/`);
         is_chat = true
         const room = await response.json();
         console.log("Fetched room:", room);
@@ -330,7 +330,7 @@ export async function fettchTheRoom(Theroom){
 export async function fetchRoom() {
     try {
 		console.log("not here ")
-        const response = await fetch('http://127.0.0.1:8002/api/prooms/');
+		const response = await fetch('/pong/prooms/');
         
         if (!response.ok) {
             console.log("No available rooms. Creating a new room...");
@@ -354,7 +354,8 @@ export async function fetchRoom() {
 }
 
 	function connectWebSocket() {
-		socket = new WebSocket(`ws://127.0.0.1:8002/ws/playp/${roomCode}/`);
+		const host = window.location.host;         
+		socket = new WebSocket(`wss://${host}/wss/playp/${roomCode}/`);
 
 		socket.onopen = function() {
 			console.log('WebSocket connection established.');
