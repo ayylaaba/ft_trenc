@@ -332,7 +332,7 @@ var socket = null;
 export async function fettchTheRoom(Theroom){
 	try{
 		console.log("the room code is ", Theroom);
-		const response = await fetch(`/pong/prooms//fprooms/room/${Theroom}/`);
+		const response = await fetch(`/pong/fprooms/room/${Theroom}/`);
         is_chat = true
         const room = await response.json();
         console.log("Fetched room:", room);
