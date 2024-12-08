@@ -31,6 +31,9 @@ grant_type = os.getenv("GRANT_TYPE")
 @permission_classes([AllowAny])
 def     register_vu(request):
     if request.method == 'POST':
+        username = request.data.get('username')
+        if User_info.objects.filter(username=username, intra_user=True).exists():
+            return JsonResponse({'status' : 'failed', 'error' : 'username already exist'}, status=400)
         form = RegisterSerializer(data = request.data) 
         if form.is_valid():
             user = form.save()
@@ -43,12 +46,12 @@ def     register_vu(request):
             if user:
                 login(request, user)
             else :
-                return JsonResponse({'status': 'faild', 'data':"faild to login"}, status=400)
+                return JsonResponse({'status': 'faild', 'error':"faild to login"}, status=400)
             return JsonResponse({'status': 'success', 'data':form.data}, status=200)
         else:
             errors = form.errors
             return JsonResponse({'status': 'faild', 'error': form.errors}, status=400)
-    return JsonResponse({'status': False, "error": form.errors}, status=400)
+    return JsonResponse({'status': 'faild', "error": form.errors}, status=400)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -134,7 +137,11 @@ def callback(request):
             firstname = user_data.get('first_name', '')
             lastname = user_data.get('last_name', '')
             email = user_data.get('email', '')
-            image_url   = user_data.get('image', {}).get('link', '')           
+            image_url   = user_data.get('image', {}).get('link', '')
+
+            if User_info.objects.filter(username=username, intra_user=False).exists():
+                return JsonResponse({'status' : 'failed', 'data' : 'username already exist'})
+            
             # Save or update user info
             user, created       = User_info.objects.get_or_create(username=username)
             user.fullname       = fullname
@@ -143,6 +150,7 @@ def callback(request):
             user.lastname       = lastname
             user.email          = email
             user.access_token   = access_token
+            user.intra_user     = True
 
             if image_url:
                 image_name = f'{username}.jpg'

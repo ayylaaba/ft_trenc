@@ -38,25 +38,31 @@ const registrationFunction = async (event) => {
     }
     else {
         // in case of error.
-        if (response.status === 400) {
-            const existingErrors = document.querySelectorAll(".error");
-            existingErrors.forEach(error => {
-                error.remove();
-            });
-            if (jsonResponse.error.username) {
-                displayErrorMsg(jsonResponse.error.username, usernameError, "")
-            }
-            if (jsonResponse.error.password2) {
-                displayErrorMsg(jsonResponse.error.password2, passwordError, "array");
-            }
-            if (jsonResponse.error.email) {
-                console.log(jsonResponse.error.email);
-                displayErrorMsg(jsonResponse.error.email, emailError, "");
-            }
-            console.log("Register Error: ", jsonResponse.error);
+        const existingErrors = document.querySelectorAll(".error");
+        existingErrors.forEach(error => {
+            error.remove();
+        });
+        if (jsonResponse.error.username) {
+            alert("usename")
+            displayErrorMsg(jsonResponse.error.username, usernameError, "array")
         }
+        if (jsonResponse.error.password2) {
+            alert("pass2222");
+            displayErrorMsg(jsonResponse.error.password2, passwordError, "array");
+        }
+        if (jsonResponse.error.email) {
+            alert("email.........");
+            console.log(jsonResponse.error.email);
+            displayErrorMsg(jsonResponse.error.email, emailError, "array");
+        }
+        if (jsonResponse.status === "failed") { // intra
+            alert("username22222");
+            displayErrorMsg(jsonResponse.error, usernameError, "");
+        }
+        console.log("Register Error: ", jsonResponse.error);
     }
 }
+
 registerForm.addEventListener("submit", registrationFunction);
 
 export const showHome = async (dataObj)=> {
