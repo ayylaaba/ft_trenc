@@ -45,23 +45,23 @@ export const reloadFunction = async () => {
     sideBtns.forEach(sideBtn => {
         sideBtn.classList.remove('link');
     });
-    if (location.pathname === "/home" || location.pathname === "/") {
+    if (location.pathname === "/home" || location.pathname === "/home/" || location.pathname === "/") {
         sideBtns[0].classList.add('link');
         await mainFunction();
-    } else if (location.pathname === "/profile") {
+    } else if (location.pathname === "/profile" || location.pathname === "/profile/") {
         const updateDataObj = await newDataFunc();
         sideBtns[1].classList.add('link');
         profileFunction(updateDataObj);
-    } else if (location.pathname === "/friends") {
+    } else if (location.pathname === "/friends" || location.pathname === "/friends/") {
         sideBtns[2].classList.add('link');
         await friendsFunc();
-    } else if (location.pathname === "/rank") {
+    } else if (location.pathname === "/rank" || location.pathname === "/rank/") {
         sideBtns[3].classList.add('link');
         await rankFunct();
-    } else if (location.pathname === "/chat") {
+    } else if (location.pathname === "/chat" || location.pathname === "/chat/") {
         sideBtns[4].classList.add('link');
         await chatFunction();
-    } else if (location.pathname === "/setting") {
+    } else if (location.pathname === "/setting" || location.pathname === "/setting/") {
         const updateDataObj = await newDataFunc();
         sideBtns[5].classList.add('link');
         settingFunction(updateDataObj);
