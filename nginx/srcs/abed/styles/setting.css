@@ -22,6 +22,11 @@
     visibility: hidden;
 } */
 
+#error-div {
+    color: red;
+    margin-top: 15px;
+}
+
 #setting-part {
     display: none;
     height: 100vh;
@@ -32,6 +37,7 @@
 
 #prog, #prog2 {
     height: 7px;
+    width: 100% !important;
 }
 
 #fadeout, #fadeout2 {

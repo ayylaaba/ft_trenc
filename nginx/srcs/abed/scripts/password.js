@@ -25,21 +25,28 @@ const updatePassword = async (event)=> {
         },
         body: formData
     });
+    const jsonResponse = await response.json();
     if (response.ok) {
-        const jsonResponse = await response.json();
         if (jsonResponse.status === "success") {
             document.querySelector("#passwordHelpBlock").style.display = "none";
             document.querySelector("#update-alert2").style.display = "block";
             setTimeout(() => profileAlert2("success", jsonResponse.data), 3000);
-        } else if (jsonResponse.status === "bad-username") {
-            document.querySelector("#update-alert-failed2").style.display = "block";
-            setTimeout(() => profileAlert2("failed", jsonResponse.data), 3000);
-        }
-        else {
-            document.querySelector("#passwordHelpBlock").style.display = "block";
-            setTimeout(() => profileAlert2("failed", jsonResponse.data), 10000);
         }
         return jsonResponse.data;
+    } else {
+        // alert(`${jsonResponse.error}`);
+
+        // const errorDiv = document.createElement("div");
+        // errorDiv.id = "error-div";
+        // errorDiv.innerHTML = `${jsonResponse.error}`;
+
+        // const inputElement = document.getElementById('inputPassword5');
+        // inputElement.insertAdjacentElement('afterend', errorDiv);
+        const failedAlert = document.querySelector("#update-alert-failed2");
+        const failedPassword = document.querySelector("#failed-pass");
+        failedPassword.innerHTML = `${jsonResponse.error}`;
+        failedAlert.style.display = "block";
+        setTimeout(() => profileAlert2("failed", jsonResponse.error), 3000);
     }
 };
 

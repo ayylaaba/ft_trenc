@@ -351,7 +351,8 @@ def ChangePassword(request):
 
     # Get the old password and new password from the request
     old_password = data.get('old_password')
-    new_password = data.get('new_password')
+    new_password1 = data.get('new_password1')
+    new_password2 = data.get('new_password2')
     new_username = data.get('new_username')
 
     # Check if new_username is provided
@@ -367,17 +368,29 @@ def ChangePassword(request):
 
     # Check if old password is correct
     print ("old_password ", old_password)
-    print ("new_password ", new_password)
+    print ("new_password ", new_password1)
     print ("user ", user)
     print("printi chi l3aba ", user.check_password(old_password)) 
     if not user.check_password(old_password):
+        print ("1 *********** ")
         return JsonResponse({"error": "Old password is incorrect."}, status=400)
-
-    if len(new_password) < 5:
+    
+    if len(new_password1) < 8:
+        print ("2 *********** ")
         return JsonResponse({"error": "New password must be at least 8 characters long."}, status=400)
-    user.set_password(new_password)
+
+    if not new_password1 == new_password2:
+        print ("3 *********** ")
+        return JsonResponse({"error": "The passwords do not match."}, status=400)
+    
+    if new_password1 == old_password:
+        print ("3 *********** ")
+        return JsonResponse({"error": "The new password is similar to the old password."}, status=400)
+
+    print ("4 *********** ")
+    user.set_password(new_password1)
     user.save()
 
     update_session_auth_hash(request, user)
 
-    return JsonResponse({"status": "Password changed successfully!"}, status=200)
+    return JsonResponse({"status": "success"}, status=200)
