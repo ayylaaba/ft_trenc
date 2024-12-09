@@ -990,7 +990,7 @@ export async function fetchRoom() {
 	}
 
     document.querySelector("#play-again").addEventListener("click", playAgain);
-	const play_button = document.querySelector("#play-button");
+	const play_button = document.querySelector("#play-block");
 	play_button.addEventListener("click", handlePlayBtn);
 	const pingPong = document.querySelector("#ping-pong");
 	pingPong.addEventListener("click", handlePlayBtn);

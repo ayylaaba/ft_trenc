@@ -123,6 +123,12 @@ export const navigateTo = async (path) => {
     }
 }
 
+const homeLogo = document.querySelector("#icon img");
+
+homeLogo.addEventListener("click", () => { //only when i click the nav button the navigate called;
+    navigateTo("/home");
+});
+
 homeButton.addEventListener("click", () => { //only when i click the nav button the navigate called;
     navigateTo("/home");
 });

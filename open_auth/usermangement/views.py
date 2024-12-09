@@ -356,6 +356,11 @@ def ChangePassword(request):
     new_username = data.get('new_username')
 
     # Check if new_username is provided
+    # print ("1 ->>>>>>>>>> ", data)
+    # if not old_password or not new_password1 or not new_password2:
+    #     print ("100 *********** ")
+    #     return JsonResponse({"error": "EMPTY"}, status=400)
+    
     if new_username:
         if user.username == new_username:
             return JsonResponse({"error": "New username cannot be the same as the current one."}, status=400)
@@ -365,12 +370,18 @@ def ChangePassword(request):
                 return JsonResponse({"error": "Username is already taken."}, status=400)
             else:
                 user.username = new_username  # Update the username
+                user.save()
+                return JsonResponse({"status": "success"}, status=200)
+
+
 
     # Check if old password is correct
     print ("old_password ", old_password)
     print ("new_password ", new_password1)
     print ("user ", user)
-    print("printi chi l3aba ", user.check_password(old_password)) 
+    print("printi chi l3aba ", user.check_password(old_password))
+
+
     if not user.check_password(old_password):
         print ("1 *********** ")
         return JsonResponse({"error": "Old password is incorrect."}, status=400)
