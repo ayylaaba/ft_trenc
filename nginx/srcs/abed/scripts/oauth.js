@@ -32,8 +32,8 @@ const oauthCallback = async ()=> {
             },
             body: JSON.stringify({ code: code })
         })
+        const jsonResponse = await response.json();
         if (response.ok) {
-            const jsonResponse = await response.json();
             console.log('status ==> ', jsonResponse.status )
             if (jsonResponse.status == 'success') {
                 const sideBtns = document.querySelectorAll(".nav-button");
@@ -46,7 +46,11 @@ const oauthCallback = async ()=> {
             }
         }
         else {
-            console.error('Error:', error);
+            console.log("")
+            if (jsonResponse.status === "failed") { // intra
+                alert(`failed with: ${jsonResponse.error}`)
+                displayErrorMsg(jsonResponse.error, usernameError, "");
+            }
         }
     }
 }
