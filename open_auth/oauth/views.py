@@ -140,7 +140,7 @@ def callback(request):
             image_url   = user_data.get('image', {}).get('link', '')
 
             if User_info.objects.filter(username=username, intra_user=False).exists():
-                return JsonResponse({'status' : 'failed', 'data' : 'username already exist'})
+                return JsonResponse({'status' : 'failed', 'error' : 'username already exist'})
             
             # Save or update user info
             user, created       = User_info.objects.get_or_create(username=username)

@@ -17,6 +17,8 @@ const registerForm = document.querySelector("#register-form");
 const usernameError = document.getElementById("username-error");
 const passwordError = document.querySelector("#password-error");
 const emailError = document.querySelector("#email-error");
+const firstName = document.querySelector("#first-name");
+const lastName = document.querySelector("#last-name");
 
 const registrationFunction = async (event) => {
     event.preventDefault();
@@ -42,24 +44,31 @@ const registrationFunction = async (event) => {
         existingErrors.forEach(error => {
             error.remove();
         });
-        if (jsonResponse.error.username) {
-            alert("usename")
-            displayErrorMsg(jsonResponse.error.username, usernameError, "array")
-        }
-        if (jsonResponse.error.password2) {
-            alert("pass2222");
-            displayErrorMsg(jsonResponse.error.password2, passwordError, "array");
-        }
         if (jsonResponse.error.email) {
-            alert("email.........");
-            console.log(jsonResponse.error.email);
+            alert("email")
             displayErrorMsg(jsonResponse.error.email, emailError, "array");
         }
-        if (jsonResponse.status === "failed") { // intra
-            alert("username22222");
+        else if (jsonResponse.error.username) {
+            alert("username")
+            displayErrorMsg(jsonResponse.error.username, usernameError, "array")
+        }
+        else if (jsonResponse.status === "failed") { // intra
+            alert(`failed with: ${jsonResponse.error}`)
             displayErrorMsg(jsonResponse.error, usernameError, "");
         }
-        console.log("Register Error: ", jsonResponse.error);
+        else if (jsonResponse.error.firstname) {
+            alert("firstname")
+            displayErrorMsg(jsonResponse.error.firstname, firstName, "array")
+        }
+        else if (jsonResponse.error.lastname) {
+            alert("lastname")
+            displayErrorMsg(jsonResponse.error.lastname, lastName, "array")
+        }
+        else if (jsonResponse.error.password) {
+            alert("password")
+            displayErrorMsg(jsonResponse.error.password, passwordError, "array");
+        }
+        // console.log("Register Error: ", jsonResponse.error);
     }
 }
 

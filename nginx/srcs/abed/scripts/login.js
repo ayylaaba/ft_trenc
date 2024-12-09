@@ -50,12 +50,12 @@ export const displayErrorMsg = (message, target, type) => {
     const userError = document.createElement("div");
     userError.classList.add("error");
     if (type === "array") {
-        // alert("enter")
+        alert("enter")
         message.forEach(element => {
             userError.innerHTML += `${element}<br>`;
         });
     } else {
-        // alert("enter22222222222222");
+        alert("enter22222222222222");
         userError.innerHTML = `${message}`;
     }
     userError.style.color = "red";
