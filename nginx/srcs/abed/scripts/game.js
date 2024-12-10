@@ -142,39 +142,7 @@ var socket = null;
 	window.addEventListener("beforeunload", (event) => {
 		if (socket && socket.readyState === WebSocket.OPEN) {
 			console.log("in closed");
-			socket.send(JSON.stringify({ type: "close" }));
-			if (gameStart){
-				if (matchdata.id == 0)
-					fetchUser();
-				fetchcrtf();
-				matchdata.level -= 1;
-				matchdata.score -= 20;
-				let postdata = 
-				{
-					id : matchdata.id,
-					user : matchdata.id,
-					opponent: matchdata.opponent,
-					result: "loss",
-					level:  matchdata.level,
-					score: matchdata.score,
-					Type: "PONG"
-				}
-				if (postdata.level < 0)
-					postdata.level = 0;
-				if (postdata.score < 0)
-					postdata.score = 0;
-				console.log("crtf ", crtf);
-				console.log("postdata ",postdata);
-				fetch('/user/store_match/', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'X-CSRFToken': crtf
-					},
-					body: JSON.stringify(postdata)
-				})
-				
-			}
+			socket.send(JSON.stringify({ type: "close"}));
 		}
 	});
 
@@ -435,9 +403,6 @@ export async function fetchRoom() {
 					matchdata.openName = message.userName1;
 	
 				}
-				console.log("Update Match ", matchdata.id, " ope ", matchdata.opponent);
-				console.log("message.userName", message)
-
 			}
 		};
 	}
@@ -712,6 +677,7 @@ export async function fetchRoom() {
 		{
 			if (left_pad == 0){
 				Game_over(1);
+				
 			}
 			else{
 				Game_over(0);
@@ -719,7 +685,38 @@ export async function fetchRoom() {
 		}
 	}
 
-
+	function post_loser(loser){
+			fetchcrtf();
+			let id = matchdata.opponent;
+			let opponent = matchdata.id
+			matchdata.level -= 1;
+			matchdata.score -= 20;
+			let postdata = 
+			{
+				id : matchdata.id,
+				user : matchdata.id,
+				opponent: matchdata.opponent,
+				result: "loss",
+				level:  matchdata.level,
+				score: matchdata.score,
+				Type: "PONG"
+			}
+			if (postdata.level < 0)
+				postdata.level = 0;
+			if (postdata.score < 0)
+				postdata.score = 0;
+			console.log("crtf ", crtf);
+			console.log("postdata ",postdata);
+			fetch('/user/store_match/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': crtf
+				},
+				body: JSON.stringify(postdata)
+			})
+			
+	}
 
 	function generateRoomCode() {
 	    return Math.random().toString(36).substring(2, 8).toUpperCase();
