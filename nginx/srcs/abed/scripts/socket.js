@@ -200,7 +200,7 @@ export const socketFunction = async () => {
                         bellNotif.remove()
                     });
                     // suggestionsFunction();
-                    // requestsFunction();
+                    requestsFunction();
                     const acceptBtnsListen = document.querySelectorAll(".add .accept");
                     for(let i = 0; i < acceptBtnsListen.length; i++) {
                         console.log("Acceptttttttttt 2222222222222222222");
@@ -223,7 +223,7 @@ export const socketFunction = async () => {
                 }
                 if (data.option === 'accepte_request'){
                     console.log('accepted frd request : ', data.data)
-                    createFriendCards(data.data.username, data.data.imageProfile, data.data.id);
+                    createFriendCards(data, data.data.id);
                     const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
                     for(let i = 0; i < unfriendBtns.length; i++) {
                         unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "unfriend"));
@@ -233,7 +233,7 @@ export const socketFunction = async () => {
                     console.log("refuse: ", data.data);
                     mainFunction();
                     lookForUsers();
-                    createSuggestionCard(data.data.username, data.data.imageProfile);
+                    createSuggestionCard(data);
                     const addBtnsListen = document.querySelectorAll(".add .btn");
                     for(let i = 0; i < addBtnsListen.length; i++) {
                         addBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.from_user_id, "add"));
@@ -242,16 +242,17 @@ export const socketFunction = async () => {
                 if (data.option === 'unfriend'){
                     friendsFunction();
                     console.log('unfriend : ', data.data)
-                    createSuggestionCard(data.data.username, data.data.imageProfile);
+                    createSuggestionCard(data);
                     const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
                     for(let i = 0; i < unfriendBtns.length; i++) {
                         unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "unfriend"));
                     }
                 }
                 if (data.option === 'is_online') {
-                    if (document.querySelector(`#online-icon-${data.data.id}`) === null) {
-                        createFriendCards(data.data.username, data.data.imageProfile, data.data.id);
-                    }
+                    // if (document.querySelector(`#online-icon-${data.data.id}`) === null) {
+                        createFriendCards(data, data.data.id);
+                    // }
+                    console.log(`data id: ${data.data.id}`);
                     const onlineIcon = document.querySelector(`#online-icon-${data.data.id}`);
                     console.log("the icon: ", onlineIcon);
                     if (data.data.online_status && onlineIcon) {
