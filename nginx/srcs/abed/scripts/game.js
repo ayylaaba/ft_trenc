@@ -125,7 +125,7 @@ var socket = null;
 	app.append(game_over);
 	document.getElementById("startGame1").addEventListener("click", async function() {
 		wait_page();
-		if (gameType == 'remote')
+		if (gameType === 'remote')
 			{
 				await fetchUser();
 				wait_page();
@@ -224,7 +224,7 @@ var socket = null;
 	function postMatch()
 	{
 		console.log("match result is ", matchdata.result);
-		if (matchdata.result == 0)
+		if (matchdata.result === 0)
 			matchdata.x_result = "loss";
 		else
 			matchdata.x_result = "won";
@@ -260,7 +260,7 @@ var socket = null;
 		try
 		{
 			let gamemode;
-			if (gameType == "tourn")
+			if (gameType === "tourn")
 				gamemode = "local"
 			else 
 			gamemode = gameType;
@@ -349,7 +349,7 @@ export async function fetchRoom() {
 
 		socket.onopen = function() {
 			console.log('WebSocket connection established.');
-			if (gameType == "local" || gameType == "tourn")
+			if (gameType === "local" || gameType === "tourn")
 			{
 				console.log("local match send ...")
 				socket.send(JSON.stringify({ type: "local" }));
@@ -377,22 +377,22 @@ export async function fetchRoom() {
 				pad_num = data.pad_num;
 				console.log("pad num is ", pad_num)
 			}
-			else if (data.event == 'START')
+			else if (data.event === 'START')
 				{
 					console.log("in start");
 					startventListener();
 					start_game();
 				}
-			else if (data.event == 'END')
+			else if (data.event === 'END')
 				Game_over(data.message);
-			else if (data.event == "LEFT" && gameType == "remote"){
+			else if (data.event === "LEFT" && gameType === "remote"){
 				noMatch = true;
 				left_game(data.pad_num);
 			}
-			else if (data.event  == "USERS")
+			else if (data.event  === "USERS")
 			{
 				let message = data.message
-				if (matchdata.id == message.user1)
+				if (matchdata.id === message.user1)
 				{
 					matchdata.opponent = message.user2;
 					matchdata.openName = message.userName2;
@@ -441,19 +441,14 @@ export async function fetchRoom() {
 
 		resetDOM()
 		runAnimation();
+		
 		setTimeout(() => {
 			console.log("game start here")
 			socket.send(JSON.stringify({ type: "start"}));
 			if (!noMatch)
 				gameContainer.style.display = "block";
 			myreq =  requestAnimationFrame(renderGame);
-			let mytag;
-			if (pad_num == 0 )
-				mytag = "you are red"
-			else
-				mytag = "you are blue"
-			if (gameType == "remote")
-				document.querySelector("myTagColor").innerHTML = mytag;
+
 		}, 3500)
 		socket.send(JSON.stringify({
             "type": "DUSER",
@@ -496,17 +491,17 @@ export async function fetchRoom() {
 		Tournament.style.display = "flex";
 		let curr_matach1 =  bracket[0];
 		let curr_matach2 =  bracket[1];
-		if (pmatch == 4)
+		if (pmatch === 4)
 		{
 			curr_matach1 =  document.getElementById("1stbracket").value;
 			curr_matach2 =  document.getElementById("2ndbracket").value;
 		}
-		if (pmatch == 5)
+		if (pmatch === 5)
 		{
 			curr_matach1 =  document.getElementById("3rdbracket").value;
 			curr_matach2 =  document.getElementById("4thbracket").value;
 		}
-		if (pmatch == 6)
+		if (pmatch === 6)
 		{
 			curr_matach1 =  document.getElementById("Finalist1").value;
 			curr_matach2 =  document.getElementById("Finalist2").value;
@@ -518,7 +513,7 @@ export async function fetchRoom() {
 		document.querySelector("#announce2").style.color = "#c71539";
 		document.querySelector("#announce1").innerHTML = curr_matach1 + " v";
 		document.querySelector("#announce2").innerHTML = "s " + curr_matach2;
-		if (pmatch == 7)
+		if (pmatch === 7)
 		{
 			// commingUp.innerHTML = The Winner is
 			document.querySelector("#announce1").innerHTML = "";
@@ -542,7 +537,7 @@ export async function fetchRoom() {
 
 		if (gameType != 'tourn')
 			removEventListener();
-		if (gameType == 'tourn')
+		if (gameType === 'tourn')
 		{
 			console.log("Tourn End");
 			gameContainer.style.display = "none";
@@ -554,7 +549,7 @@ export async function fetchRoom() {
 				//winner taker pad num 
 				if (pmatch <= 4)
 				{
-					if (winner == '0')
+					if (winner === '0')
 					{
 						semi.push(bracket[0]);
 					}
@@ -562,36 +557,36 @@ export async function fetchRoom() {
 						semi.push(bracket[1]);
 					}
 					console.log("semi lent ", semi.length, "semi elemnt ", semi);
-					if (semi.length == 1)
+					if (semi.length === 1)
 						document.getElementById("1stbracket").value = semi[0];
-					else if (semi.length == 2) 
+					else if (semi.length === 2) 
 						document.getElementById("2ndbracket").value = semi[1];
-					else if (semi.length == 3)
+					else if (semi.length === 3)
 						document.getElementById("3rdbracket").value = semi[2];
-					else if (semi.length == 4)
+					else if (semi.length === 4)
 						document.getElementById("4thbracket").value = semi[3];
 					if (bracket.length - 2 > 0)
 						bracket.splice(0, 2);
 					gameStart = false
 				}
 				else if (pmatch <= 6 && pmatch > 4){
-					if (winner == '0')
+					if (winner === '0')
 						final.push(semi[0]);
 					else
 						final.push(semi[1]);
-					if (final.length == 1)
+					if (final.length === 1)
 						document.getElementById("Finalist1").value = final[0];
-					else if (final.length == 2)
+					else if (final.length === 2)
 						document.getElementById("Finalist2").value = final[1];
 					semi.splice(0, 2);
 					gameStart = false
 				}
 				let theWinner ;
 				let color;
-				if (pmatch == 7)
+				if (pmatch === 7)
 				{
 					console.log("Game over ")
-					if (winner == '0')
+					if (winner === '0')
 					{
 						theWinner = final[0]
 						color = "#2f93ba"
@@ -612,16 +607,16 @@ export async function fetchRoom() {
 			}
 		}
 
-		else if (gameType == "remote")
+		else if (gameType === "remote")
 		{
 			gameStart = false
 			console.log("pad num is ", pad_num, "winner iis ",parseInt(winner) )
-			if (pad_num == parseInt(winner))
+			if (pad_num === parseInt(winner))
 			{
 				gameContainer.style.display = "none";
 				game_over.style.display = "block";
 				document.getElementById("result1").innerHTML = "You  Win";
-				if (pad_num == 0){
+				if (pad_num === 0){
 					game_over.style.backgroundColor = "#0095DD";
 				}
 				else
@@ -637,7 +632,7 @@ export async function fetchRoom() {
 				gameContainer.style.display = "none";
 				game_over.style.display = "block";
 				document.getElementById("result1").innerHTML = "You lose";
-				if (pad_num == 0)
+				if (pad_num === 0)
 					game_over.style.backgroundColor = "#0095DD";
 				else
 					game_over.style.backgroundColor =  "#ff0000";
@@ -657,7 +652,7 @@ export async function fetchRoom() {
 		else 
 		{
 			gameStart = false
-			if (0 == parseInt(winner))
+			if (0 === parseInt(winner))
 				{
 					gameContainer.style.display = "none";
 					game_over.style.display = "block";
@@ -677,12 +672,12 @@ export async function fetchRoom() {
 
 	function left_game(left_pad)
 	{
-		if (left_pad == pad_num){
+		if (left_pad === pad_num){
 			console.log("you lose");
 		}
 		else
 		{
-			if (left_pad == 0){
+			if (left_pad === 0){
 				Game_over(1);
 				
 			}
@@ -736,7 +731,7 @@ export async function fetchRoom() {
 
 	function resetDOM() {
 		counter.classList.remove('hide');
-	
+		document.querySelector(".tagcolor").style.display = "none"
 		nums.forEach(num => {
 			num.classList.value = '';
 		});
@@ -745,6 +740,25 @@ export async function fetchRoom() {
 	}
 
 	function runAnimation() {
+		document.querySelector(".tagcolor").style.display = "block"
+		let mytag;
+		let tagcolor;
+		if (pad_num === 1 )
+		{
+			mytag = "you are red"
+			tagcolor = "#FF0000"
+		}
+		else
+		{
+			
+			tagcolor = "#0095dd"
+			mytag = "you are blue"
+		}
+		if (gameType === "remote")
+		{
+			document.querySelector("#myTagColor").style.color = tagcolor;
+			document.querySelector("#myTagColor").innerHTML = mytag;
+		}
 		nums.forEach((num, idx) => {
 			const penultimate = nums.length - 1;
 			num.addEventListener('animationend', (e) => {
@@ -772,7 +786,7 @@ export async function fetchRoom() {
 	/*  add handle key press*/
 		function keyisdown(event)
 		{
-			if (gameType == 'remote')
+			if (gameType === 'remote')
 			{
 				if (gameStart && (event.key === "ArrowUp")) {
 					socket.send(JSON.stringify({ 
@@ -847,7 +861,7 @@ export async function fetchRoom() {
 		}
 	/*   add handle  key up */
 		function keyisup(event){
-			if (gameType == "remote")
+			if (gameType === "remote")
 				{
 					if (gameStart && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
 						socket.send(JSON.stringify({ 
@@ -1000,7 +1014,7 @@ export async function fetchRoom() {
 		disconnect();
 		document.querySelector(".counter").style.display = "none"
 		document.querySelector("#play-again").style.display = "none";
-		if (gameType == "tourn")
+		if (gameType === "tourn")
 			document.querySelector('.comingUp').style.display = 'none';
 
 		roomCode = "";
@@ -1018,7 +1032,7 @@ export async function fetchRoom() {
 	    startContainer.style.display = "block";
 		const TournamentContainer = document.querySelector('.container');
 		TournamentContainer.style.display = "none";
-		// if (gameType == "tourn")
+		// if (gameType === "tourn")
 		document.querySelector(".comingUp").style.display = "none";
 		document.querySelector(".allbrackets").style.display = "none";
 

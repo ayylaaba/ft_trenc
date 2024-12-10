@@ -167,7 +167,7 @@ export const socketFunction = async () => {
 
                 const block_id = data['block_id'];
                 const etat = data['etat'];
-                const dots = document.querySelector(`#thisUser-${block_id}`);
+                const dots = document.querySelector(`#user-${block_id}`);
                 
                 console.log('id is ', block_id);
                 if (etat === true) {
