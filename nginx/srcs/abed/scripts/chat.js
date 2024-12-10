@@ -42,17 +42,20 @@ export const popupCard = (message) => {
     const cardDiv = document.createElement("div");
     cardDiv.id = "card-div";
     const bodyElement = document.querySelector("body");
+    const notifHeader = document.createElement("h1");
+    notifHeader.id = "notif-header";
+    notifHeader.innerHTML = "Notification!";
     const paragraph = document.createElement("p");
     paragraph.id = "paragraph-id";
     paragraph.innerHTML = `${message}`;
     const buttonn = document.querySelector("button");
     buttonn.id = "pop-btn";
     buttonn.innerHTML = "Ok";
-    cardDiv.append(paragraph, buttonn);
+    cardDiv.append(notifHeader, paragraph, buttonn);
     bodyElement.append(cardDiv);
     setTimeout(()=> {
         cardDiv.style.display = "none";
-    }, 3000);
+    }, 5000);
 }
 
 export const chatFunction = async () => {
@@ -300,7 +303,6 @@ const data_characters = async () => {
                                 }));
                             }
                             else {
-                                console.log('yooooooooooooooooooooooo');
                                 popupCard(`You blocked ${character.username}`);
                             }
                         });
@@ -310,7 +312,7 @@ const data_characters = async () => {
                 blockTag.addEventListener('click', async function(e) {
                     if (check.etat === false) {
                         block_user(character.username, room_id, thisCurrUser.username);
-                        alert(`you block ${character.username}`);
+                        popupCard(`you block ${character.username}`);
                         blockTag.innerHTML = "Unblock";
                         gotBlocked = true;
                         if (thisSocket.readyState === WebSocket.OPEN) {
@@ -326,7 +328,7 @@ const data_characters = async () => {
                     else {
                         blockTag.innerHTML = "Block";
                         unblockUser(room_id);
-                        alert(`you unblock ${character.username} ${check.etat}`);
+                        popupCard(`you unblock ${character.username} ${check.etat}`);
                         gotBlocked = false;
                         if (thisSocket.readyState === WebSocket.OPEN){
                             thisSocket.send(JSON.stringify ({
@@ -385,7 +387,6 @@ const data_characters = async () => {
         room_id = await getRoomName(character.username, thisCurrUser.username);
         check = await is_user_blockes(room_id, thisCurrUser.username, character.username);
         if (check.blocker === character.username) {
-            alert(`id is ${character.id}`);
             const dis = document.querySelector(`#user-${character.id}`);
             dis.disabled = true;
         }
