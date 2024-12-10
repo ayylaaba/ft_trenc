@@ -21,12 +21,8 @@ services:
   postgreDB:
     image: postgres:16
     container_name: postgreDB
-    environment:
-      POSTGRES_DB: users_42
-      POSTGRES_USER: ayylaaba
-      POSTGRES_PASSWORD: password
     volumes:
-      - /home/mhassani/ayoub/data/db:/var/lib/postgresql/data  
+      - /home/onaciri/ayoub/data/db:/var/lib/postgresql/data  
     ports:
       - 5434:5432
     networks:
@@ -57,23 +53,20 @@ services:
       - postgreDB
     networks:
       - nw
+    env_file:
+      - .env 
   chatapp:
     container_name: chatapp
     build: ./chatapp
     ports:
       - 8003:8003
-    environment:
-      - DATABASE_HOST=chat_db
-      - DATABASE_PORT=5433
-      - DATABASE_NAME=chat
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD='123'
     depends_on:
       - chat_db
     env_file:
-      - ./chatapp/.env
+      - .env
     networks:
       - nw
+    
   chat_db:
     image: postgres:latest
     container_name: chat_db
@@ -88,15 +81,6 @@ services:
       - '5433:5432'
     networks:
       - nw
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: "hicham@example.com"
-  #     PGADMIN_DEFAULT_PASSWORD: "123"
-  #   ports:
-  #     - "5050:9000"
-  #   networks:
-  #     - nw
   pingpong:
     container_name: pong
     build: ./PingPong/pinpong/pinpong/
@@ -106,6 +90,8 @@ services:
       - postgreDB
     networks:
       - nw
+    env_file:
+      - .env 
 volumes:
   database-postgres:
   postgre_volume:

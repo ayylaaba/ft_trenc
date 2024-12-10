@@ -2,7 +2,7 @@ export const chatButton = document.querySelector("#chat");
 export const chatPage = document.querySelector("#chat-part");
 let chatSocket = null;
 let thisSocket = null;
-
+let gotBlocked = false;
 import { profileId } from "./profile.js";
 import { main } from "./home.js";
 import { settingPage } from "./setting.js";
@@ -312,6 +312,7 @@ const data_characters = async () => {
                         block_user(character.username, room_id, thisCurrUser.username);
                         alert(`you block ${character.username}`);
                         blockTag.innerHTML = "Unblock";
+                        gotBlocked = true;
                         if (thisSocket.readyState === WebSocket.OPEN) {
                             thisSocket.send(JSON.stringify ({
                                 'type': 'request_block',
@@ -326,6 +327,7 @@ const data_characters = async () => {
                         blockTag.innerHTML = "Block";
                         unblockUser(room_id);
                         alert(`you unblock ${character.username} ${check.etat}`);
+                        gotBlocked = false;
                         if (thisSocket.readyState === WebSocket.OPEN){
                             thisSocket.send(JSON.stringify ({
                                 'type': 'request_block',
@@ -435,7 +437,8 @@ const data_characters = async () => {
                 else {
                     msgTag.classList.add('friend-msg');
                 }
-                document.getElementById('msgs').appendChild(msgTag);
+                if (!gotBlocked)
+                    document.getElementById('msgs').appendChild(msgTag);
             }
         }
     

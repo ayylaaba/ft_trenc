@@ -1,0 +1,4 @@
+    environment:
+      POSTGRES_DB: chat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
