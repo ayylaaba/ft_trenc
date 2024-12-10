@@ -23,7 +23,7 @@ class ball:
         self.y = y
         self.r = 10
         self.angl = 35
-        self.speed = 1.25
+        self.speed = 1.50
         self.vx = math.cos(self.angl * math.pi / 180) * self.speed
         self.vy = math.sin(self.angl * math.pi / 180) * self.speed
     def serialize_ball(self):
@@ -140,6 +140,8 @@ class PingPongConsumer(AsyncWebsocketConsumer):
                 "user2Name":None,
                 "pad_num":None,
                 "type":None,
+                "movep1":'Stop',
+                "movep2":'Stop',
                 "channels": []
             }
         if len(connected_players[self.room_group_name]['channels']) >= 2:
@@ -201,8 +203,7 @@ class PingPongConsumer(AsyncWebsocketConsumer):
         
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print("this  ", connected_players[self.room_group_name]["type"], flush=True)
-        if data.get('type') == 'START' and connected_players[self.room_group_name]["type"] != "local":
+        if data.get('type') == 'START' and self.gameType != "local":
             if not connected_players[self.room_group_name]["user1"]:
                 connected_players[self.room_group_name]["user1"] = data.get("message")["id"]
                 connected_players[self.room_group_name]["user1Name"] = data.get("message")["name"]
@@ -216,9 +217,11 @@ class PingPongConsumer(AsyncWebsocketConsumer):
             if not match:
                 return 
             if (padd == 1):
+                connected_players[self.room_group_name]["movep1"] = move
                 match.p1.change_direction(move)
                 match.p1.move()
             else:
+                connected_players[self.room_group_name]["movep2"] = move
                 match.p2.change_direction(move)
                 match.p2.move()
 
@@ -298,6 +301,10 @@ class PingPongConsumer(AsyncWebsocketConsumer):
             )
                 break
             match.move()
+            movep1 = connected_players[self.room_group_name]["movep1"]
+            movep2 = connected_players[self.room_group_name]["movep2"]
+            match.p1.change_direction(movep1)
+            match.p2.change_direction(movep2)
             match.p1.move()
             match.p2.move()
             ball_data = match.b.serialize_ball()

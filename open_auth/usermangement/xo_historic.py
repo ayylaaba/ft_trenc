@@ -9,7 +9,7 @@ from django.core.cache import cache
 @api_view(['POST'])
 def store_match(request):
     user = request.user
-
+    print("ddddddddddddddddddddddddddddddd", flush=True)
     if not user.is_authenticated:
         return JsonResponse({'status': '400', 'data': 'user is not authenticated'})
 

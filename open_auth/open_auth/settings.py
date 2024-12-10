@@ -37,7 +37,7 @@ SECRET_KEY = 'django-insecure-384f@eya=if$6f&yp@zuy1^kz^4dj!te)@%=i373j4b6myqr9i
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://localhost:8082','https://10.14.9.6:8082']
+CSRF_TRUSTED_ORIGINS = ['https://localhost:8082','https://10.14.10.2:8082']
 
 
 # Application definition
@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -123,11 +123,11 @@ CHANNEL_LAYERS = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'users_42',
-        'USER': 'ayylaaba',
-        'PASSWORD': 'password',
-        'HOST': 'postgreDB',
-        'PORT': '5432',
+        'NAME': os.getenv('NAME'),
+        'USER': os.getenv('USER'),
+        'PASSWORD': os.getenv('PASSWORD'),
+        'HOST': os.getenv('HOST'),
+        'PORT': os.getenv('PORT'),
     }
 }
 

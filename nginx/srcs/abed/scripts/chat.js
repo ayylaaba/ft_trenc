@@ -88,7 +88,7 @@ const scrollToBottom = ()=> {
 
 async function getRoomName(recipient, sender) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/room_name/', {
+    const response = await fetch('/chat/api/room_name/', {
         method : 'POST',
         headers : {
             'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ function showRoom(recipient, sender) {
 
 async function block_user(recipient, room_id, sender) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/block_user/', {
+    const response = await fetch('/chat/api/block_user/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ async function block_user(recipient, room_id, sender) {
 
 const unblockUser = async (room_id) => {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/unblock_user/', {
+    const response = await fetch('/chat/api/unblock_user/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ const unblockUser = async (room_id) => {
 
 async function is_user_blockes(room_id, username, blocked) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/is_user_blocked/', {
+    const response = await fetch('/chat/api/is_user_blocked/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -409,7 +409,7 @@ const data_characters = async () => {
         }
 
         chatSocket = new WebSocket (
-            'ws://' + window.location.hostname + ':8003/ws/chat/' + roomId + '/'
+            'wss://' + window.location.hostname + ':8082/wss/chat/' + roomId + '/'
         );
     
         chatSocket.onopen = function(e) {

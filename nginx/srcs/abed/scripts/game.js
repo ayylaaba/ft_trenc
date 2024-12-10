@@ -19,6 +19,7 @@ var socket = null;
 	let noMatch = false;
 	let ballPosition = { x: 400, y: 200 }; 
 	let ballRadius = 10;
+	let myreq;
 	let is_chat = false;
 	let paddle1 = {
         x: 10,        
@@ -137,7 +138,7 @@ var socket = null;
 			await createRoom(0);
 		}
 	});
-
+	/* send from the one who stay*/
 	window.addEventListener("beforeunload", (event) => {
 		if (socket && socket.readyState === WebSocket.OPEN) {
 			console.log("in closed");
@@ -164,7 +165,7 @@ var socket = null;
 					postdata.score = 0;
 				console.log("crtf ", crtf);
 				console.log("postdata ",postdata);
-				fetch('https://localhost/user/store_match/', {
+				fetch('/user/store_match/', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -293,7 +294,8 @@ var socket = null;
 			if (gameType == "tourn")
 				gamemode = "local"
 			else 
-				gamemode = gameType;
+			gamemode = gameType;
+			console.log("game mode is ", gamemode)
 			const res = await fetch('/pong/prooms/', {
 				method: 'POST',
 				headers: {
@@ -400,7 +402,7 @@ export async function fetchRoom() {
 				paddle2.y = paddle_serv2.y;
 				document.getElementById("player1Score").innerHTML = paddle_serv1.score;
 				document.getElementById("player2Score").innerHTML = paddle_serv2.score;
-				renderGame();
+				myreq =  requestAnimationFrame(renderGame);
 			}
 			else if (data.type === 'ASSIGN_PAD_NUM') {
 				console.log("in PadNum");
@@ -410,6 +412,7 @@ export async function fetchRoom() {
 			else if (data.event == 'START')
 				{
 					console.log("in start");
+					startventListener();
 					start_game();
 				}
 			else if (data.event == 'END')
@@ -462,11 +465,14 @@ export async function fetchRoom() {
                 "name": matchdata.userName
             }
         }));
+		
         startContainer.classList.remove("active");
 		waitContainer.classList.remove("active");
 		main_counter.style.display = "block";
 		let Tournament = document.querySelector('.allbrackets');
 		Tournament.style.display = "none";
+		document.querySelector(".counter").style.display = "block"
+
 		resetDOM()
 		runAnimation();
 		setTimeout(() => {
@@ -474,7 +480,7 @@ export async function fetchRoom() {
 			socket.send(JSON.stringify({ type: "start"}));
 			if (!noMatch)
 				gameContainer.style.display = "block";
-			renderGame();
+			myreq =  requestAnimationFrame(renderGame);
 			
 		}, 3500)
 		socket.send(JSON.stringify({
@@ -548,6 +554,7 @@ export async function fetchRoom() {
 			document.querySelector("#announce2").innerHTML = winner;
 			document.querySelector("#nextmatch").innerHTML = "The winner is:";
 			document.querySelector("#nextmatch").style.color = "#BFA100";
+			pmatch = 0;
 		}
 
 		// update player 
@@ -558,9 +565,15 @@ export async function fetchRoom() {
 	{
 		console.log("Winer Is pad ", winner)
 		disconnect();
+		cancelAnimationFrame(myreq);
+		document.querySelector(".counter").style.display = "none"
+
+		if (gameType != 'tourn')
+			removEventListener();
 		if (gameType == 'tourn')
 		{
 			console.log("Tourn End");
+			gameContainer.style.display = "none";
 			if (!isTourn)
 			{
 				//4 matches quarter end 6 matche semi end 7 matches end
@@ -616,9 +629,9 @@ export async function fetchRoom() {
 					{
 						theWinner = final[1]
 						color = "#c71539"
-						isTourn = true;
 						console.log(" the winner is ", final[1])
 					}
+					isTourn = true;
 					gameStart = false
 					// announce Winner and pmatch = 0 and game start
 					//anounceWiner();
@@ -685,8 +698,6 @@ export async function fetchRoom() {
 					game_over.style.display = "block";
 					document.getElementById("result1").innerHTML = "Red  Won";
 					game_over.style.backgroundColor =  "#ff0000";
-
-
 				}
 				document.querySelector("#play-again").style.display = "block";
 		}
@@ -718,7 +729,6 @@ export async function fetchRoom() {
 	const counter = document.querySelector('.counter');
 	const repl = document.getElementById('replay');
 
-
 	function resetDOM() {
 		counter.classList.remove('hide');
 	
@@ -746,114 +756,130 @@ export async function fetchRoom() {
 
 	}
 
-	document.addEventListener("keydown",  (event) => {
-		if (gameType == 'remote'){
-			if (gameStart && (event.key === "ArrowUp")) {
-				socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Up", 
-					pad_num: pad_num 
-				}));
-			} 
-			else if (gameStart && (event.key === "ArrowDown"))
-			{
-				 socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Down", 
-					pad_num: pad_num 
-				}));
-			}
-		}
-		else
-		{
-			if (gameStart && (event.key === "ArrowUp")) {
-				socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Up", 
-					pad_num: 0 
-				}));
-			}
-			else if (gameStart && (event.key === "ArrowDown"))
-			{
-				socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Down", 
-					pad_num: 0 
-				}));
-			}
-			if (gameStart && (event.key === "w" || event.key === "W")) {
-				socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Up", 
-					pad_num: 1 
-				}));
-			}
-			else if (gameStart && (event.key === "s" || event.key === "S"))
-			{
-				socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Down", 
-					pad_num: 1 
-				}));
-			}
+	/*   add event for handle   */
+	function startventListener(){
+		window.addEventListener("keydown", keyisdown);
+		window.addEventListener("keyup", keyisup);
+	}
 
-		}
-	});
-	
-	document.addEventListener("keyup", (event) => {
-		if (gameType == "remote")
-		{
-			if (gameStart && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
-				socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Stop", 
-					pad_num: pad_num
-				}));
-			}
-		}
-		else
-		{
-			if (gameStart && (event.key === "ArrowUp" || event.key === "ArrowDown")) 
-			{
-				socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Stop", 
-					pad_num: 0
-				}));
-			}
-			else if (gameStart && (event.key === "w" || event.key === "W" || event.key === "s" || event.key === "S" ))
-			{
-				socket.send(JSON.stringify({ 
-					type: "move", 
-					move: "Stop", 
-					pad_num: 1
-				}));
-			}
-		}
-	});
 
-	document.addEventListener("keydown", (event) => {
-		if (event.key === "Enter") {
-			if (Array.isArray(bracket) && !bracket.length)
-				bracket = rplayers();
-			if (Array.isArray(bracket) && bracket.length) 
+
+	/*  add handle key press*/
+		function keyisdown(event)
+		{
+			if (gameType == 'remote')
 			{
-				console.log("successfully!");
-				if (!isTourn && !gameStart)
+				if (gameStart && (event.key === "ArrowUp")) {
+					socket.send(JSON.stringify({ 
+						type: "move", 
+						move: "Up", 
+						pad_num: pad_num 
+					}));
+				} 
+				else if (gameStart && (event.key === "ArrowDown"))
 				{
-					document.querySelector('.comingUp').style.display = 'none';
-					document.querySelector(".announce").style.display = "none";
-					document.querySelector(".pressEnter").style.display = "none";
-					playTournemt();
+					 socket.send(JSON.stringify({ 
+						type: "move", 
+						move: "Down", 
+						pad_num: pad_num 
+					}));
 				}
-			} 
-			else 
+			}
+			else
 			{
-				console.log("denied.");
+				if (gameStart && (event.key === "ArrowUp")) {
+					console.log("arrup is down")
+					socket.send(JSON.stringify({ 
+						type: "move", 
+						move: "Up", 
+						pad_num: 0 
+					}));
+				}
+				else if (gameStart && (event.key === "ArrowDown"))
+				{
+					console.log("arrdwon is down")
+					socket.send(JSON.stringify({ 
+						type: "move", 
+						move: "Down", 
+						pad_num: 0 
+					}));
+				}
+				if (gameStart && (event.key === "w" || event.key === "W")) {
+					console.log("w is down")
+					socket.send(JSON.stringify({ 
+						type: "move", 
+						move: "Up", 
+						pad_num: 1 
+					}));
+				}
+				else if (gameStart && (event.key === "s" || event.key === "S"))
+				{
+					console.log("s  is down")
+					socket.send(JSON.stringify({ 
+						type: "move", 
+						move: "Down", 
+						pad_num: 1 
+					}));
+				}
+
+			}
+			if (event.key === "Enter") {
+				console.log("in here ")
+				if (Array.isArray(bracket) && !bracket.length)
+					bracket = rplayers();
+				if (Array.isArray(bracket) && bracket.length) 
+				{
+					console.log("successfully!");
+					if (!isTourn && !gameStart)
+					{
+						document.querySelector('.comingUp').style.display = 'none';
+						document.querySelector(".announce").style.display = "none";
+						document.querySelector(".pressEnter").style.display = "none";
+						playTournemt();
+					}
+				} 
 			}
 		}
-	});
+	/*   add handle  key up */
+		function keyisup(event){
+			if (gameType == "remote")
+				{
+					if (gameStart && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+						socket.send(JSON.stringify({ 
+							type: "move", 
+							move: "Stop", 
+							pad_num: pad_num
+						}));
+					}
+				}
+				else
+				{
+					if (gameStart && (event.key === "ArrowUp" || event.key === "ArrowDown")) 
+					{
+						console.log("arrow is up")
+						socket.send(JSON.stringify({ 
+							type: "move", 
+							move: "Stop", 
+							pad_num: 0
+						}));
+					}
+					else if (gameStart && (event.key === "w" || event.key === "W" || event.key === "s" || event.key === "S" ))
+					{
+						console.log("ws is up")
+						socket.send(JSON.stringify({ 
+							type: "move", 
+							move: "Stop", 
+							pad_num: 1
+						}));
+					}
+				}
+		}
 
+	function removEventListener(){
+		window.removeEventListener("keydown", keyisdown)
+		window.removeEventListener("keyup", keyisup)
+	}
+	
 
 	function renderGame() {
 		// Clear the canvas
@@ -873,12 +899,11 @@ export async function fetchRoom() {
 		ctx.closePath();
 		ctx.stroke();
 	
-		// Request the next frame
-		requestAnimationFrame(renderGame);
 	}
 	/* ************************************ Abed Changes ******************************************* */
 	
 	const handlePlayBtn = () => {
+		resetDOM()
 		const freeze = document.querySelector("#freeze");
 		freeze.classList.add("unclick");
 		const design = document.querySelector("#design");
@@ -908,6 +933,7 @@ export async function fetchRoom() {
 
 		remote.addEventListener("click", handleRemoteGame);
 		const handleTournament = () => {
+			startventListener();
 			gameType = 'tourn';
 			const TournamentContainer = document.querySelector('.container');
 			container.style.display = "none";
@@ -924,6 +950,7 @@ export async function fetchRoom() {
 		tournament.addEventListener("click", handleTournament);
 
 		const handleLocaleGame = () => {
+			
 			gameType = 'local';
 			console.log("Local");
 			container.style.display = "none";
@@ -936,6 +963,8 @@ export async function fetchRoom() {
 		}
 		twoPlayers.addEventListener("click", handleLocaleGame);
 		const closeGame = () => {
+			resetDOM()
+			
 			freeze.classList.remove("unclick");
 			document.querySelector("#design").style.filter = "blur(0px)";
 			document.querySelector("#games").style.filter = "blur(0px)";
@@ -964,6 +993,7 @@ export async function fetchRoom() {
 
 	const playAgain = () =>{
 		disconnect();
+		document.querySelector(".counter").style.display = "none"
 		document.querySelector("#play-again").style.display = "none";
 		if (gameType == "tourn")
 			document.querySelector('.comingUp').style.display = 'none';
