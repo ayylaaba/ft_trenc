@@ -88,7 +88,7 @@ const scrollToBottom = ()=> {
 
 async function getRoomName(recipient, sender) {
     const token = await get_csrf_token();
-    const response = await fetch('/chat/api/room_name/', {
+    const response = await fetch('/chatt/api/room_name/', {
         method : 'POST',
         headers : {
             'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ function showRoom(recipient, sender) {
 
 async function block_user(recipient, room_id, sender) {
     const token = await get_csrf_token();
-    const response = await fetch('/chat/api/block_user/', {
+    const response = await fetch('/chatt/api/block_user/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ async function block_user(recipient, room_id, sender) {
 
 const unblockUser = async (room_id) => {
     const token = await get_csrf_token();
-    const response = await fetch('/chat/api/unblock_user/', {
+    const response = await fetch('/chatt/api/unblock_user/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ const unblockUser = async (room_id) => {
 
 async function is_user_blockes(room_id, username, blocked) {
     const token = await get_csrf_token();
-    const response = await fetch('/chat/api/is_user_blocked/', {
+    const response = await fetch('/chatt/api/is_user_blocked/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -382,7 +382,6 @@ const data_characters = async () => {
         
         room_id = await getRoomName(character.username, thisCurrUser.username);
         check = await is_user_blockes(room_id, thisCurrUser.username, character.username);
-        console.log(`blocker ${check.blocker} and ${character.username}`);
         if (check.blocker === character.username) {
             alert(`id is ${character.id}`);
             const dis = document.querySelector(`#user-${character.id}`);
@@ -409,7 +408,7 @@ const data_characters = async () => {
         }
 
         chatSocket = new WebSocket (
-            'wss://' + window.location.hostname + ':8082/wss/chat/' + roomId + '/'
+            'wss://' + window.location.hostname + ':8082/wss/chatt/' + roomId + '/'
         );
     
         chatSocket.onopen = function(e) {

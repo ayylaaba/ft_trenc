@@ -160,7 +160,8 @@ var socket = null;
 		let data = await res.json();  
 		if (data.status === '400') {
 			console.log('User is not authenticated:', data.data);
-		} else {
+		}
+		else {
 			matchdata.id = data.data.id;
 			matchdata.user = data.data.id;
 			matchdata.level = data.data.level;
@@ -306,12 +307,10 @@ export async function fettchTheRoom(Theroom){
         is_chat = true
         const room = await response.json();
         console.log("Fetched room:", room);
-
-
-            console.log(`Joining room ${room.code} with ${room.players} players.`);
-            roomCode = room.code;
-			gameType = 'remote'
-            connectWebSocket();
+        console.log(`Joining room ${room.code} with ${room.players} players.`);
+        roomCode = room.code;
+		gameType = 'remote'
+        connectWebSocket();
     } catch (error) {
         console.error("Error fetching or creating room:", error);
     }
@@ -352,6 +351,7 @@ export async function fetchRoom() {
 			console.log('WebSocket connection established.');
 			if (gameType == "local" || gameType == "tourn")
 			{
+				console.log("local match send ...")
 				socket.send(JSON.stringify({ type: "local" }));
 			}
 		};
@@ -417,12 +417,13 @@ export async function fetchRoom() {
 	}
 
 
-	function start_game(){
+	async function start_game(){
 		console.log("start")
 		console.log("tourn mod");
-		fetchUser();
+		await fetchUser();
 		wait_page();
-		fetchcrtf();
+		await fetchcrtf();
+		console.log("id is ",  matchdata.id, "name us ", matchdata.userName);
         socket.send(JSON.stringify({
             "type": "START",
             "message": {
@@ -446,7 +447,13 @@ export async function fetchRoom() {
 			if (!noMatch)
 				gameContainer.style.display = "block";
 			myreq =  requestAnimationFrame(renderGame);
-			
+			let mytag;
+			if (pad_num == 0 )
+				mytag = "you are red"
+			else
+				mytag = "you are blue"
+			if (gameType == "remote")
+				document.querySelector("myTagColor").innerHTML = mytag;
 		}, 3500)
 		socket.send(JSON.stringify({
             "type": "DUSER",
@@ -688,7 +695,8 @@ export async function fetchRoom() {
 	function post_loser(loser){
 			fetchcrtf();
 			let id = matchdata.opponent;
-			let opponent = matchdata.id
+			let opponent = matchdata.id;
+			fetch('/user/')
 			matchdata.level -= 1;
 			matchdata.score -= 20;
 			let postdata = 

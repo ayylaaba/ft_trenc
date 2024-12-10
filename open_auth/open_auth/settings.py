@@ -37,7 +37,7 @@ SECRET_KEY = 'django-insecure-384f@eya=if$6f&yp@zuy1^kz^4dj!te)@%=i373j4b6myqr9i
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://localhost:8082','https://10.14.10.2:8082']
+CSRF_TRUSTED_ORIGINS = ['https://localhost:8082','https://10.14.8.5:8082']
 
 
 # Application definition
