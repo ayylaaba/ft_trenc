@@ -52,6 +52,10 @@ const registrationFunction = async (event) => {
             alert("username")
             displayErrorMsg(jsonResponse.error.username, usernameError, "array")
         }
+        else if (jsonResponse.status === "failed") {
+            alert("username intra error");
+            displayErrorMsg(jsonResponse.error, usernameError, "array")
+        }
         else if (jsonResponse.error.firstname) {
             alert("firstname")
             displayErrorMsg(jsonResponse.error.firstname, firstName, "array")
