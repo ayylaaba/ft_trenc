@@ -48,14 +48,19 @@ export const popupCard = (message) => {
     const paragraph = document.createElement("p");
     paragraph.id = "paragraph-id";
     paragraph.innerHTML = `${message}`;
-    const buttonn = document.querySelector("button");
+    const buttonn = document.createElement("button");
     buttonn.id = "pop-btn";
     buttonn.innerHTML = "Ok";
     cardDiv.append(notifHeader, paragraph, buttonn);
     bodyElement.append(cardDiv);
     setTimeout(()=> {
-        cardDiv.style.display = "none";
+        cardDiv.remove();
     }, 5000);
+
+    buttonn.addEventListener('click', () => {
+        cardDiv.remove();
+    });
+
 }
 
 export const chatFunction = async () => {
@@ -328,7 +333,7 @@ const data_characters = async () => {
                     else {
                         blockTag.innerHTML = "Block";
                         unblockUser(room_id);
-                        popupCard(`you unblock ${character.username} ${check.etat}`);
+                        popupCard(`you unblock ${character.username}`);
                         gotBlocked = false;
                         if (thisSocket.readyState === WebSocket.OPEN){
                             thisSocket.send(JSON.stringify ({

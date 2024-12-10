@@ -2,7 +2,7 @@ import { friendsFunction, suggestionsFunction, requestsFunction, createRequestCa
 import { mainFunction, lookForUsers } from "./home.js";
 import { notificationFunction, notifBtn } from "./notification.js";
 import { fettchTheRoom, displayGame, createRoom  } from "./game.js";
-import { chatPage } from "./chat.js";
+import { chatPage, popupCard } from "./chat.js";
 
 export let flag = 0;
 export let socket = null;
@@ -113,6 +113,7 @@ export const socketFunction = async () => {
                 const nooo = document.querySelector("#nooo");
                 yesss.addEventListener("click",  async ()=> {
                     //create room with code
+                    alert("HEREEEEEEEEEEEEEE")
                     let dataGame =  await createRoom(1);
                     roomCode = dataGame.code;
                     console.log("room code ", roomCode)
@@ -130,6 +131,8 @@ export const socketFunction = async () => {
                 nooo.addEventListener("click", () => {
                     console.log("check no");
                     count = 0;
+                    alert("HEREEEEEEEEEEEEEE")
+
                     socket.send(JSON.stringify ({
                         'type': 'response',
                         'sender' : sender,
@@ -149,8 +152,11 @@ export const socketFunction = async () => {
 
                 const _confirm = data['confirmation'];
                 const recipient = data['recipient'];
+                alert("HEREEEEEEEEEEEEEE")
 
                 if (_confirm) {
+                    alert("HEREEEEEEEEEEEEEE")
+
                     console.log("room code in case accept ", data['roomcode'])
                     let roomToGET = data['roomcode']
                     console.log('check is true');
@@ -159,7 +165,7 @@ export const socketFunction = async () => {
                 }
                 else {
                     // should sent a refuse message ---------- 
-                    console.log('check is false');
+                    popupCard(`${recipient} refuse to play`);
                 }
             }
             if (data.type === 'response_block') {

@@ -22,7 +22,7 @@ services:
     image: postgres:16
     container_name: postgreDB
     volumes:
-      - /home/mhassani/ayoub/data/db:/var/lib/postgresql/data  
+      - /home/hchaguer/ayoub/data/db:/var/lib/postgresql/data  
     ports:
       - 5434:5432
     networks:
