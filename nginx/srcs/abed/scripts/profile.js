@@ -15,11 +15,17 @@ const recordGame = (matchData) => {
                 ${matchData.result}
             </h2>
             <div id="match">
-                <div id="me" style="background-image: url(${matchData.user.imageProfile}); border-radius: 50%;"></div>
+                <div id="me">
+                    <div style="background-image: url(${matchData.user.imageProfile}); border-radius: 50%; background-size: cover; height: 64px; width: 64px; border: 2px solid aqua; background-position: center;"></div>
+                    <p style="margin: 0;">${matchData.user.username}</p>
+                </div>
                 <div id="vs" style="margin: 0 15px;">
                     <i class="fa-solid fa-xmark"></i>
                 </div>
-                <div id="enemy" style="background-image: url(${matchData.opponent.imageProfile}); border-radius: 50%;"></div>
+                <div id="enemy">
+                    <div style="background-image: url(${matchData.opponent.imageProfile}); border-radius: 50%; background-size: cover; height: 64px; width: 64px; border: 2px solid aqua; background-position: center;"></div>
+                    <p style="margin: 0;">${matchData.opponent.username}</p>
+                </div>
             </div>
             <h2 id="score-pts">${matchData.Type}</h2>
         </div>
