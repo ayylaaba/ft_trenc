@@ -255,15 +255,15 @@
 }
 
 #me, #enemy {
-    height: 64px;
-    width: 64px;
-    border: 2px solid aqua;
-    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
 }
 
-#me {
+/* #me {
     background-size: cover;
-}
+} */
 
 #you {
     background-color: green;
@@ -280,9 +280,9 @@
     text-align: center;
 }
 
-#enemy {
+/* #enemy {
     background-size: cover;
-}
+} */
 
 
 #vs i {

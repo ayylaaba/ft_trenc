@@ -1,5 +1,7 @@
 import { get_csrf_token, showHome } from "./register.js";
 import { flag, socketFunction } from "./socket.js";
+import { profileAlert } from "./update.js";
+
 const oauthFunction = async (event)=> {
     event.preventDefault(); // Prevent the default form submission
     const response = await fetch('/oauth/');
@@ -46,10 +48,11 @@ const oauthCallback = async ()=> {
             }
         }
         else {
-            console.log("")
             if (jsonResponse.status === "failed") { // intra
-                alert(`failed with: ${jsonResponse.error}`)
-                displayErrorMsg(jsonResponse.error, usernameError, "");
+                // alert(`failed with: ${jsonResponse.error}`);
+                document.querySelector("#update-alert-failed-intra").style.display = "block";
+                setTimeout(() => profileAlert("failed-intra", jsonResponse.error), 3000);
+                // displayErrorMsg(jsonResponse.error, usernameError, "");
             }
         }
     }
