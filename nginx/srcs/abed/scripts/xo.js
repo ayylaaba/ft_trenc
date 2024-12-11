@@ -362,7 +362,7 @@ function startGame() {
                 case "DRAW":
                     matchdata.result = 2;
                     console.log("this is draw")
-                    resetGame(message);
+                    resetGame("DRAW");
                     break;
                 case "OVER":
                     console.log("this is over")
@@ -496,10 +496,15 @@ function startGame() {
                 curr_winner = matchdata.userName;
             else
                 curr_winner = matchdata.openName
-            console.log('t his restGame');
+            console.log('t his restGame', message);
             showResult.classList.add("active");
             showResult.style.display = "block";
-            document.querySelector("#result").innerHTML= `The Winner is  ${curr_winner}`
+
+            if(message != "DRAW")
+            {
+                document.querySelector("#result").innerHTML= `The Winner is  ${curr_winner}`
+
+            }
             document.querySelector("#pplay-again").style.display = "block";
             document.getElementById("enemyXo").style.display = "none";
             document.getElementById("alert_move").style.display = "none";
@@ -530,8 +535,8 @@ function startGame() {
                     }
                 }
             }
-            postMatch();
             disconnect();
+            postMatch();
         }
     }
     const playAgain = ()=> {
@@ -593,7 +598,6 @@ function startGame() {
             matchdata.result = 0;
         }
         disconnect()
-        postMatch()
         app.style.display = "none";
         document.querySelector("#design").style.filter = "blur(0px)";
         document.querySelector("#games").style.filter = "blur(0px)";

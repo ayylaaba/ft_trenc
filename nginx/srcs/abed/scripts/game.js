@@ -126,13 +126,13 @@ var socket = null;
 	document.getElementById("startGame1").addEventListener("click", async function() {
 		wait_page();
 		if (gameType === 'remote')
-			{
-				await fetchUser();
-				wait_page();
-				await fetchRoom();
-
-			}
-		else{
+		{
+			await fetchUser();
+			wait_page();
+			await fetchRoom();
+		}
+		else
+		{
 			await fetchUser();
 			wait_page();
 			await createRoom(0);
@@ -140,8 +140,7 @@ var socket = null;
 	});
 	/* send from the one who stay*/
 	window.addEventListener("beforeunload", (event) => {
-		if (socket && socket.readyState === WebSocket.OPEN) {
-			console.log("in closed");
+		if (socket && socket.readyState === WebSocket.OPEN) {;
 			socket.send(JSON.stringify({ type: "close"}));
 		}
 	});
@@ -168,12 +167,11 @@ var socket = null;
 			matchdata.userName = data.data.username;
 			matchdata.score = data.data.score
 			matchdata.result = -1;
-			console.log("full name is ", data.data.score);
-			console.log("LEVEL is ", matchdata.level, " User is ", matchdata.user, matchdata.id)
 		}
 	}
 
 	export function displayGame(){
+		thisblur()
 		parent.append(header, container);
 		bodyElement.append(parent);
 		parent.append(header, container, closeBtn);
@@ -187,6 +185,7 @@ var socket = null;
 		app.style.display = "flex";
 		startContainer.classList.add("active");
 		startContainer.style.display = "block";
+		closeBtn.style.display = "none"
 	}
 	function hideGame(){
 		header.style.display = "none";
@@ -198,6 +197,8 @@ var socket = null;
 		app.style.display = "none";
 		gameContainer.style.display = "none";
 		game_over.style.display = "none";
+		undoblur();
+		is_chat = false
 	}
 
 	function fetchcrtf(){
@@ -243,8 +244,6 @@ var socket = null;
 			postdata.level = 0;
 		if (postdata.score < 0)
 			postdata.score = 0;
-		console.log("crtf ", crtf);
-		console.log("postdata ",postdata);
 		fetch('/user/store_match/', {
 			method: 'POST',
 			headers: {
@@ -264,7 +263,6 @@ var socket = null;
 				gamemode = "local"
 			else 
 			gamemode = gameType;
-			console.log("game mode is ", gamemode)
 			const res = await fetch('/pong/prooms/', {
 				method: 'POST',
 				headers: {
@@ -280,8 +278,6 @@ var socket = null;
 				is_chat = true;
 	    	let data = await res.json()
 	    	roomCode = data.code;
-			console.log("game room code is ", roomCode);
-	    	console.log("Created new room with code: ", roomCode); 
 	    	wait_page();
 	    	connectWebSocket();
 			return data;
@@ -302,12 +298,9 @@ var socket = null;
 
 export async function fettchTheRoom(Theroom){
 	try{
-		console.log("the room code is ", Theroom);
 		const response = await fetch(`/pong/fprooms/room/${Theroom}/`);
         is_chat = true
         const room = await response.json();
-        console.log("Fetched room:", room);
-        console.log(`Joining room ${room.code} with ${room.players} players.`);
         roomCode = room.code;
 		gameType = 'remote'
         connectWebSocket();
@@ -319,16 +312,13 @@ export async function fettchTheRoom(Theroom){
 
 export async function fetchRoom() {
     try {
-		console.log("not here ")
 		const response = await fetch('/pong/prooms/');
         
         if (!response.ok) {
             console.log("No available rooms. Creating a new room...");
             return await createRoom(0);
         }
-        
         const room = await response.json();
-        console.log("Fetched room:", room);
 
         if (room.players < 3) {
             console.log(`Joining room ${room.code} with ${room.players} players.`);
@@ -373,19 +363,16 @@ export async function fetchRoom() {
 				myreq =  requestAnimationFrame(renderGame);
 			}
 			else if (data.type === 'ASSIGN_PAD_NUM') {
-				console.log("in PadNum");
-				pad_num = data.pad_num;
 				console.log("pad num is ", pad_num)
 			}
 			else if (data.event === 'START')
 				{
-					console.log("in start");
 					startventListener();
 					start_game();
 				}
 			else if (data.event === 'END')
 				Game_over(data.message);
-			else if (data.event === "LEFT" && gameType === "remote"){
+			else if (data.event === "OVER" && gameType === "remote" && !is_chat){
 				noMatch = true;
 				left_game(data.pad_num);
 			}
@@ -401,7 +388,6 @@ export async function fetchRoom() {
 				{
 					matchdata.opponent = message.user1;
 					matchdata.openName = message.userName1;
-	
 				}
 			}
 		};
@@ -410,7 +396,6 @@ export async function fetchRoom() {
 
 	function wait_page()
 	{
-	    console.log("wait fuction");
 	    waitContainer.classList.add("active");
 	    startContainer.classList.remove("active");
 	    startContainer.style.display = "none";
@@ -418,19 +403,19 @@ export async function fetchRoom() {
 
 
 	async function start_game(){
-		console.log("start")
-		console.log("tourn mod");
 		await fetchUser();
 		wait_page();
 		await fetchcrtf();
-		console.log("id is ",  matchdata.id, "name us ", matchdata.userName);
-        socket.send(JSON.stringify({
-            "type": "START",
-            "message": {
-                "id": matchdata.id,
-                "name": matchdata.userName
-            }
-        }));
+		if (socket.readyState === WebSocket.OPEN)
+		{
+			socket.send(JSON.stringify({
+				"type": "START",
+				"message": {
+					"id": matchdata.id,
+					"name": matchdata.userName
+				}
+			}));
+		}
 		
         startContainer.classList.remove("active");
 		waitContainer.classList.remove("active");
@@ -443,25 +428,24 @@ export async function fetchRoom() {
 		runAnimation();
 		
 		setTimeout(() => {
-			console.log("game start here")
-			socket.send(JSON.stringify({ type: "start"}));
+			if (socket.readyState === WebSocket.OPEN)
+				socket.send(JSON.stringify({ type: "start"}));
 			if (!noMatch)
 				gameContainer.style.display = "block";
 			myreq =  requestAnimationFrame(renderGame);
 
 		}, 3500)
-		socket.send(JSON.stringify({
-            "type": "DUSER",
-            "message": ""
-        }));
-		console.log("out of here")
+		if (socket.readyState === WebSocket.OPEN)
+		{
+			socket.send(JSON.stringify({
+				"type": "DUSER",
+				"message": ""
+			}));
+		}
 		gameStart = true;
 
 	}
 	function playTournemt(){
-		console.log("this bracket have ", bracket);
-		console.log("this semi bracket have ", semi);
-		console.log("pmatch  is ", pmatch)
 		if (pmatch < 4 ){
 			createRoom(0);
 			app.style.display = "flex";
@@ -485,7 +469,6 @@ export async function fetchRoom() {
 		}
 	}
 	function update_tournment(pmatch, winner, color){
-		console.log("this is working ...");
 		app.style.display = "none";
 		let Tournament = document.querySelector('.allbrackets');
 		Tournament.style.display = "flex";
@@ -521,7 +504,9 @@ export async function fetchRoom() {
 			document.querySelector("#announce2").innerHTML = winner;
 			document.querySelector("#nextmatch").innerHTML = "The winner is:";
 			document.querySelector("#nextmatch").style.color = "#BFA100";
+			document.querySelector(".pressEnter").style.display = "none";
 			pmatch = 0;
+			gameStart = false
 		}
 
 		// update player 
@@ -530,7 +515,6 @@ export async function fetchRoom() {
 
 	function Game_over(winner)
 	{
-		console.log("Winer Is pad ", winner)
 		disconnect();
 		cancelAnimationFrame(myreq);
 		document.querySelector(".counter").style.display = "none"
@@ -539,7 +523,6 @@ export async function fetchRoom() {
 			removEventListener();
 		if (gameType === 'tourn')
 		{
-			console.log("Tourn End");
 			gameContainer.style.display = "none";
 			if (!isTourn)
 			{
@@ -556,7 +539,6 @@ export async function fetchRoom() {
 					else{
 						semi.push(bracket[1]);
 					}
-					console.log("semi lent ", semi.length, "semi elemnt ", semi);
 					if (semi.length === 1)
 						document.getElementById("1stbracket").value = semi[0];
 					else if (semi.length === 2) 
@@ -585,23 +567,18 @@ export async function fetchRoom() {
 				let color;
 				if (pmatch === 7)
 				{
-					console.log("Game over ")
 					if (winner === '0')
 					{
 						theWinner = final[0]
 						color = "#2f93ba"
-						console.log(" the winner is ", final[0])
 					}
 					else
 					{
 						theWinner = final[1]
 						color = "#c71539"
-						console.log(" the winner is ", final[1])
 					}
 					isTourn = true;
 					gameStart = false
-					// announce Winner and pmatch = 0 and game start
-					//anounceWiner();
 				}
 				update_tournment(pmatch, theWinner, color);
 			}
@@ -610,7 +587,6 @@ export async function fetchRoom() {
 		else if (gameType === "remote")
 		{
 			gameStart = false
-			console.log("pad num is ", pad_num, "winner iis ",parseInt(winner) )
 			if (pad_num === parseInt(winner))
 			{
 				gameContainer.style.display = "none";
@@ -648,6 +624,7 @@ export async function fetchRoom() {
 			}
 			if (!is_chat)
 				document.querySelector("#play-again").style.display = "block";
+			is_chat = false
 		}
 		else 
 		{
@@ -687,39 +664,37 @@ export async function fetchRoom() {
 		}
 	}
 
-	function post_loser(loser){
-			fetchcrtf();
-			let id = matchdata.opponent;
-			let opponent = matchdata.id;
-			fetch('/user/')
-			matchdata.level -= 1;
-			matchdata.score -= 20;
-			let postdata = 
-			{
-				id : matchdata.id,
-				user : matchdata.id,
-				opponent: matchdata.opponent,
-				result: "loss",
-				level:  matchdata.level,
-				score: matchdata.score,
-				Type: "PONG"
-			}
-			if (postdata.level < 0)
-				postdata.level = 0;
-			if (postdata.score < 0)
-				postdata.score = 0;
-			console.log("crtf ", crtf);
-			console.log("postdata ",postdata);
-			fetch('/user/store_match/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRFToken': crtf
-				},
-				body: JSON.stringify(postdata)
-			})
+	// function post_loser(loser){
+	// 		fetchcrtf();
+	// 		let id = matchdata.opponent;
+	// 		let opponent = matchdata.id;
+	// 		fetch('/user/')
+	// 		matchdata.level -= 1;
+	// 		matchdata.score -= 20;
+	// 		let postdata = 
+	// 		{
+	// 			id : matchdata.id,
+	// 			user : matchdata.id,
+	// 			opponent: matchdata.opponent,
+	// 			result: "loss",
+	// 			level:  matchdata.level,
+	// 			score: matchdata.score,
+	// 			Type: "PONG"
+	// 		}
+	// 		if (postdata.level < 0)
+	// 			postdata.level = 0;
+	// 		if (postdata.score < 0)
+	// 			postdata.score = 0;
+	// 		fetch('/user/store_match/', {
+	// 			method: 'POST',
+	// 			headers: {
+	// 				'Content-Type': 'application/json',
+	// 				'X-CSRFToken': crtf
+	// 			},
+	// 			body: JSON.stringify(postdata)
+	// 		})
 			
-	}
+	// }
 
 	function generateRoomCode() {
 	    return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -807,7 +782,6 @@ export async function fetchRoom() {
 			else
 			{
 				if (gameStart && (event.key === "ArrowUp")) {
-					console.log("arrup is down")
 					socket.send(JSON.stringify({ 
 						type: "move", 
 						move: "Up", 
@@ -816,7 +790,6 @@ export async function fetchRoom() {
 				}
 				else if (gameStart && (event.key === "ArrowDown"))
 				{
-					console.log("arrdwon is down")
 					socket.send(JSON.stringify({ 
 						type: "move", 
 						move: "Down", 
@@ -824,7 +797,6 @@ export async function fetchRoom() {
 					}));
 				}
 				if (gameStart && (event.key === "w" || event.key === "W")) {
-					console.log("w is down")
 					socket.send(JSON.stringify({ 
 						type: "move", 
 						move: "Up", 
@@ -833,7 +805,6 @@ export async function fetchRoom() {
 				}
 				else if (gameStart && (event.key === "s" || event.key === "S"))
 				{
-					console.log("s  is down")
 					socket.send(JSON.stringify({ 
 						type: "move", 
 						move: "Down", 
@@ -843,12 +814,10 @@ export async function fetchRoom() {
 
 			}
 			if (event.key === "Enter") {
-				console.log("in here ")
 				if (Array.isArray(bracket) && !bracket.length)
 					bracket = rplayers();
 				if (Array.isArray(bracket) && bracket.length) 
 				{
-					console.log("successfully!");
 					if (!isTourn && !gameStart)
 					{
 						document.querySelector('.comingUp').style.display = 'none';
@@ -875,7 +844,6 @@ export async function fetchRoom() {
 				{
 					if (gameStart && (event.key === "ArrowUp" || event.key === "ArrowDown")) 
 					{
-						console.log("arrow is up")
 						socket.send(JSON.stringify({ 
 							type: "move", 
 							move: "Stop", 
@@ -884,7 +852,6 @@ export async function fetchRoom() {
 					}
 					else if (gameStart && (event.key === "w" || event.key === "W" || event.key === "s" || event.key === "S" ))
 					{
-						console.log("ws is up")
 						socket.send(JSON.stringify({ 
 							type: "move", 
 							move: "Stop", 
@@ -920,9 +887,7 @@ export async function fetchRoom() {
 	
 	}
 	/* ************************************ Abed Changes ******************************************* */
-	
-	const handlePlayBtn = () => {
-		resetDOM()
+	function thisblur(){
 		const freeze = document.querySelector("#freeze");
 		freeze.classList.add("unclick");
 		const design = document.querySelector("#design");
@@ -931,6 +896,18 @@ export async function fetchRoom() {
 		games.style.filter = "blur(3px)";
 		const nav = document.querySelector("#nav");
 		nav.style.filter = "blur(3px)";
+	}
+
+	function undoblur(){
+		freeze.classList.remove("unclick");
+		document.querySelector("#design").style.filter = "blur(0px)";
+		document.querySelector("#games").style.filter = "blur(0px)";
+		document.querySelector("#nav").style.filter = "blur(0px)";
+	}
+
+	const handlePlayBtn = () => {
+		resetDOM()
+		thisblur()
 		// const same = document.querySelector(".same-User");
 		// same.style.display = "none";
 		// --------------------------------- //
@@ -959,19 +936,16 @@ export async function fetchRoom() {
 			header.style.display = "none";
 			TournamentContainer.style.display = "flex";
 			parent.append(TournamentContainer);
-			console.log("This is Workng");
 			bracket = rplayers();
 			container.style.display = "none";
 			header.style.display = "none";
 			parent.append(app);
-			console.log("this is bracker", bracket);
 		}
 		tournament.addEventListener("click", handleTournament);
 
 		const handleLocaleGame = () => {
 			
 			gameType = 'local';
-			console.log("Local");
 			container.style.display = "none";
 			header.style.display = "none";
 			parent.append(app);
@@ -983,11 +957,7 @@ export async function fetchRoom() {
 		twoPlayers.addEventListener("click", handleLocaleGame);
 		const closeGame = () => {
 			resetDOM()
-			
-			freeze.classList.remove("unclick");
-			document.querySelector("#design").style.filter = "blur(0px)";
-			document.querySelector("#games").style.filter = "blur(0px)";
-			document.querySelector("#nav").style.filter = "blur(0px)";
+			undoblur();
 			parent.style.display = "none";
 			startContainer.classList.remove("active");
 			startContainer.style.display = "none";
@@ -1016,8 +986,9 @@ export async function fetchRoom() {
 		document.querySelector("#play-again").style.display = "none";
 		if (gameType === "tourn")
 			document.querySelector('.comingUp').style.display = 'none';
-
+		isTourn = false;
 		roomCode = "";
+		is_chat = false
 		room_is_created = false;
 		gameStart = false
 		pad_num = 0;

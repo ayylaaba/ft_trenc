@@ -180,6 +180,7 @@ class PingPongConsumer(AsyncWebsocketConsumer):
             if self.channel_name in connected_players[self.room_group_name]["channels"]:
                 player_left = connected_players[self.room_group_name]['pad_num']
                 connected_players[self.room_group_name]["channels"].remove(self.channel_name)
+        print("the len is ", len(connected_players[self.room_group_name]["channels"]), player_left)
         if len(connected_players[self.room_group_name]["channels"]) == 1:
             await self.channel_layer.group_send(
                 self.room_group_name,

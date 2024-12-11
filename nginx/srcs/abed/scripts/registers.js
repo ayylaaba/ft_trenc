@@ -122,10 +122,12 @@ const validateInput = () =>{
 		document.querySelector(".comingUp").style.display = "flex";
 		document.querySelector(".announce").style.display = "flex";
 		document.querySelector("#nextmatch").innerHTML = "Next Match : ";
+		document.querySelector("#nextmatch").style.color = "#F5F5F5";
 		document.querySelector("#announce1").style.color = "#2f93ba";
 		document.querySelector("#announce2").style.color = "#c71539";
 		document.querySelector("#announce1").innerHTML = curr_matach1 + " v";
 		document.querySelector("#announce2").innerHTML = "s " + curr_matach2;
+		document.querySelector(".pressEnter").style.display = "flex";
 		fill("player3B", pValue, pValue.length, bracket);
 		fill("player4B", pValue, pValue.length, bracket);
 		fill("player5B", pValue, pValue.length, bracket);
