@@ -101,10 +101,10 @@ def login_vu(request):
         print ("user :", user)
         print ("password :", user.password)
     except User_info.DoesNotExist:
-        return JsonResponse({"status": "failed", "error": "Invalid credentials"})
+        return JsonResponse({"status": "failed", "error": "Invalid credentials"}, status=400)
 
     if not user.check_password(password):
-        return JsonResponse({"status": "failed", "error": "Invalid credentials"})
+        return JsonResponse({"status": "failed", "error": "Invalid credentials"},  status=400)
 
     login(request, user)
 
@@ -112,20 +112,6 @@ def login_vu(request):
     serialize_user = CustmerSerializer(instance=user)
     return JsonResponse({"data": serialize_user.data, "status": "success"})
 
-    # username = request.data.get('username')
-    # password = request.data.get('password')
-
-
-
-    # print ("pass = ", )
-
-    # # Authenticate user
-    # user = authenticate(username=username, password=password)
-    # if user is None:
-    #     return Response({"status": False, "error": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
-    # login(request, user)
-    # serialize_user = CustmerSerializer(instance=user)
-    # return Response({"data": serialize_user.data, "status":"success"})
 
 from django.contrib.sessions.models import Session
 
