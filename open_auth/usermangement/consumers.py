@@ -17,11 +17,7 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
             self.user = await database_sync_to_async(self.get_user_by_id)(self.user.id)
 
             self.group_name = f'user_{self.user.id}'
-            print("this 1", flush=True)
             await self.channel_layer.group_add(self.group_name, self.channel_name)
-            self.user.online_status = True
-            await sync_to_async(self.user.save)()
-            print("this 2", flush=True)
             await self.accept()
             await self.update_user_status(True)
             await self.notify_to_curr_user_form_friends()
@@ -37,16 +33,6 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
             await self.close()
     def get_user_by_id(self, user_id):
         return User_info.objects.get(id=user_id)
-    # async def disconnect(self, close_code):
-    #     print ('\033[1;32m Disconnect it \n')
-    #     self.user = self.scope["user"]
-    #     self.user.online_status = False
-    #     (self.user.save)
-    #     await self.update_user_status(False)
-    #     await self.notify_to_curr_user_form_friends()
-    #     await  User_info.objects.update_or_create(self.user)
-    #     print("this 4", flush=True)
-    #     await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def disconnect(self, close_code):
         print('\033[1;32m Disconnect it \n')
@@ -54,9 +40,6 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
         self.user = self.scope["user"]
 
         if self.user.is_authenticated:
-            self.user.online_status = False
-            await sync_to_async(self.user.save)()  # Fix the synchronous save call
-
             await self.update_user_status(False)
             await self.notify_to_curr_user_form_friends()
 
