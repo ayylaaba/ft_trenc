@@ -41,11 +41,7 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
         print ('\033[1;32m Disconnect it \n')
         self.user = self.scope["user"]
         self.user.online_status = False
-<<<<<<< HEAD
         (self.user.save)
-=======
-        await sync_to_async(self.user.save)()
->>>>>>> origin/onacirti
         await self.update_user_status(False)
         await self.notify_to_curr_user_form_friends()
         await  User_info.objects.update_or_create(self.user)
