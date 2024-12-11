@@ -83,6 +83,7 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
         message = data['message']
         is_game_over = False
 
+        print("we recived ", flush=True)
         if event == 'START':
             if not connected_players[self.room_group_name]["user1"]:
                 connected_players[self.room_group_name]["user1"] = message["id"]
@@ -96,18 +97,18 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
             index = message['index']
             player = message['player']
             board = game_states[self.room_group_name]['board']
-            if message['player'] == current_turn:
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'send_message',
-                        'message': message,
-                        'event': 'MOVE'
-                    }
-                )
             if board[index] == '' and player == current_turn:
                 board[index] = player
-                print('cuurent is ', current_turn)
+                if message['player'] == current_turn:
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'send_message',
+                            'message': message,
+                            'event': 'MOVE'
+                        }
+                    )
+                    print('cuurent is ', current_turn)
             if self.check_winner(board):
                 is_game_over = True
                 for i in range(len(board)):
@@ -121,8 +122,9 @@ class TicTacToeConsumer(AsyncWebsocketConsumer):
                     }
                 )
                 turn_tracker[self.room_group_name] = 'X'
-            elif '' not in board and len(connected_players[self.room_group_name]) == 2:
-                print("in draw")
+            print("in draw", flush=True)
+            if '' not in board:
+                print("in draw", flush=True)
                 turn_tracker[self.room_group_name] = 'X'
                 is_game_over = True
                 for i in range(len(board)):

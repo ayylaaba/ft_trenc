@@ -182,6 +182,13 @@
 	display: none;
 }
 
+
+.tagcolor
+{
+    display: block;
+    
+}
+
 .counter {
     position: fixed;
     top: 50%;

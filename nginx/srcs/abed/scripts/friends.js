@@ -158,6 +158,7 @@ export const suggestionsFunction = async ()=> {
 }
 
 import { flag, socketFunction } from "./socket.js";
+import { navigateTo } from "../script.js";
 
 export const sendIdToBackend = async (id, action) => {
     const token = await get_csrf_token();
@@ -207,7 +208,9 @@ export const sendIdToBackend = async (id, action) => {
 
 const sugBtn = document.querySelector("#suggestion-btn");
 
-sugBtn.addEventListener("click", suggestionsFunction);
+sugBtn.addEventListener("click", ()=> {
+    navigateTo("/friends/suggestions");
+});
 
 
 
@@ -315,7 +318,9 @@ export const requestsFunction = async ()=> {
     }
 }
 const reqBtn = document.querySelector("#requests-btn");
-reqBtn.addEventListener("click", requestsFunction);
+reqBtn.addEventListener("click", () => {
+    navigateTo("/friends/requests");
+});
 
 // -------------- Display Friends --------------------
 
@@ -434,7 +439,9 @@ export {friendsLoaded};
 
 const friendBtn = document.querySelector("#friend-btn");
 
-friendBtn.addEventListener("click", friendsFunction);
+friendBtn.addEventListener("click", ()=> {
+    navigateTo("/friends")
+});
 
 
 

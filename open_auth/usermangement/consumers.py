@@ -20,11 +20,17 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
             print("this 1", flush=True)
             await self.channel_layer.group_add(self.group_name, self.channel_name)
             self.user.online_status = True
-            await sync_to_async(self.user.save)() 
+            await sync_to_async(self.user.save)()
             print("this 2", flush=True)
             await self.accept()
             await self.update_user_status(True)
             await self.notify_to_curr_user_form_friends()
+            await sync_to_async(User_info.objects.update_or_create)(
+                id=self.user.id,
+                defaults={
+                    "online_status": True,
+                }
+            )
             print("this 3", flush=True)
         else:
             print("Anonymous user connected")
@@ -35,9 +41,14 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
         print ('\033[1;32m Disconnect it \n')
         self.user = self.scope["user"]
         self.user.online_status = False
+<<<<<<< HEAD
         (self.user.save)
+=======
+        await sync_to_async(self.user.save)()
+>>>>>>> origin/onacirti
         await self.update_user_status(False)
         await self.notify_to_curr_user_form_friends()
+        await  User_info.objects.update_or_create(self.user)
         print("this 4", flush=True)
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 

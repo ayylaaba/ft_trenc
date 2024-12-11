@@ -2,12 +2,11 @@ import { friendsFunction, suggestionsFunction, requestsFunction, createRequestCa
 import { mainFunction, lookForUsers } from "./home.js";
 import { notificationFunction, notifBtn } from "./notification.js";
 import { fettchTheRoom, displayGame, createRoom  } from "./game.js";
-import { chatPage } from "./chat.js";
+import { chatPage, popupCard } from "./chat.js";
 
 export let flag = 0;
 export let socket = null;
 export let check_status = false;
-let count = 0;
 let roomCode;
 
 export const createToast = (message, timeAgo) => {
@@ -103,19 +102,18 @@ export const socketFunction = async () => {
                         <button id="nooo" style="color: white; border: none; width: 90px; border-radius: 10px; background-color: #b32d2d; height: 35px;">NO</button>
                     </div>
                 `;
-                const cardDiv = document.createElement("div");
-                cardDiv.id = "Pong-invitation";
-                cardDiv.innerHTML = _confirm.trim();
+                const infoCard = document.createElement("div");
+                infoCard.id = "Pong-invitation";
+                infoCard.innerHTML = _confirm.trim();
                 const bodyElement = document.querySelector("body");
-                bodyElement.append(cardDiv);
+                bodyElement.append(infoCard);
 
                 const yesss = document.querySelector("#yesss");
                 const nooo = document.querySelector("#nooo");
-                yesss.addEventListener("click",  async ()=> {
+                yesss.addEventListener("click",  async () => {
                     //create room with code
                     let dataGame =  await createRoom(1);
                     roomCode = dataGame.code;
-                    console.log("room code ", roomCode)
                     displayGame();
                     socket.send(JSON.stringify ({
                         'type': 'response',
@@ -125,11 +123,9 @@ export const socketFunction = async () => {
                         'confirmation': true,
                         'roomcode': roomCode
                     }))
-                    cardDiv.remove();
+                    infoCard.remove();
                 });
                 nooo.addEventListener("click", () => {
-                    console.log("check no");
-                    count = 0;
                     socket.send(JSON.stringify ({
                         'type': 'response',
                         'sender' : sender,
@@ -138,38 +134,32 @@ export const socketFunction = async () => {
                         'confirmation': false,
                         'roomcode': ""
                     }))
-                    cardDiv.remove();
+                    infoCard.remove();
                 });
                 
                 setInterval(()=> {
-                    cardDiv.remove();
+                    infoCard.remove();
                 }, 10000);
             }
             if (data.type === 'response_invitation') {
 
                 const _confirm = data['confirmation'];
                 const recipient = data['recipient'];
-
                 if (_confirm) {
-                    console.log("room code in case accept ", data['roomcode'])
                     let roomToGET = data['roomcode']
-                    console.log('check is true');
                     fettchTheRoom(roomToGET);
                     displayGame();
                 }
                 else {
-                    // should sent a refuse message ---------- 
-                    console.log('check is false');
+                    // should sent a refuse message -----
+                    popupCard(`${recipient} refuse to play`);
                 }
             }
             if (data.type === 'response_block') {
-
-
                 const block_id = data['block_id'];
                 const etat = data['etat'];
-                const dots = document.querySelector(`#thisUser-${block_id}`);
-                
-                console.log('id is ', block_id);
+                const dots = document.querySelector(`#user-${block_id}`);
+
                 if (etat === true) {
                     if (dots) {
                         dots.addEventListener('click', function() {
@@ -200,7 +190,7 @@ export const socketFunction = async () => {
                         bellNotif.remove()
                     });
                     // suggestionsFunction();
-                    // requestsFunction();
+                    requestsFunction();
                     const acceptBtnsListen = document.querySelectorAll(".add .accept");
                     for(let i = 0; i < acceptBtnsListen.length; i++) {
                         console.log("Acceptttttttttt 2222222222222222222");
@@ -223,7 +213,7 @@ export const socketFunction = async () => {
                 }
                 if (data.option === 'accepte_request'){
                     console.log('accepted frd request : ', data.data)
-                    createFriendCards(data.data.username, data.data.imageProfile, data.data.id);
+                    createFriendCards(data, data.data.id);
                     const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
                     for(let i = 0; i < unfriendBtns.length; i++) {
                         unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "unfriend"));
@@ -233,7 +223,7 @@ export const socketFunction = async () => {
                     console.log("refuse: ", data.data);
                     mainFunction();
                     lookForUsers();
-                    createSuggestionCard(data.data.username, data.data.imageProfile);
+                    createSuggestionCard(data);
                     const addBtnsListen = document.querySelectorAll(".add .btn");
                     for(let i = 0; i < addBtnsListen.length; i++) {
                         addBtnsListen[i].addEventListener("click", ()=> sendIdToBackend(data.data.from_user_id, "add"));
@@ -242,16 +232,17 @@ export const socketFunction = async () => {
                 if (data.option === 'unfriend'){
                     friendsFunction();
                     console.log('unfriend : ', data.data)
-                    createSuggestionCard(data.data.username, data.data.imageProfile);
+                    createSuggestionCard(data);
                     const unfriendBtns = document.querySelectorAll(".delete .unfriendd");
                     for(let i = 0; i < unfriendBtns.length; i++) {
                         unfriendBtns[i].addEventListener("click", ()=> sendIdToBackend(data.data.id, "unfriend"));
                     }
                 }
                 if (data.option === 'is_online') {
-                    if (document.querySelector(`#online-icon-${data.data.id}`) === null) {
-                        createFriendCards(data.data.username, data.data.imageProfile, data.data.id);
-                    }
+                    // if (document.querySelector(`#online-icon-${data.data.id}`) === null) {
+                        createFriendCards(data, data.data.id);
+                    // }
+                    console.log(`data id: ${data.data.id}`);
                     const onlineIcon = document.querySelector(`#online-icon-${data.data.id}`);
                     console.log("the icon: ", onlineIcon);
                     if (data.data.online_status && onlineIcon) {

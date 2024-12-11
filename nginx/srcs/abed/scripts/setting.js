@@ -6,6 +6,7 @@ import { main } from "./home.js";
 import { chatPage } from "./chat.js";
 import { rankPart } from "./rank.js";
 import { friendsPart } from "./friends.js";
+import { navigateTo } from "../script.js";
 
 export const settingFunction = (dataObj) => {
     profileId.style.display = "none";
@@ -32,27 +33,20 @@ export const settingFunction = (dataObj) => {
 // settingButton.addEventListener("click", settingFunction);
 
 // nav manipulation style.
-const settingNavBtn = document.querySelectorAll(".setting-nav-btn");
-settingNavBtn[0].classList.add('styled-nav-btn');
-
-settingNavBtn.forEach ((frdNavBtn)=> {
-    frdNavBtn.addEventListener("click", (event)=> {
-        settingNavBtn.forEach (frdNavBtn => {frdNavBtn.classList.remove('styled-nav-btn')});
-        frdNavBtn.classList.add('styled-nav-btn');
-    })
-});
-
-const profileSetting = document.querySelector("#profile-setting");
-const logSec = document.querySelector("#log-sec");
-
-settingNavBtn[0].addEventListener("click", (event)=> {
-    profileSetting.style.display = "flex";
-    logSec.style.display = "none";
+const settingNavBtns = document.querySelectorAll(".setting-nav-btn");
+settingNavBtns[0].addEventListener("click", ()=> {
+    settingNavBtns.forEach ((settingNavBtn)=> {
+        settingNavBtn.classList.remove('styled-nav-btn');
+    });
+    settingNavBtns[0].classList.add('styled-nav-btn');
+    navigateTo("/setting/profile");
 })
-
-settingNavBtn[1].addEventListener("click", ()=> {
-    profileSetting.style.display = "none";
-    logSec.style.display = "flex";
+settingNavBtns[1].addEventListener("click", ()=> {
+    settingNavBtns.forEach ((settingNavBtn)=> {
+        settingNavBtn.classList.remove('styled-nav-btn');
+    });
+    settingNavBtns[1].classList.add('styled-nav-btn');
+    navigateTo("/setting/security");
 })
 
 // settingNavBtn[2].addEventListener("click", ()=> {

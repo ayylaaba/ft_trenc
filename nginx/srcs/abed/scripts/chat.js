@@ -2,6 +2,7 @@ export const chatButton = document.querySelector("#chat");
 export const chatPage = document.querySelector("#chat-part");
 let chatSocket = null;
 let thisSocket = null;
+let gotBlocked = false;
 
 import { profileId } from "./profile.js";
 import { main } from "./home.js";
@@ -10,7 +11,7 @@ import { rankPart } from "./rank.js";
 import { friendsPart, friendsFunction } from "./friends.js";
 import { get_csrf_token } from "./register.js";
 import { newDataFunc } from "../script.js";
-import { socketFunction, localStorageTracking, bellNotifUser, bellNotif } from "./socket.js";
+import { socketFunction, localStorageTracking, bellNotifUser, bellNotif} from "./socket.js";
 
 
 const notifButton = document.querySelector(".search-icons .btn");
@@ -42,17 +43,24 @@ export const popupCard = (message) => {
     const cardDiv = document.createElement("div");
     cardDiv.id = "card-div";
     const bodyElement = document.querySelector("body");
+    const notifHeader = document.createElement("h1");
+    notifHeader.id = "notif-header";
+    notifHeader.innerHTML = "Notification!";
     const paragraph = document.createElement("p");
     paragraph.id = "paragraph-id";
     paragraph.innerHTML = `${message}`;
-    const buttonn = document.querySelector("button");
+    const buttonn = document.createElement("button");
     buttonn.id = "pop-btn";
     buttonn.innerHTML = "Ok";
-    cardDiv.append(paragraph, buttonn);
+    cardDiv.append(notifHeader, paragraph, buttonn);
     bodyElement.append(cardDiv);
     setTimeout(()=> {
-        cardDiv.style.display = "none";
-    }, 3000);
+        cardDiv.remove();
+    }, 5000);
+    buttonn.addEventListener('click', () => {
+        cardDiv.remove();
+    });
+
 }
 
 export const chatFunction = async () => {
@@ -88,7 +96,7 @@ const scrollToBottom = ()=> {
 
 async function getRoomName(recipient, sender) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/room_name/', {
+    const response = await fetch('/chatt/api/room_name/', {
         method : 'POST',
         headers : {
             'Content-Type': 'application/json',
@@ -125,7 +133,7 @@ function showRoom(recipient, sender) {
 
 async function block_user(recipient, room_id, sender) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/block_user/', {
+    const response = await fetch('/chatt/api/block_user/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -148,7 +156,7 @@ async function block_user(recipient, room_id, sender) {
 
 const unblockUser = async (room_id) => {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/unblock_user/', {
+    const response = await fetch('/chatt/api/unblock_user/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -169,7 +177,7 @@ const unblockUser = async (room_id) => {
 
 async function is_user_blockes(room_id, username, blocked) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/is_user_blocked/', {
+    const response = await fetch('/chatt/api/is_user_blocked/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -201,6 +209,7 @@ const checkBlockStatus = async (recipient, sender) => {
     }
 };
 
+let set = null;
 const data_characters = async () => {
 
     const characters = await friendsFunction();
@@ -209,6 +218,7 @@ const data_characters = async () => {
     thisSocket = await socketFunction();
     let room_id = 0;
     let check = "";
+    set = new Set();
 
     characters.forEach(character => {
         
@@ -289,20 +299,24 @@ const data_characters = async () => {
                         
                         // on click play buuton
                         document.getElementById(`play-${character.id}`).addEventListener('click', async function (e) {
-                            
-                            if (check.etat === false) {
-                                thisSocket.send(JSON.stringify ({
-                                    'type': 'requestFriend',
-                                    'recipient_id': character.id,
-                                    'sender_id': thisCurrUser.id,
-                                    'sender': thisCurrUser.username,
-                                    'recipient': character.username
-                                }));
+                            if  (!set.has(character.id)) {
+                                if (check.etat === false) {
+                                    set.add(character.id);
+                                    thisSocket.send(JSON.stringify ({
+                                        'type': 'requestFriend',
+                                        'recipient_id': character.id,
+                                        'sender_id': thisCurrUser.id,
+                                        'sender': thisCurrUser.username,
+                                        'recipient': character.username
+                                    }));
+                                }
+                                else {
+                                    popupCard(`You blocked ${character.username}`);
+                                }
                             }
-                            else {
-                                console.log('yooooooooooooooooooooooo');
-                                popupCard(`You blocked ${character.username}`);
-                            }
+                            setTimeout(() => {
+                                set.delete(character.id);
+                            }, 10000);
                         });
                 
                 // -------------------------------------------- on click block buton ----------------------------------------------------------------------------- 
@@ -310,8 +324,9 @@ const data_characters = async () => {
                 blockTag.addEventListener('click', async function(e) {
                     if (check.etat === false) {
                         block_user(character.username, room_id, thisCurrUser.username);
-                        alert(`you block ${character.username}`);
+                        popupCard(`you block ${character.username}`);
                         blockTag.innerHTML = "Unblock";
+                        gotBlocked = true;
                         if (thisSocket.readyState === WebSocket.OPEN) {
                             thisSocket.send(JSON.stringify ({
                                 'type': 'request_block',
@@ -325,7 +340,8 @@ const data_characters = async () => {
                     else {
                         blockTag.innerHTML = "Block";
                         unblockUser(room_id);
-                        alert(`you unblock ${character.username} ${check.etat}`);
+                        popupCard(`you unblock ${character.username}`);
+                        gotBlocked = false;
                         if (thisSocket.readyState === WebSocket.OPEN){
                             thisSocket.send(JSON.stringify ({
                                 'type': 'request_block',
@@ -382,9 +398,7 @@ const data_characters = async () => {
         
         room_id = await getRoomName(character.username, thisCurrUser.username);
         check = await is_user_blockes(room_id, thisCurrUser.username, character.username);
-        console.log(`blocker ${check.blocker} and ${character.username}`);
         if (check.blocker === character.username) {
-            alert(`id is ${character.id}`);
             const dis = document.querySelector(`#user-${character.id}`);
             dis.disabled = true;
         }
@@ -409,7 +423,7 @@ const data_characters = async () => {
         }
 
         chatSocket = new WebSocket (
-            'ws://' + window.location.hostname + ':8003/ws/chat/' + roomId + '/'
+            'wss://' + window.location.hostname + ':8082/wss/chatt/' + roomId + '/'
         );
     
         chatSocket.onopen = function(e) {
@@ -436,7 +450,8 @@ const data_characters = async () => {
                 else {
                     msgTag.classList.add('friend-msg');
                 }
-                document.getElementById('msgs').appendChild(msgTag);
+                if (!gotBlocked)
+                    document.getElementById('msgs').appendChild(msgTag);
             }
         }
     

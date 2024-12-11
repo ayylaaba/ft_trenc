@@ -8,6 +8,8 @@ export const profileAlert = (status, jsonData)=> {
     if (status === "success") {
         reloadFunction(jsonData);
         document.querySelector("#update-alert").style.display = "none";
+    } else if (status === "failed-intra") {
+        document.querySelector("#update-alert-failed-intra").style.display = "none";
     } else {
         document.querySelector("#update-alert-failed").style.display = "none";
     }
