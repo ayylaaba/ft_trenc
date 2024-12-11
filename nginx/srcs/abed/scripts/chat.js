@@ -88,10 +88,11 @@ export const chatFunction = async () => {
 
 // chatButton.addEventListener("click", chatFunction);
 
-const container = document.querySelector("#msgs");
+const msgsContainer = document.querySelector("#msgs");
 
 const scrollToBottom = ()=> {
-    container.scrollTop = container.scrollHeight;    
+    msgsContainer.scrollTop = msgsContainer.scrollHeight + 200;
+    console.log("scroll height: ", msgsContainer.scrollHeight);
 }
 
 async function getRoomName(recipient, sender) {
