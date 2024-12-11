@@ -302,7 +302,6 @@ const data_characters = async () => {
                             if  (!set.has(character.id)) {
                                 if (check.etat === false) {
                                     set.add(character.id);
-                                    console.log("------------------------------> ", set);
                                     thisSocket.send(JSON.stringify ({
                                         'type': 'requestFriend',
                                         'recipient_id': character.id,
