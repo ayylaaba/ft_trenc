@@ -363,7 +363,7 @@ export async function fetchRoom() {
 				myreq =  requestAnimationFrame(renderGame);
 			}
 			else if (data.type === 'ASSIGN_PAD_NUM') {
-				console.log("pad num is ", pad_num)
+				pad_num = data.pad_num;
 			}
 			else if (data.event === 'START')
 				{

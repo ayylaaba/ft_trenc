@@ -66,7 +66,7 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
                 defaults={"online_status": False}
             )
 
-        print("this 4", flush=True)
+        print("this 4 ",self.group_name)
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def receive(self, text_data):
