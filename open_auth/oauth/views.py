@@ -78,22 +78,54 @@ def     logout_vu(request):
         )
     if request.method == 'POST':
         logout(request)
+        request.session.flush()  # Clear all session data
         return (JsonResponse({'status':'success'}))
     return (JsonResponse({'status':'faild'}))
 
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
+
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login_vu(request):
+    
+    print ("it enter hereeeeeeeeeeeeeeeeeeeeeee", flush=True)
+
     username = request.data.get('username')
     password = request.data.get('password')
 
-    # Authenticate user
-    user = authenticate(username=username, password=password)
-    if user is None:
-        return Response({"status": False, "error": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
+    # Fetch the user explicitly from the database
+    try:
+        user = User_info.objects.get(username=username)
+        print ("user :", user)
+        print ("password :", user.password)
+    except User_info.DoesNotExist:
+        return JsonResponse({"status": "failed", "error": "Invalid credentials"})
+
+    if not user.check_password(password):
+        return JsonResponse({"status": "failed", "error": "Invalid credentials"})
+
     login(request, user)
+
+    # Serialize user data and return JsonResponse
     serialize_user = CustmerSerializer(instance=user)
-    return Response({"data": serialize_user.data, "status":"success"})
+    return JsonResponse({"data": serialize_user.data, "status": "success"})
+
+    # username = request.data.get('username')
+    # password = request.data.get('password')
+
+
+
+    # print ("pass = ", )
+
+    # # Authenticate user
+    # user = authenticate(username=username, password=password)
+    # if user is None:
+    #     return Response({"status": False, "error": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
+    # login(request, user)
+    # serialize_user = CustmerSerializer(instance=user)
+    # return Response({"data": serialize_user.data, "status":"success"})
 
 from django.contrib.sessions.models import Session
 

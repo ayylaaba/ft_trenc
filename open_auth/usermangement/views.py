@@ -341,7 +341,12 @@ def reject_request(request, receiver_id):
         return JsonResponse({'status': 'success', 'data': 'The request has been rejected'}, status=200)
     except RequestFriend.DoesNotExist:
         return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=400)
-    
+
+from django.contrib.sessions.models import Session
+# from rest_framework.authtoken.models import Token
+from django.utils import timezone
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Ensure the user is logged in
 def ChangePassword(request):
@@ -354,12 +359,6 @@ def ChangePassword(request):
     new_password1 = data.get('new_password1')
     new_password2 = data.get('new_password2')
     new_username = data.get('new_username')
-
-    # Check if new_username is provided
-    # print ("1 ->>>>>>>>>> ", data)
-    # if not old_password or not new_password1 or not new_password2:
-    #     print ("100 *********** ")
-    #     return JsonResponse({"error": "EMPTY"}, status=400)
     
     if new_username:
         if user.username == new_username:
@@ -373,14 +372,11 @@ def ChangePassword(request):
                 user.save()
                 return JsonResponse({"status": "success"}, status=200)
 
-
-
     # Check if old password is correct
     print ("old_password ", old_password)
     print ("new_password ", new_password1)
     print ("user ", user)
     print("printi chi l3aba ", user.check_password(old_password))
-
 
     if not user.check_password(old_password):
         print ("1 *********** ")
@@ -398,10 +394,14 @@ def ChangePassword(request):
         print ("3 *********** ")
         return JsonResponse({"error": "The new password is similar to the old password."}, status=400)
 
-    print ("4 *********** ")
     user.set_password(new_password1)
     user.save()
+    print("After Hash pass : ", user.password)
 
+    print("Password changed successfully.")
+    print("status ", user.check_password(new_password1))  # Should print True
+
+    # Update the session to avoid logging out the current user
     update_session_auth_hash(request, user)
 
     return JsonResponse({"status": "success"}, status=200)
