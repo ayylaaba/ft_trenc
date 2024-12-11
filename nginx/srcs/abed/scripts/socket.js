@@ -7,7 +7,6 @@ import { chatPage, popupCard } from "./chat.js";
 export let flag = 0;
 export let socket = null;
 export let check_status = false;
-let count = 0;
 let roomCode;
 
 export const createToast = (message, timeAgo) => {
@@ -103,20 +102,18 @@ export const socketFunction = async () => {
                         <button id="nooo" style="color: white; border: none; width: 90px; border-radius: 10px; background-color: #b32d2d; height: 35px;">NO</button>
                     </div>
                 `;
-                const cardDiv = document.createElement("div");
-                cardDiv.id = "Pong-invitation";
-                cardDiv.innerHTML = _confirm.trim();
+                const infoCard = document.createElement("div");
+                infoCard.id = "Pong-invitation";
+                infoCard.innerHTML = _confirm.trim();
                 const bodyElement = document.querySelector("body");
-                bodyElement.append(cardDiv);
+                bodyElement.append(infoCard);
 
                 const yesss = document.querySelector("#yesss");
                 const nooo = document.querySelector("#nooo");
-                yesss.addEventListener("click",  async ()=> {
+                yesss.addEventListener("click",  async () => {
                     //create room with code
-                    alert("HEREEEEEEEEEEEEEE")
                     let dataGame =  await createRoom(1);
                     roomCode = dataGame.code;
-                    console.log("room code ", roomCode)
                     displayGame();
                     socket.send(JSON.stringify ({
                         'type': 'response',
@@ -126,13 +123,9 @@ export const socketFunction = async () => {
                         'confirmation': true,
                         'roomcode': roomCode
                     }))
-                    cardDiv.remove();
+                    infoCard.remove();
                 });
                 nooo.addEventListener("click", () => {
-                    console.log("check no");
-                    count = 0;
-                    alert("HEREEEEEEEEEEEEEE")
-
                     socket.send(JSON.stringify ({
                         'type': 'response',
                         'sender' : sender,
@@ -141,41 +134,32 @@ export const socketFunction = async () => {
                         'confirmation': false,
                         'roomcode': ""
                     }))
-                    cardDiv.remove();
+                    infoCard.remove();
                 });
                 
                 setInterval(()=> {
-                    cardDiv.remove();
+                    infoCard.remove();
                 }, 10000);
             }
             if (data.type === 'response_invitation') {
 
                 const _confirm = data['confirmation'];
                 const recipient = data['recipient'];
-                alert("HEREEEEEEEEEEEEEE")
-
                 if (_confirm) {
-                    alert("HEREEEEEEEEEEEEEE")
-
-                    console.log("room code in case accept ", data['roomcode'])
                     let roomToGET = data['roomcode']
-                    console.log('check is true');
                     fettchTheRoom(roomToGET);
                     displayGame();
                 }
                 else {
-                    // should sent a refuse message ---------- 
+                    // should sent a refuse message -----
                     popupCard(`${recipient} refuse to play`);
                 }
             }
             if (data.type === 'response_block') {
-
-
                 const block_id = data['block_id'];
                 const etat = data['etat'];
                 const dots = document.querySelector(`#user-${block_id}`);
-                
-                console.log('id is ', block_id);
+
                 if (etat === true) {
                     if (dots) {
                         dots.addEventListener('click', function() {

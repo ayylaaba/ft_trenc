@@ -3,6 +3,7 @@ export const chatPage = document.querySelector("#chat-part");
 let chatSocket = null;
 let thisSocket = null;
 let gotBlocked = false;
+
 import { profileId } from "./profile.js";
 import { main } from "./home.js";
 import { settingPage } from "./setting.js";
@@ -10,7 +11,7 @@ import { rankPart } from "./rank.js";
 import { friendsPart, friendsFunction } from "./friends.js";
 import { get_csrf_token } from "./register.js";
 import { newDataFunc } from "../script.js";
-import { socketFunction, localStorageTracking, bellNotifUser, bellNotif } from "./socket.js";
+import { socketFunction, localStorageTracking, bellNotifUser, bellNotif} from "./socket.js";
 
 
 const notifButton = document.querySelector(".search-icons .btn");
@@ -56,7 +57,6 @@ export const popupCard = (message) => {
     setTimeout(()=> {
         cardDiv.remove();
     }, 5000);
-
     buttonn.addEventListener('click', () => {
         cardDiv.remove();
     });
@@ -209,6 +209,7 @@ const checkBlockStatus = async (recipient, sender) => {
     }
 };
 
+let set = null;
 const data_characters = async () => {
 
     const characters = await friendsFunction();
@@ -217,6 +218,7 @@ const data_characters = async () => {
     thisSocket = await socketFunction();
     let room_id = 0;
     let check = "";
+    set = new Set();
 
     characters.forEach(character => {
         
@@ -297,19 +299,25 @@ const data_characters = async () => {
                         
                         // on click play buuton
                         document.getElementById(`play-${character.id}`).addEventListener('click', async function (e) {
-                            
-                            if (check.etat === false) {
-                                thisSocket.send(JSON.stringify ({
-                                    'type': 'requestFriend',
-                                    'recipient_id': character.id,
-                                    'sender_id': thisCurrUser.id,
-                                    'sender': thisCurrUser.username,
-                                    'recipient': character.username
-                                }));
+                            if  (!set.has(character.id)) {
+                                if (check.etat === false) {
+                                    set.add(character.id);
+                                    console.log("------------------------------> ", set);
+                                    thisSocket.send(JSON.stringify ({
+                                        'type': 'requestFriend',
+                                        'recipient_id': character.id,
+                                        'sender_id': thisCurrUser.id,
+                                        'sender': thisCurrUser.username,
+                                        'recipient': character.username
+                                    }));
+                                }
+                                else {
+                                    popupCard(`You blocked ${character.username}`);
+                                }
                             }
-                            else {
-                                popupCard(`You blocked ${character.username}`);
-                            }
+                            setTimeout(() => {
+                                set.delete(character.id);
+                            }, 10000);
                         });
                 
                 // -------------------------------------------- on click block buton ----------------------------------------------------------------------------- 
