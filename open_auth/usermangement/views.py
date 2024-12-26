@@ -21,27 +21,17 @@ from django.core.cache   import cache
 # Create your views here.
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_user(request):
-    user = request.user
-
-    if not user.is_authenticated:
-        return JsonResponse({"status": "failed", "error": "User Not Authenticated"}, status=401)
-
-    # Check if session has the latest user data
-    user_data_from_session = request.session.get('user_data', None)
-
-    if user_data_from_session:
-        print ("Session Info")
-        # If session has valid user data, return it
-        return JsonResponse({"status": "success", "data": user_data_from_session}, status=200)
-
-    serialize = ProfileSerializer(instance=user)
-    fresh_data = serialize.data
-    request.session['user_data'] = fresh_data  # Update session
-    request.session.modified = True  # Mark session as modified to ensure saving
-
-    print("\033[1;38m user data ===> ", fresh_data)
-    return JsonResponse({"status": "success", "data": fresh_data}, status=200)
+def     get_user(request):
+    if request.method == 'GET':
+        user = request.user
+        if user.is_authenticated:
+            serialize = ProfileSerializer(instance=user)
+            return JsonResponse ({"status" : "success",
+             "data" : serialize.data})
+        return JsonResponse ({"status" : "failed",
+                "error" : "User Not Authenticated"})
+    return JsonResponse ({"status" : "failed", 
+            "error" : "method Not allowed"})
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -63,56 +53,46 @@ def profile(request):
                 'status': 'failed'
             }, status=400)
     else:
-        return JsonResponse({'data': None,  # Return None or an empty dict in case of failure
+        return JsonResponse({
+            'data': None,  # Return None or an empty dict in case of failure
             'status': 'failed'
         }, status=400)
 
-@csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def update_user(request):
     print("Entered update_user view")
 
-    if request.method != 'POST':
-        return JsonResponse({'status': 'failed', 'data': 'Invalid request method'}, status=400)
-
     user = request.user
 
-    if not user.is_authenticated:
-        return JsonResponse({'status': 'failed', 'data': 'User is not authenticated'}, status=401)
-    
-    # Make a mutable copy of the request data
-    data = request.data.copy()
+    # Handle file uploads for imageProfile
+    data = request.data.copy()  # Create a mutable copy of the request data
 
-    # Handle imageProfile: retain the old image if not provided
-    if 'imageProfile' not in request.FILES:
-        data['imageProfile'] = user.imageProfile  # Keep the existing image value
+    if 'imageProfile' in request.FILES:
+        data['imageProfile'] = request.FILES['imageProfile']
+    else:
+        data.pop('imageProfile', None)  # Ensure imageProfile isn't sent if not provided
 
-    # Check if the email is unchanged
-    if user.email == data.get('email'):
+    if not data:
+        return JsonResponse({'status': 'failed', 'data': 'Request body is empty'}, status=400)
+
+    # Check if data is in JSON format
+    if not isinstance(data, dict):
+        return JsonResponse({'status': 'failed', 'data': 'Expected a JSON object'}, status=400)
+
+    # Check for email uniqueness
+    if 'email' in data and user.email == data['email']:
         return JsonResponse({'status': 'failed', 'data': 'Must change email'}, status=400)
 
-    # Invalidate the cache for the user
-    # cache_key = f"user_profile_{user.id}"
-    # cache.delete(cache_key)
-
-    # Update user data
+    # Serialize and update user data
     update_serializer = UpdateUserSerializers(user, data=data, partial=True)
+
     if update_serializer.is_valid():
         update_serializer.save()
-
-        # Fetch fresh data from the database to ensure the latest data is used
-        # user.refresh_from_db()  # Ensure that the user object is up to date with the database
-
-        request.session['user_data'] = update_serializer.data
-        # Refresh cache with updated data
-        # last_update = ProfileSerializer(instance=user).data
-        # cache.set(cache_key, last_update, timeout=None)
-
-        # print('Updated data === ', last_update)
+        print('Updated data === ', update_serializer.data)
         return JsonResponse({'status': 'success', 'data': update_serializer.data}, status=200)
 
-    return JsonResponse({'status': 'failed', 'data': update_serializer.errors}, status=400)
-
+    return JsonResponse({'status': 'failed', 'errors': update_serializer.errors}, status=400)
 
 from django.db.models import Q  # Add this import
 
@@ -308,7 +288,7 @@ def accepte_request(request, receiver_id):
                     'id': from_user.id,
                     'username': from_user.username,
                     'imageProfile': from_user.imageProfile.url,
-                    'online_status': from_user.online_status  # Sender's online status
+                    'online_status': True  # Sender's online status
                 }
             }
         )
@@ -361,19 +341,25 @@ def reject_request(request, receiver_id):
         return JsonResponse({'status': 'success', 'data': 'The request has been rejected'}, status=200)
     except RequestFriend.DoesNotExist:
         return JsonResponse({'status': 'failed', 'data': f'Friend request with ID {receiver_id} does not exist'}, status=400)
-    
+
+from django.contrib.sessions.models import Session
+# from rest_framework.authtoken.models import Token
+from django.utils import timezone
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Ensure the user is logged in
 def ChangePassword(request):
+
     user = request.user
     data = request.data
 
     # Get the old password and new password from the request
     old_password = data.get('old_password')
-    new_password = data.get('new_password')
+    new_password1 = data.get('new_password1')
+    new_password2 = data.get('new_password2')
     new_username = data.get('new_username')
-
-    # Check if new_username is provided
+    
     if new_username:
         if user.username == new_username:
             return JsonResponse({"error": "New username cannot be the same as the current one."}, status=400)
@@ -383,17 +369,39 @@ def ChangePassword(request):
                 return JsonResponse({"error": "Username is already taken."}, status=400)
             else:
                 user.username = new_username  # Update the username
+                user.save()
+                return JsonResponse({"status": "success"}, status=200)
 
     # Check if old password is correct
+    print ("old_password ", old_password)
+    print ("new_password ", new_password1)
+    print ("user ", user)
+    print("printi chi l3aba ", user.check_password(old_password))
+
     if not user.check_password(old_password):
+        print ("1 *********** ")
         return JsonResponse({"error": "Old password is incorrect."}, status=400)
-
-    if len(new_password) < 5:
+    
+    if len(new_password1) < 8:
+        print ("2 *********** ")
         return JsonResponse({"error": "New password must be at least 8 characters long."}, status=400)
-    user.set_password(new_password)
-    user.save()
 
-    # Update the session with the new password (to prevent logging out)
+    if not new_password1 == new_password2:
+        print ("3 *********** ")
+        return JsonResponse({"error": "The passwords do not match."}, status=400)
+    
+    if new_password1 == old_password:
+        print ("3 *********** ")
+        return JsonResponse({"error": "The new password is similar to the old password."}, status=400)
+
+    user.set_password(new_password1)
+    user.save()
+    print("After Hash pass : ", user.password)
+
+    print("Password changed successfully.")
+    print("status ", user.check_password(new_password1))  # Should print True
+
+    # Update the session to avoid logging out the current user
     update_session_auth_hash(request, user)
 
-    return JsonResponse({"status": "Password changed successfully!"}, status=200)
+    return JsonResponse({"status": "success"}, status=200)

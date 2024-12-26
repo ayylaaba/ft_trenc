@@ -64,6 +64,7 @@ def is_user_blocked(request):
     try:
         ThisRoom = Room.objects.get(id=room_id)
         block = Block.objects.get(room=ThisRoom)
+        print('----------------> ', block.blocker, flush=True)
         return JsonResponse({'etat': True, 'block_id': block.id, 'blocker': block.blocker, 'blocked': block.blocked}, status=200)
     except Block.DoesNotExist:
         return JsonResponse({'etat': False}, status=200)

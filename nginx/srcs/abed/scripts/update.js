@@ -8,14 +8,15 @@ export const profileAlert = (status, jsonData)=> {
     if (status === "success") {
         reloadFunction(jsonData);
         document.querySelector("#update-alert").style.display = "none";
+    } else if (status === "failed-intra") {
+        document.querySelector("#update-alert-failed-intra").style.display = "none";
     } else {
         document.querySelector("#update-alert-failed").style.display = "none";
     }
 }
-
-const clearInputs = () => {
-    const inputs = document.querySelectorAll(".account-info input");
-        inputs.forEach((input) => {
+const inputs = document.querySelectorAll(".account-info input");
+export const clearInputs = (inputs) => {
+     inputs.forEach((input) => {
         input.value = "";
     });
 }
@@ -38,7 +39,7 @@ export const update = async (event)=> {
     const jsonResponse = await response.json();
     if (response.ok) {
         document.querySelector("#update-alert").style.display = "block";
-        clearInputs();
+        clearInputs(inputs);
         setTimeout(() => profileAlert("success", jsonResponse.data), 3000);
     }
     else {
@@ -50,5 +51,7 @@ export const update = async (event)=> {
 
 updateForm.addEventListener("submit", update);
 
-document.querySelector("#cancel-btn").addEventListener("click", clearInputs);
+document.querySelector("#cancel-btn").addEventListener("click", ()=> {
+    clearInputs(inputs);
+});
 

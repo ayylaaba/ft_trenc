@@ -11,17 +11,24 @@ const recordGame = (matchData) => {
     const gameContainer = document.getElementById("games-container");
     const gameRecordHTML = `
         <div class="game-record">
-            <h2 id="win-lost" style="${matchData.result === "won" ? "color: #78dc78" : "color: red"};">
+            <h2 id="win-lost" style="${matchData.result === "won" ? "color: #78dc78" : matchData.result === "loss" ? "color: red" : "color: gray"};">
                 ${matchData.result}
             </h2>
             <div id="match">
-                <div id="me" style="background-image: url(${matchData.user.imageProfile}); border-radius: 50%;"></div>
+                <div id="me">
+                    <div style="background-image: url(${matchData.user.imageProfile}); border-radius: 50%; background-size: cover; height: 64px; width: 64px; border: 2px solid aqua; background-position: center;"></div>
+                    <p style="margin: 0; color: #d7d7d7">${matchData.user.username}</p>
+                </div>
                 <div id="vs" style="margin: 0 15px;">
                     <i class="fa-solid fa-xmark"></i>
                 </div>
-                <div id="enemy" style="background-image: url(${matchData.opponent.imageProfile}); border-radius: 50%;"></div>
+                <div id="enemy">
+                    <div style="background-image: url(${matchData.opponent.imageProfile}); border-radius: 50%; background-size: cover; height: 64px; width: 64px; border: 2px solid aqua; background-position: center;"></div>
+                    <p style="margin: 0; color: #d7d7d7">${matchData.opponent.username}</p>
+                </div>
             </div>
             <h2 id="score-pts">${matchData.Type}</h2>
+            <p class="match-date">${matchData.date}</p>
         </div>
     `;
     // Convert the HTML string to DOM elements
@@ -69,14 +76,10 @@ export const profileFunction = async (dataObj) => {
     const response = await fetch("/user/get_match_history");
     if (response.ok) {
         const jsonData = await response.json();
-        // if (jsonData.status === "200")
-        // {
-            console.log("Match History: ", jsonData);
-            jsonData.forEach(element => {
-                recordGame(element);
-            });
-
-        // }
+        console.log("Match History: ", jsonData);
+        jsonData.forEach(element => {
+            recordGame(element);
+        });
     } else {
         console.error("error with the response...");
     }

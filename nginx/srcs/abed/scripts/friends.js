@@ -69,7 +69,7 @@ export const createSuggestionCard = (data) => {
     const thirdElement = document.createElement("div");
     thirdElement.classList.add("frd-sug-statistics");
     const forthElement = document.createElement("div");
-    forthElement.classList.add("add-del");
+    forthElement.classList.add("add");
     element.append(secondElement, thirdElement, forthElement);
 
     const imageElement = document.createElement("div");
@@ -88,12 +88,6 @@ export const createSuggestionCard = (data) => {
     const score = document.createElement("div");
     score.classList.add("score");
     thirdElement.append(wins, loses, score);
-
-    const addBtnDiv = document.createElement("div");
-    addBtnDiv.classList.add("add");
-    const deleteBtnDiv = document.createElement("div");
-    deleteBtnDiv.classList.add("delete");
-    forthElement.append(addBtnDiv, deleteBtnDiv);
 
     const userName = document.createElement("h4");
     userName.classList.add("user-name");
@@ -126,13 +120,14 @@ export const createSuggestionCard = (data) => {
     score.append(scoreKey, scoreValue);
 
     const addBtn = document.createElement("button");
-    addBtn.innerHTML = "Add";
+    addBtn.style.width = "70%";
+    addBtn.innerHTML = "Add Friend";
     addBtn.classList.add("btn", "btn-lg");
-    addBtnDiv.append(addBtn);
-    const deleteBtn = document.createElement("button");
-    deleteBtn.innerHTML = "Delete";
-    deleteBtn.classList.add("btn", "btn-lg");
-    deleteBtnDiv.append(deleteBtn);
+    forthElement.append(addBtn);
+    // const deleteBtn = document.createElement("button");
+    // deleteBtn.innerHTML = "Delete";
+    // deleteBtn.classList.add("btn", "btn-lg");
+    // deleteBtnDiv.append(deleteBtn);
     userName.innerHTML = data.username;
     document.querySelector("#suggestions").append(element);
 }
@@ -158,6 +153,7 @@ export const suggestionsFunction = async ()=> {
 }
 
 import { flag, socketFunction } from "./socket.js";
+import { navigateTo } from "../script.js";
 
 export const sendIdToBackend = async (id, action) => {
     const token = await get_csrf_token();
@@ -207,7 +203,9 @@ export const sendIdToBackend = async (id, action) => {
 
 const sugBtn = document.querySelector("#suggestion-btn");
 
-sugBtn.addEventListener("click", suggestionsFunction);
+sugBtn.addEventListener("click", ()=> {
+    navigateTo("/friends/suggestions");
+});
 
 
 
@@ -315,7 +313,9 @@ export const requestsFunction = async ()=> {
     }
 }
 const reqBtn = document.querySelector("#requests-btn");
-reqBtn.addEventListener("click", requestsFunction);
+reqBtn.addEventListener("click", () => {
+    navigateTo("/friends/requests");
+});
 
 // -------------- Display Friends --------------------
 
@@ -434,7 +434,9 @@ export {friendsLoaded};
 
 const friendBtn = document.querySelector("#friend-btn");
 
-friendBtn.addEventListener("click", friendsFunction);
+friendBtn.addEventListener("click", ()=> {
+    navigateTo("/friends")
+});
 
 
 

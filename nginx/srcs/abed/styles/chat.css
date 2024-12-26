@@ -324,14 +324,6 @@
     background-position: center;
 }
 
-
-#insert-msg {
-    width: 85%;
-    margin: auto;
-    position: relative;
-    bottom: 11%;
-}
-
 #insert-msg i {
     font-size: 20px;
     color: white;
@@ -425,15 +417,21 @@
     width: 90%;
     height: 78%;
     margin: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 #msgs {
-    width: 97%;
     display: flex;
+    height: 88%;
     flex-direction: column;
-    align-items: end;
-    max-height: 436px;
+    margin-left: 8px;
     overflow-y: auto;
+}
+
+#insert-msg {
+    width: 90%;
+    margin: auto;
 }
 
 #msgs .my-msg, #msgs .friend-msg {
@@ -449,14 +447,69 @@
     word-wrap: break-word;
 }
 
-#msgs {
+/* #msgs {
     display: flex;
     flex-direction: column;
     align-items: start;
     margin-left: 8px;
-}
+} */
 
 #msgs .friend-msg { /*differ friend messages from my messages */
     background-color: #595959a8;
     align-self: flex-start; /* flex attribute for child.*/
+}
+
+#chat {
+    justify-content: flex-end;
+}
+
+#message-notif {
+    position: relative;
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50%;
+    bottom: 48px;
+    background-color: red;
+}
+
+.user-notiff {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50%;
+    bottom: 48px;
+    background-color: red;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+#paragraph-id {
+    font-size: 14px;
+}
+
+#card-div {
+    position: absolute;
+    border-radius: 7px;
+    left: 50%;
+    top: 1%;
+    width: 320px;
+    height: 140px;
+    /* border: 1px solid #00000075; */
+    box-shadow: 0 0 10px #c70000c9;
+    background-color: #0a1339;
+    /* font-size: 18px; */
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+#pop-btn {
+    border-radius: 7px;
+    width: 90%;
+    height: 33%;
+    font-weight: bold;
+    font-size: 18px;
+    border: none;
+    background-color: green;
 }

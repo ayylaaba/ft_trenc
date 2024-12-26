@@ -22,6 +22,11 @@
     visibility: hidden;
 } */
 
+#error-div {
+    color: red;
+    margin-top: 15px;
+}
+
 #setting-part {
     display: none;
     height: 100vh;
@@ -32,6 +37,7 @@
 
 #prog, #prog2 {
     height: 7px;
+    width: 100% !important;
 }
 
 #fadeout, #fadeout2 {
@@ -91,12 +97,18 @@
 }
 
 #profile-setting, #log-sec {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     overflow-y: auto;
     height: calc(100vh - 50px - 20px);
     width: 100%;
-    display: flex;
-    flex-direction: row;
     gap: 20px;
+}
+
+#intra-infos {
+    position: relative;
+    top: 4%;
 }
 
 #setting-pic {
@@ -175,12 +187,14 @@
 }
 
 #delete-btn {
+    border: 1px gray solid;
+    color: gray;
     width: fit-content;
-    border: 1px #871919 solid;
 }
 
 #delete-btn:hover {
-    background-color: #871919;
+    background-color: rgba(128, 128, 128, 0.61);
+    color: white;
 }
 
 #cancel-btn {
@@ -300,6 +314,9 @@
 }
 
 @media (min-width: 0px) and (max-width: 575px) {
+    #intra-infos {
+        font-size: 16px;
+    }
     #setting-part {
         width: 100% !important;
     }

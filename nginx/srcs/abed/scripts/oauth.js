@@ -1,5 +1,7 @@
 import { get_csrf_token, showHome } from "./register.js";
 import { flag, socketFunction } from "./socket.js";
+import { profileAlert } from "./update.js";
+
 const oauthFunction = async (event)=> {
     event.preventDefault(); // Prevent the default form submission
     const response = await fetch('/oauth/');
@@ -32,8 +34,8 @@ const oauthCallback = async ()=> {
             },
             body: JSON.stringify({ code: code })
         })
+        const jsonResponse = await response.json();
         if (response.ok) {
-            const jsonResponse = await response.json();
             console.log('status ==> ', jsonResponse.status )
             if (jsonResponse.status == 'success') {
                 const sideBtns = document.querySelectorAll(".nav-button");
@@ -46,7 +48,12 @@ const oauthCallback = async ()=> {
             }
         }
         else {
-            console.error('Error:', error);
+            if (jsonResponse.status === "failed") { // intra
+                // alert(`failed with: ${jsonResponse.error}`);
+                document.querySelector("#update-alert-failed-intra").style.display = "block";
+                setTimeout(() => profileAlert("failed-intra", jsonResponse.error), 3000);
+                // displayErrorMsg(jsonResponse.error, usernameError, "");
+            }
         }
     }
 }

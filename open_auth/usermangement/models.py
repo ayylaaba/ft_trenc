@@ -1,5 +1,6 @@
 from django.db import models
 from oauth.models import User_info
+import datetime
 # Create your models here.
 
 # class Profie(models.Model):
@@ -18,10 +19,8 @@ class           MatchHistoric(models.Model):
     Type        = models.CharField(max_length=20, default="")
     level       = models.IntegerField(default=0)
     score       = models.IntegerField(default=0)
-    # models.DateTimeField(auto_now_add = True)
-
+    date        = models.DateField(default=datetime.date.today)
 # related_name allows you to query the related objects in reverse:
-
 # You can find all friend requests sent by John (ID 1) using john.sent_requests.all().
 # You can find all friend requests received by John using john.received_requests.all().
 # on_delete=models.CASCADE ensures that if John (ID 1) were deleted, all his sent and 

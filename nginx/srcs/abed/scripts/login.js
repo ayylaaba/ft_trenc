@@ -65,11 +65,13 @@ const loginForm = document.querySelector("#login-form");
 const loginPassword = document.querySelector("#login-password");
 
 const loginFunction = async (event) => {
-    console.log(event);
+    // console.log(event);
     event.preventDefault();
     // if (event.key === "Enter")
     const token =  await get_csrf_token();
+    console.log(`form data 1111`);
     const formData = new FormData(loginForm);
+    console.log(formData);
     const response = await fetch('/login/', {
         method: 'POST',
         headers: {

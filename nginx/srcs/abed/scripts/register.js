@@ -17,6 +17,8 @@ const registerForm = document.querySelector("#register-form");
 const usernameError = document.getElementById("username-error");
 const passwordError = document.querySelector("#password-error");
 const emailError = document.querySelector("#email-error");
+const firstName = document.querySelector("#first-name");
+const lastName = document.querySelector("#last-name");
 
 const registrationFunction = async (event) => {
     event.preventDefault();
@@ -38,25 +40,32 @@ const registrationFunction = async (event) => {
     }
     else {
         // in case of error.
-        if (response.status === 400) {
-            const existingErrors = document.querySelectorAll(".error");
-            existingErrors.forEach(error => {
-                error.remove();
-            });
-            if (jsonResponse.error.username) {
-                displayErrorMsg(jsonResponse.error.username, usernameError, "")
-            }
-            if (jsonResponse.error.password2) {
-                displayErrorMsg(jsonResponse.error.password2, passwordError, "array");
-            }
-            if (jsonResponse.error.email) {
-                console.log(jsonResponse.error.email);
-                displayErrorMsg(jsonResponse.error.email, emailError, "");
-            }
-            console.log("Register Error: ", jsonResponse.error);
+        const existingErrors = document.querySelectorAll(".error");
+        existingErrors.forEach(error => {
+            error.remove();
+        });
+        if (jsonResponse.error.email) {
+            displayErrorMsg(jsonResponse.error.email, emailError, "array");
         }
+        else if (jsonResponse.error.username) {
+            displayErrorMsg(jsonResponse.error.username, usernameError, "array")
+        }
+        else if (jsonResponse.status === "failed") {
+            displayErrorMsg(jsonResponse.error, usernameError, "array")
+        }
+        else if (jsonResponse.error.firstname) {
+            displayErrorMsg(jsonResponse.error.firstname, firstName, "array")
+        }
+        else if (jsonResponse.error.lastname) {
+            displayErrorMsg(jsonResponse.error.lastname, lastName, "array")
+        }
+        else if (jsonResponse.error.password) {
+            displayErrorMsg(jsonResponse.error.password, passwordError, "array");
+        }
+        // console.log("Register Error: ", jsonResponse.error);
     }
 }
+
 registerForm.addEventListener("submit", registrationFunction);
 
 export const showHome = async (dataObj)=> {
@@ -68,3 +77,4 @@ export const showHome = async (dataObj)=> {
     document.querySelector("#us h3").innerHTML = `${dataObj.username}`;
     document.querySelector("#welcome > h1").innerHTML = `Welcome ${dataObj.firstname} ${dataObj.lastname}!`;
 }
+

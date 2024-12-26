@@ -9,24 +9,18 @@ class RoomListCreateAPIView(APIView):
     
     def get(self, request):
         rooms = XRoom.objects.filter(players__lt=2)
-        print("it is empty", rooms.exists())
         if rooms.exists():
             room = rooms.first()
             room.players += 1
-            print("room player are ", room.players)
             room.save()
             serializer = XRoomSerializer(room)
             return Response(serializer.data)
         return Response({"message": "No available rooms"}, status=404)
 
     def post(self, request):
-        print("Create room")
         code = request.data.get('code')
-        print("code of  room", code)
         room = XRoom.objects.create(code=code)
-        print("room player is ", room.players)
-        print("room code is ",  room.code, flush=True)
+        room.players += 1
+        room.save()
         serializer = XRoomSerializer(room)
-        print("ser is ", serializer.data, flush=True)
-        print("*-------------------------------------------------------------------------*")
         return Response(serializer.data)

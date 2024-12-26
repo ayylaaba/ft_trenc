@@ -1,3 +1,5 @@
+
+
 #one h1, #three h1 {
     text-align: center;
     font-family: 'Games', sans-serif;
@@ -90,9 +92,15 @@ a {
 }
 
 #three {
+    min-height: fit-content;
+    height: 85vh;
     display: none;
     box-shadow: 0px 0px 20px rgb(39, 37, 37);
-    padding: 60px;
+    padding: 15px 30px;
+}
+
+#three p {
+    margin: 2%;
 }
 
 #hand {

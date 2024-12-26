@@ -16,6 +16,7 @@ class   MatchHistoricSerialzer(serializers.ModelSerializer):
             'level',
             'Type',
             'score',
+            'date'
         ]
 
 class   ProfileSerializer(serializers.ModelSerializer):
@@ -30,7 +31,9 @@ class   ProfileSerializer(serializers.ModelSerializer):
             'email',
             'imageProfile',
             'level',
-            'score'
+            'score',
+            'win',
+            'loss'
         ]
 
 class   UserInfoSerializer(serializers.ModelSerializer):
@@ -45,8 +48,9 @@ class   UserInfoSerializer(serializers.ModelSerializer):
             'email',
             'imageProfile',
             'level',
-            'score'
-
+            'score',
+            'win',
+            'loss'
         ]
 
 class       RequestFriendSerializer(serializers.ModelSerializer):

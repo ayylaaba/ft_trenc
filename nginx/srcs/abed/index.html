@@ -12,124 +12,127 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Arsenal+SC:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="styles/xo.css">
-    <link rel="stylesheet" href="styles/friends.css">
-    <link rel="stylesheet" href="styles/rank.css">
-    <link rel="stylesheet" href="styles/profile.css">
-    <link rel="stylesheet" href="styles/chat.css">
-    <link rel="stylesheet" href="styles/setting.css">
-    <link rel="stylesheet" href="styles/login.css">
-    <link rel="stylesheet" href="styles/notification.css">
-    <link rel="stylesheet" href="styles/game.css">
-    <link rel="stylesheet" href="styles/register.css">
-	<link rel="stylesheet" href="styles/bracket.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/styles/xo.css">
+    <link rel="stylesheet" href="/styles/friends.css">
+    <link rel="stylesheet" href="/styles/rank.css">
+    <link rel="stylesheet" href="/styles/profile.css">
+    <link rel="stylesheet" href="/styles/chat.css">
+    <link rel="stylesheet" href="/styles/setting.css">
+    <link rel="stylesheet" href="/styles/login.css">
+    <link rel="stylesheet" href="/styles/notification.css">
+    <link rel="stylesheet" href="/styles/game.css">
+    <link rel="stylesheet" href="/styles/register.css">
+	<link rel="stylesheet" href="/styles/bracket.css">
 </head>
 <body>
     <!-- oussama tournament -->
-        <div class ="container">
-            <form id="form">
-                <h1>Registration</h1>
-                <div class ="input-control">
-                    <input id="player1" name="1st player" type="text" placeholder="1st player" required>
+    <div class ="container">
+        <form id="form">
+            <h1>Registration</h1>
+            <div id="same-name" class="alert alert-danger" role="alert" style="display: none;">
+                Same name or Long name (just 8 characters or less)!
+            </div>
+            <div class ="input-control">
+                <input id="player1" name="1st player" type="text" placeholder="1st player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player2" name="2nd player" type="text" placeholder="2nd player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player3" name="3rd player" type="text" placeholder="3rd player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player4" name="4th player" type="text" placeholder="4th player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player5" name="5th player" type="text" placeholder="5th player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player6" name="6th player" type="text" placeholder="6th player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player7" name="7th player" type="text" placeholder="7th player" required>
+            </div>
+            <div class ="input-control">
+                <input id="player8" name="Last player" type="text" placeholder="8th player" required>
+            </div>
+            <div id="submittt">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+    <div class="allbrackets">
+        <div class="fistbracketss">
+            <form id="Match1" class="match-unit">
+                <h2>1st Match</h2>
+                <div class = "input-control">
+                    <input id="player1B" name="1st player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player2" name="2nd player" type="text" placeholder="2nd player" required>
+                <div class = "input-control">
+                    <input id="player2B" name="2st player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player3" name="3rd player" type="text" placeholder="3rd player" required>
+            </form>
+            <form id="Match2" class="match-unit">
+                <h2>2nd Match</h2>
+                <div class = "input-control">
+                    <input id="player3B" name="3rd player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player4" name="4th player" type="text" placeholder="4th player" required>
+                <div class = "input-control">
+                    <input id="player4B" name="=4th player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player5" name="5th player" type="text" placeholder="5th player" required>
+            </form>
+            <form id="Match3" class="match-unit">
+                <h2>3rd Match</h2>
+                <div class = "input-control">
+                    <input id="player5B" name="5th player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player6" name="6th player" type="text" placeholder="6th player" required>
+                <div class = "input-control">
+                    <input id="player6B" name="6th player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player7" name="7th player" type="text" placeholder="7th player" required>
+            </form>
+            <form id="Match4" class="match-unit">
+                <h2>4th Match</h2>
+                <div class = "input-control">
+                    <input id="player7B" name="7th player" type="text" disabled>
                 </div>
-                <div class ="input-control">
-                    <input id="player8" name="Last player" type="text" placeholder="8th player" required>
-                </div>
-                <div class ="submit">
-                <input type="submit" value="Submit"></input>
+                <div class = "input-control">
+                    <input id="player8B" name="8th player" type="text" disabled>
                 </div>
             </form>
         </div>
-        <div class="allbrackets">
-            <div class="fistbracketss">
-                <form id="Match1" class="match-unit">
-                    <h2>1st Match</h2>
-                    <div class = "input-control">
-                        <input id="player1B" name="1st player" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="player2B" name="2st player" type="text" disabled>
-                    </div>
-                </form>
-                <form id="Match2" class="match-unit">
-                    <h2>2nd Match</h2>
-                    <div class = "input-control">
-                        <input id="player3B" name="3rd player" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="player4B" name="=4th player" type="text" disabled>
-                    </div>
-                </form>
-                <form id="Match3" class="match-unit">
-                    <h2>3rd Match</h2>
-                    <div class = "input-control">
-                        <input id="player5B" name="5th player" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="player6B" name="6th player" type="text" disabled>
-                    </div>
-                </form>
-                <form id="Match4" class="match-unit">
-                    <h2>4th Match</h2>
-                    <div class = "input-control">
-                        <input id="player7B" name="7th player" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="player8B" name="8th player" type="text" disabled>
-                    </div>
-                </form>
-            </div>
-            <div class="semifinals">
-                <form id="Semi-final1" class="match-unit">
-                    <h2>Semi Final</h2>
-                    <div class = "input-control">
-                        <input id="1stbracket" name="1st Bracket Winner" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="2ndbracket" name="2nd Bracket Winner" type="text" disabled>
-                    </div>
-                </form>
-                <form id="Semi-final2" class="match-unit">
-                    <h2>Semi Final</h2>
-                    <div class = "input-control">
-                        <input id="1stbracket" name="3rd Bracket Winner" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="4thbracket" name="4th Bracket Winner" type="text" disabled>
-                    </div>
-                </form>
-            </div>
-            <div class="Finals">
-                <form id="Finals" class="match-unit">
-                    <h2>Finals</h2>
-                    <div class = "input-control">
-                        <input id="Finalist1" name="1st Finalist" type="text" disabled>
-                    </div>
-                    <div class = "input-control">
-                        <input id="Finalist1" name="2nd Finalist" type="text" disabled>
-                    </div>
-                </form>
-            </div>
+        <div class="semifinals">
+            <form id="Semi-final1" class="match-unit">
+                <h2>Semi Final</h2>
+                <div class = "input-control">
+                    <input id="1stbracket" name="1st Bracket Winner" type="text" disabled>
+                </div>
+                <div class = "input-control">
+                    <input id="2ndbracket" name="2nd Bracket Winner" type="text" disabled>
+                </div>
+            </form>
+            <form id="Semi-final2" class="match-unit">
+                <h2>Semi Final</h2>
+                <div class = "input-control">
+                    <input id="3rdbracket" name="3rd Bracket Winner" type="text" disabled>
+                </div>
+                <div class = "input-control">
+                    <input id="4thbracket" name="4th Bracket Winner" type="text" disabled>
+                </div>
+            </form>
         </div>
+        <div class="Finals">
+            <form id="Finals" class="match-unit">
+                <h2>Finals</h2>
+                <div class = "input-control">
+                    <input id="Finalist1" name="1st Finalist" type="text" disabled>
+                </div>
+                <div class = "input-control">
+                    <input id="Finalist2" name="2nd Finalist" type="text" disabled>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- toast to apply later when someone is loggedin -->
     <div id="freeze"></div>
     <div id="error" class="error_style" style="display: none;">
@@ -153,6 +156,9 @@
                             <span>0</span>
                         </div>
                         <h4>Get Ready</h4>
+                        <div class="tagcolor">
+                            <h1 id="myTagColor"></h1>
+                        </div>
                     </div>
                 </div>
                 <div id="game_over">
@@ -163,6 +169,30 @@
             <!-- login part -->
             <div class="col-12" id="login-parent">
                 <div class="col-12 col-md-12 col-lg-6" id="one">
+                    <div id="update-alert-failed-intra" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+                            <symbol id="check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                            </symbol>
+                            <symbol id="info-fill" viewBox="0 0 16 16">
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                            </symbol>
+                            <symbol id="exclamation-triangle-fill" viewBox="0 0 16 16">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </symbol>
+                        </svg>
+                        <div id="alert-container2" class="alert alert-danger d-flex" role="alert">
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+                                <svg id="failure-svg" class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                                <div>
+                                    Username already in use!
+                                </div>
+                            </div>
+                            <div class="progress" id="prog2" role="progressbar" aria-label="danger example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div id="fadeout2" class="progress-bar bg-danger"></div>
+                            </div>
+                        </div>
+                    </div>
                     <form id="login-form">
                         <input type="hidden" class="csrf_token" name="csrfmiddlewaretoken">
                         <h1 class="mb-3">Let's play <i class="fa-solid fa-table-tennis-paddle-ball icon"></i></h1> <!-- with logo in right -->
@@ -187,15 +217,12 @@
                     </form>
                 </div>
                 <div class="col-12 col-md-12 col-lg-6"  id="two">
-                    <img src="images/login-picture.png" alt="ping-pong image" id="image" class="img-fluid">
+                    <img src="/images/login-picture.png" alt="ping-pong image" id="image" class="img-fluid">
                 </div>
                 <div class="col-lg-6"  id="three">
                     <form id="register-form">
                         <input type="hidden" class="csrf_token" name="csrfmiddlewaretoken">
                         <h1 class="mb-3" >join us! <i class="fa-regular fa-hand" id="hand"></i></h1> <!-- with logo in right -->
-                        <div class="d-grid gap-2 mb-4">
-                            <button class="btn btn-secondary btn-lg intra">Sign up with 42</button>
-                        </div>
                         <hr>
                         <p>Email:</p>
                         <div class="input-group mb-3" id="email-error">
@@ -213,7 +240,7 @@
                             <input name="firstname" type="text" class="form-control form-control-lg" placeholder="First Name" id="fname" required>
                         </div>
                         <p>Last Name:</p>
-                        <div class="input-group mb-3">
+                        <div class="input-group mb-3" id="last-name">
                             <span class="input-group-text input-group-left"><i class="fa-regular fa-user"></i></span>
                             <input name="lastname" type="text" class="form-control form-control-lg" placeholder="Last Name" id="lname" required>
                         </div>
@@ -347,7 +374,7 @@
                                 </div>
                                 <div class="col-12 col-lg-6 uInfo" id="second">
                                     <div class="par" style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
-                                        <h4 id="level-id">42 - 20%</h4>
+                                        <h4 id="level-id"></h4>
                                         <!-- <h4>2560/3000</h4> -->
                                     </div>
                                     <div class="progress">
@@ -359,8 +386,8 @@
                                     </div>
                                 </div>
                                 <div class="col-12 col-lg-4 uInfo d-flex justify-content-center align-items-center" id="third">
-                                    <h3 id="profile-wins">wins: 42</h3>
-                                    <h3 id="profile-loses">loses: 0</h3>
+                                    <h3 id="profile-wins"></h3>
+                                    <h3 id="profile-loses"></h3>
                                 </div>
                             </div>
                             <div class="row" id="statistics">
@@ -389,7 +416,7 @@
                     <div class="row">
                         <div class="col-4" id="players">
                             <div id="firstt">
-                                <h2>Messages</h2>
+                                <h2>Chat</h2>
                             </div>
                             <div id="chats">
                                 
@@ -406,11 +433,11 @@
                             <div id="messages">
                                 <div id="msgs">
                                 </div>
-                            </div>
-                            <div id="insert-msg">
-                                <div class="input-group" id="input-group-chat">
-                                    <input type="text" autocomplete="off" id="something" class="form-control" placeholder="Type Something...." aria-label="Username" aria-describedby="input-group-right">
-                                    <span class="input-group-text" id="input-group-text-chat"><button type="button" class="btn"><i class="fa-regular fa-paper-plane"></i></button></span>
+                                <div id="insert-msg">
+                                    <div class="input-group" id="input-group-chat">
+                                        <input type="text" autocomplete="off" id="something" class="form-control" placeholder="Type Something...." aria-label="Username" aria-describedby="input-group-right">
+                                        <span class="input-group-text" id="input-group-text-chat"><button type="button" class="btn"><i class="fa-regular fa-paper-plane"></i></button></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -421,7 +448,7 @@
                     <div id="setting-nav-bar">
                         <button class="btn setting-nav-btn">Profile</button>
                         <button class="btn setting-nav-btn">Login & Security</button>
-                        <button class="btn setting-nav-btn">General</button>
+                        <!-- <button class="btn setting-nav-btn">General</button> -->
                     </div>
                     <div id="profile-setting">
                         <div id="profile-header">
@@ -461,8 +488,8 @@
                                         <input name="email" type="email" class="form-control" id="formControlInput3" placeholder="name@example.com" required>
                                     </div>
                                     <div id="save-changes">
-                                        <button type="button" class="btn btn-outline-secondary" id="cancel-btn">Cancel</button>
                                         <button type="submit" class="btn btn-outline-success save-btn">Save</button>
+                                        <button type="button" class="btn btn-outline-secondary" id="cancel-btn">Clear</button>
                                     </div>
                                 </div>
                             </form>
@@ -519,6 +546,7 @@
                         </div>
                     </div>
                     <div id="log-sec">
+                        <h3 id="intra-infos">You cant change your Intra infos here!</h3>
                         <div id="log-sec-container">
                             <form id="password-form">
                                 <div class="account-info">
@@ -528,15 +556,15 @@
                                     </div>
                                     <div>
                                         <label for="formControlInput4" class="form-label">Actual password</label>
-                                        <input name="old_password" type="password" class="form-control" id="formControlInput4" placeholder="Password" required>
+                                        <input name="old_password" type="password" class="form-control" id="formControlInput4" placeholder="Password">
                                     </div>
                                     <div>
                                         <label for="formControlInput5" class="form-label">New Password</label>
-                                        <input name="new_password" type="password" class="form-control" id="formControlInput5" placeholder="Password" required>
+                                        <input name="new_password1" type="password" class="form-control" id="formControlInput5" placeholder="Password">
                                     </div>
                                     <div>
                                         <label for="inputPassword5" class="form-label">Retype New Password</label>
-                                        <input name="new_password" type="password" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock" placeholder="Password" required>
+                                        <input name="new_password2" type="password" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock" placeholder="Password">
                                         <div id="passwordHelpBlock" class="form-text" style="color: red; margin-top: 15px;display: none;">
                                         Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
                                         </div>
@@ -554,7 +582,7 @@
                                             <button type="submit" class="btn btn-outline-success save-btn">Save Changes</button>
                                         </div>
                                         <div id="delete-div">
-                                            <button type="submit" class="btn btn-outline-danger" id="delete-btn">Delete Account</button>
+                                            <button type="button" class="btn btn-outline-danger" id="delete-btn">Clear</button>
                                         </div>
                                     </div>
                                     <div id="update-alert2" style="display: none;">
@@ -596,8 +624,8 @@
                                         <div id="alert-container2" class="alert alert-danger d-flex" role="alert">
                                             <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
                                                 <svg id="failure-svg" class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-                                                <div>
-                                                Username already exists!
+                                                <div id="failed-pass">
+                                                
                                                 </div>
                                             </div>
                                             <div class="progress" id="prog2" role="progressbar" aria-label="danger example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
@@ -609,7 +637,7 @@
                             </form>
                         </div>    
                     </div>
-                    <div id="general">
+                    <!-- <div id="general">
                         <div id="first-sep">
                             <hr>
                             <p>General</p>
@@ -651,7 +679,7 @@
                             </div>
                             <hr>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <!-- friends part -->
                 <div class="col-12 col-md-10" id="friends-part">
@@ -673,23 +701,23 @@
         </div>
     </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script type="module" src="script.js"></script>
-        <script type="module" src="scripts/xo.js"></script>
-        <script type="module" src="scripts/friends.js"></script>
-        <script type="module" src="scripts/rank.js"></script>
-        <script type="module" src="scripts/home.js"></script>
-        <script type="module" src="scripts/profile.js"></script>
-        <script type="module" src="scripts/chat.js"></script>
-        <script type="module" src="scripts/setting.js"></script>
-        <script type="module" src="scripts/register.js"></script>
-        <script type="module" src="scripts/oauth.js"></script>
-        <script type="module" src="scripts/login.js"></script>
-        <script type="module" src="scripts/logout.js"></script>
-        <script type="module" src="scripts/update.js"></script>
-        <script type="module" src="scripts/password.js"></script>
-        <script type="module" src="scripts/socket.js"></script>
-        <script type="module" src="scripts/notification.js"></script>
-        <script type="module" src="scripts/game.js"></script>
-        <script type="module" src="scripts/registers.js"></script>
+        <script type="module" src="/script.js"></script>
+        <script type="module" src="/scripts/xo.js"></script>
+        <script type="module" src="/scripts/friends.js"></script>
+        <script type="module" src="/scripts/rank.js"></script>
+        <script type="module" src="/scripts/home.js"></script>
+        <script type="module" src="/scripts/profile.js"></script>
+        <script type="module" src="/scripts/chat.js"></script>
+        <script type="module" src="/scripts/setting.js"></script>
+        <script type="module" src="/scripts/register.js"></script>
+        <script type="module" src="/scripts/oauth.js"></script>
+        <script type="module" src="/scripts/login.js"></script>
+        <script type="module" src="/scripts/logout.js"></script>
+        <script type="module" src="/scripts/update.js"></script>
+        <script type="module" src="/scripts/password.js"></script>
+        <script type="module" src="/scripts/socket.js"></script>
+        <script type="module" src="/scripts/notification.js"></script>
+        <script type="module" src="/scripts/game.js"></script>
+        <script type="module" src="/scripts/registers.js"></script>
 </body>
 </html>

@@ -15,10 +15,8 @@ from django.core.files                  import File
 from channels.layers                    import get_channel_layer
 from asgiref.sync                       import async_to_sync
 from usermangement .serializer          import ProfileSerializer
-from usermangement.serializer           import UserInfoSerializer 
 import os
 import requests
-from django.contrib.sessions.models     import Session
 
 
 client_id = os.getenv("CLIENT_ID")
@@ -33,6 +31,9 @@ grant_type = os.getenv("GRANT_TYPE")
 @permission_classes([AllowAny])
 def     register_vu(request):
     if request.method == 'POST':
+        username = request.data.get('username')
+        if User_info.objects.filter(username=username, intra_user=True).exists():
+            return JsonResponse({'status' : 'failed', 'error' : 'username already exist'}, status=400)
         form = RegisterSerializer(data = request.data) 
         if form.is_valid():
             user = form.save()
@@ -45,85 +46,74 @@ def     register_vu(request):
             if user:
                 login(request, user)
             else :
-                return JsonResponse({'status': 'faild', 'data':"faild to login"}, status=400)
+                return JsonResponse({'status': 'faild', 'error':"faild to login"}, status=400)
             return JsonResponse({'status': 'success', 'data':form.data}, status=200)
         else:
             errors = form.errors
             return JsonResponse({'status': 'faild', 'error': form.errors}, status=400)
-    return JsonResponse({'status': False, "error": form.errors}, status=400)
+    return JsonResponse({'status': 'faild', "error": form.errors}, status=400)
 
 @csrf_exempt
 @api_view(['POST'])
 def     logout_vu(request):
-    # user = request.user
-
-    # user_db = User_info.objects.get(id=user.id)
-
-    # user_db.online_status = False
-    # user_db.save()
+    user = request.user
     
-    # frends = user.friends.all()  
-    # channel_layer = get_channel_layer()
-    # for friend_of_user in frends:
-    #     async_to_sync(channel_layer.group_send)(
-    #         f'user_{friend_of_user.id}',
-    #         {
-    #             'type': 'notify_user_status',
-    #             'data':
-    #             {
-    #                 'id': user.id,
-    #                 'username':user.username,
-    #                 'online_status': False
-    #             }
-    #         }
-    #     )
+    user.online_status = False
+    user.save()
+    
+    frends = user.friends.all()  
+    channel_layer = get_channel_layer()
+    for friend_of_user in frends:
+        async_to_sync(channel_layer.group_send)(
+            f'user_{friend_of_user.id}',
+            {
+                'type': 'notify_user_status',
+                'data':
+                {
+                    'id': user.id,
+                    'username':user.username,
+                    'online_status': False
+                }
+            }
+        )
     if request.method == 'POST':
-        # logout(request)
-        print("\033[1;39m session removed -> ", request.session.get('user_data', 'No user data'))
-        # request.session.flush()
-        print("\033[1;39m session removed -> ", request.session.get('user_data', 'No user data'))
+        logout(request)
+        request.session.flush()  # Clear all session data
         return (JsonResponse({'status':'success'}))
-    else :
-        return (JsonResponse({'status':'faild'}))
+    return (JsonResponse({'status':'faild'}))
+
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login_vu(request):
-
-    user = request.user
-    user_db = User_info.objects.get(id=user.id)
-    serialize_user = UserInfoSerializer(user_db)
-    user_data_from_session = request.session.get('user_data', None)
-
-    print("\033[1;38m user  before ********* ", serialize_user.data)
-    print("\033[1;38m user session ********* ", user_data_from_session)
-
-    serializer = UserInfoSerializer(user_db, data=user_data_from_session, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-
-    print("\033[1;38m user  after ********* ", serializer.data)
+    
+    print ("it enter hereeeeeeeeeeeeeeeeeeeeeee", flush=True)
 
     username = request.data.get('username')
     password = request.data.get('password')
 
-    # Authenticate user
-    user = authenticate(username=username, password=password)
-    if user is None:
-        return Response({"status": False, "error": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
-    # Log the user in
+    # Fetch the user explicitly from the database
+    try:
+        user = User_info.objects.get(username=username)
+        print ("user :", user)
+        print ("password :", user.password)
+    except User_info.DoesNotExist:
+        return JsonResponse({"status": "failed", "error": "Invalid credentials"}, status=400)
+
+    if not user.check_password(password):
+        return JsonResponse({"status": "failed", "error": "Invalid credentials"},  status=400)
+
     login(request, user)
 
-    # Serialize the user data
-    # serialize_user = UserInfoSerializer(serializer)
-    print("\033[1;32m UserInfoSerializer -> ", serializer.data)
-    # Store the serialized user data in the session
-    request.session['user_data'] = serializer.data
-    request.session.modified = True  # Ensure that the session is saved
-    user_data_from_session = request.session.get('user_data', None)
-    if user_data_from_session:
-        print(f"after login User data from session: {user_data_from_session}")
-    return Response({"data": serializer.data, "status":"success"})
+    # Serialize user data and return JsonResponse
+    serialize_user = CustmerSerializer(instance=user)
+    return JsonResponse({"data": serialize_user.data, "status": "success"})
+
+
+from django.contrib.sessions.models import Session
 
 def     oauth_authorize(request): 
 
@@ -140,10 +130,13 @@ def get_csrf_token(request):
 import json, os
 
 def callback(request):
-    print ('============================ callback is called ============================\n')    
+    print ('============================ callback is called ============================\n')   
+    user = request.user
+    if request.user.is_authenticated:
+        seria = CustmerSerializer(instance=user)
+        return JsonResponse({'status': 'success','data': seria.data})
     data = json.loads(request.body)
     code = data.get('code')
-
     if not code:
         return JsonResponse({'status': 'error', 'message': 'No code provided'}, status=400)
     necessary_info = {
@@ -154,7 +147,6 @@ def callback(request):
         'redirect_uri': redirect_url
     }
     response = requests.post(token_url, data=necessary_info)
-
     if response.status_code == 200:
         data = response.json()
         access_token = data.get('access_token')
@@ -165,7 +157,11 @@ def callback(request):
             firstname = user_data.get('first_name', '')
             lastname = user_data.get('last_name', '')
             email = user_data.get('email', '')
-            image_url   = user_data.get('image', {}).get('link', '')           
+            image_url   = user_data.get('image', {}).get('link', '')
+
+            if User_info.objects.filter(username=username, intra_user=False).exists():
+                return JsonResponse({'status' : 'failed', 'error' : 'username already exist'}, status=400)
+            
             # Save or update user info
             user, created       = User_info.objects.get_or_create(username=username)
             user.fullname       = fullname
@@ -174,6 +170,7 @@ def callback(request):
             user.lastname       = lastname
             user.email          = email
             user.access_token   = access_token
+            user.intra_user     = True
 
             if image_url:
                 image_name = f'{username}.jpg'

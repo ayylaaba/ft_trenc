@@ -29,6 +29,20 @@
     padding: 20px;
 }
 
+.comingUp
+{
+    border-radius: 10px;
+    color: whitesmoke;
+    border: 1px solid whitesmoke;
+    background: linear-gradient(274deg, rgba(2, 0, 36, 1) 0%, rgb(49 6 6) 0%, rgb(0, 21, 52) 100%);
+    padding: 20px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 #player1Score {
 	color: #ff0000;
 	text-shadow: 
@@ -168,6 +182,13 @@
 	display: none;
 }
 
+
+.tagcolor
+{
+    display: block;
+    
+}
+
 .counter {
     position: fixed;
     top: 50%;
@@ -298,18 +319,22 @@ footer a {
 
 canvas
 {
-    border: solid black 15px;
+    border: solid black 10px;
     height: 300px;
     width: 600px;
+    background-color: #152875;
 }
 
 #game_over{
     display: none;
-    border: solid black 15px;
-    background-color:#ff0000;
+    border: solid black 10px;
+    background-color:rgb(211 2 2) ;
     height: 300px;
     width: 600px;
     margin: auto;
+    z-index: 10000;
+    position: absolute;
+    border-radius: 15px;
 }
 
 #result1

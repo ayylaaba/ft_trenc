@@ -1,6 +1,8 @@
 export const chatButton = document.querySelector("#chat");
 export const chatPage = document.querySelector("#chat-part");
 let chatSocket = null;
+let thisSocket = null;
+let gotBlocked = false;
 
 import { profileId } from "./profile.js";
 import { main } from "./home.js";
@@ -9,7 +11,8 @@ import { rankPart } from "./rank.js";
 import { friendsPart, friendsFunction } from "./friends.js";
 import { get_csrf_token } from "./register.js";
 import { newDataFunc } from "../script.js";
-import { socketFunction } from "./socket.js";
+import { socketFunction, localStorageTracking, bellNotifUser, bellNotif} from "./socket.js";
+
 
 const notifButton = document.querySelector(".search-icons .btn");
 const profBtn = document.querySelector("#profile-pict .btn");
@@ -36,6 +39,30 @@ bodyElement.addEventListener("click", (event)=> {
     }
 })
 
+export const popupCard = (message) => {
+    const cardDiv = document.createElement("div");
+    cardDiv.id = "card-div";
+    const bodyElement = document.querySelector("body");
+    const notifHeader = document.createElement("h1");
+    notifHeader.id = "notif-header";
+    notifHeader.innerHTML = "Notification!";
+    const paragraph = document.createElement("p");
+    paragraph.id = "paragraph-id";
+    paragraph.innerHTML = `${message}`;
+    const buttonn = document.createElement("button");
+    buttonn.id = "pop-btn";
+    buttonn.innerHTML = "Ok";
+    cardDiv.append(notifHeader, paragraph, buttonn);
+    bodyElement.append(cardDiv);
+    setTimeout(()=> {
+        cardDiv.remove();
+    }, 5000);
+    buttonn.addEventListener('click', () => {
+        cardDiv.remove();
+    });
+
+}
+
 export const chatFunction = async () => {
     profileId.style.display = "none";
     main.style.display = "none";
@@ -43,6 +70,8 @@ export const chatFunction = async () => {
     rankPart.style.display = "none";
     friendsPart.style.display = "none";
     chatPage.style.display = "block";
+    localStorage.setItem("messageNotif", "false");
+    bellNotif.remove();
     const chats = document.querySelector("#chats");
     document.querySelector('#chat-pic').style.display = 'none';
     document.querySelector('#input-group-chat').style.display = 'none';
@@ -59,15 +88,16 @@ export const chatFunction = async () => {
 
 // chatButton.addEventListener("click", chatFunction);
 
-const container = document.querySelector("#msgs");
+const msgsContainer = document.querySelector("#msgs");
 
 const scrollToBottom = ()=> {
-    container.scrollTop = container.scrollHeight;    
+    msgsContainer.scrollTop = msgsContainer.scrollHeight + 200;
+    console.log("scroll height: ", msgsContainer.scrollHeight);
 }
 
 async function getRoomName(recipient, sender) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/room_name/', {
+    const response = await fetch('/chatt/api/room_name/', {
         method : 'POST',
         headers : {
             'Content-Type': 'application/json',
@@ -104,7 +134,7 @@ function showRoom(recipient, sender) {
 
 async function block_user(recipient, room_id, sender) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/block_user/', {
+    const response = await fetch('/chatt/api/block_user/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -127,7 +157,7 @@ async function block_user(recipient, room_id, sender) {
 
 const unblockUser = async (room_id) => {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/unblock_user/', {
+    const response = await fetch('/chatt/api/unblock_user/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -148,7 +178,7 @@ const unblockUser = async (room_id) => {
 
 async function is_user_blockes(room_id, username, blocked) {
     const token = await get_csrf_token();
-    const response = await fetch('http://127.0.0.1:8003/chat/api/is_user_blocked/', {
+    const response = await fetch('/chatt/api/is_user_blocked/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -165,7 +195,6 @@ async function is_user_blockes(room_id, username, blocked) {
         return data;
     }
     else {
-
         console.log('fetch isUserBloked not working', response.status, response.statusText);
     }
 }
@@ -181,18 +210,19 @@ const checkBlockStatus = async (recipient, sender) => {
     }
 };
 
+let set = null;
 const data_characters = async () => {
 
     const characters = await friendsFunction();
     const thisCurrUser = await newDataFunc();
     const chats1 = document.querySelector("#chats");
-    const thisSocket = await socketFunction();
+    thisSocket = await socketFunction();
     let room_id = 0;
     let check = "";
+    set = new Set();
 
     characters.forEach(character => {
         
-        console.log('------------> ', chatSocket);
         const userStr = `
             <p>${character.username} </p>
             <p class="user-dots">
@@ -202,6 +232,7 @@ const data_characters = async () => {
                 </p>
                 `;
                 const user = document.createElement("div");
+                user.id = `thisUser-${character.id}`;
                 user.classList.add("user");
                 user.innerHTML = userStr.trim();
                 let visitId = character.username;
@@ -238,14 +269,17 @@ const data_characters = async () => {
                         // ------------------ visit profile modification from Abed ------------------------- //
                         const visitButton = document.querySelector(`#visit-${visitId}`);
                         const handleVisit = (event) => {
+                            blockElement.remove();
+                            let curr_level = parseInt(character.level / 10);
+                            let to_next_level = (character.level % 10) * 10;
                             event.stopPropagation();
                             const strElement = `
                             <button type="button" class="btn-close" aria-label="Close"></button>
                             <div style="background-image: url(${character.imageProfile});" class="profile-chat-image"></div>
                             <h3>@${character.username}</h3>
-                            <h3>level: ${character.level}</h3>
+                            <h3>level: ${curr_level}</h3>
                             <div class="progress">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 55%" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: ${to_next_level}%" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <h3>Score: ${character.score}</h3>
                             <div style="display: flex; justify-content: space-evenly; width: 100%;">
@@ -269,19 +303,26 @@ const data_characters = async () => {
                         
                         // on click play buuton
                         document.getElementById(`play-${character.id}`).addEventListener('click', async function (e) {
-                            
-                            if (check.etat === false) {
-                                thisSocket.send(JSON.stringify({
-                                    'type': 'requestFriend',
-                                    'recipient_id': character.id,
-                                    'sender_id': thisCurrUser.id,
-                                    'sender': thisCurrUser.username,
-                                    'recipient': character.username
-                                }));
+                            if (thisSocket.readyState !== WebSocket.OPEN)
+                                thisSocket = await socketFunction();
+                            if  (!set.has(character.id)) {
+                                if (check.etat === false) {
+                                    set.add(character.id);
+                                    thisSocket.send(JSON.stringify ({
+                                        'type': 'requestFriend',
+                                        'recipient_id': character.id,
+                                        'sender_id': thisCurrUser.id,
+                                        'sender': thisCurrUser.username,
+                                        'recipient': character.username
+                                    }));
+                                }
+                                else {
+                                    popupCard(`You blocked ${character.username}`);
+                                }
                             }
-                            else{
-                                alert(`You blocked ${character.username}`);
-                            }
+                            setTimeout(() => {
+                                set.delete(character.id);
+                            }, 10000);
                         });
                 
                 // -------------------------------------------- on click block buton ----------------------------------------------------------------------------- 
@@ -289,10 +330,10 @@ const data_characters = async () => {
                 blockTag.addEventListener('click', async function(e) {
                     if (check.etat === false) {
                         block_user(character.username, room_id, thisCurrUser.username);
-                        alert(`you block ${character.username}`);
+                        popupCard(`you block ${character.username}`);
                         blockTag.innerHTML = "Unblock";
-                        console.log("---> from chat send cridentials ", character.id, character.username);
-                        if (thisSocket.readyState === WebSocket.OPEN){
+                        gotBlocked = true;
+                        if (thisSocket.readyState === WebSocket.OPEN) {
                             thisSocket.send(JSON.stringify ({
                                 'type': 'request_block',
                                 'recipient_id': character.id,
@@ -305,7 +346,8 @@ const data_characters = async () => {
                     else {
                         blockTag.innerHTML = "Block";
                         unblockUser(room_id);
-                        alert(`you unblock ${character.username} ${check.etat}`);
+                        popupCard(`you unblock ${character.username}`);
+                        gotBlocked = false;
                         if (thisSocket.readyState === WebSocket.OPEN){
                             thisSocket.send(JSON.stringify ({
                                 'type': 'request_block',
@@ -340,12 +382,6 @@ const data_characters = async () => {
             const picTag = document.querySelector("#chat-pic");
             picTag.style.backgroundImage = `url("${character.imageProfile}")`;
             document.querySelector("#secondd h3").innerHTML = character.username;
-
-            picTag.addEventListener('click',  () => {
-                chatPage.style.display = "none";
-                profileId.style.display = "flex";
-                
-            });
             // =============== Modify here ==============
 
             console.log("user id ", character.id);
@@ -354,7 +390,7 @@ const data_characters = async () => {
             console.log(`Room name: ${room_id}`);
             showRoom(character.username, thisCurrUser.username);
             if (check.etat === false && check.blocker !== character.username) {
-                    initWebSocket(room_id, character.username);
+                    initWebSocket(room_id, character.username, character.id);
             }
             else {
                 const inputChat = document.querySelector('#input-group-chat');
@@ -369,11 +405,19 @@ const data_characters = async () => {
         room_id = await getRoomName(character.username, thisCurrUser.username);
         check = await is_user_blockes(room_id, thisCurrUser.username, character.username);
         if (check.blocker === character.username) {
-            document.getElementById(`user-${character.id}`).disabled = true;
+            const dis = document.querySelector(`#user-${character.id}`);
+            dis.disabled = true;
+        }
+        const messageNotification = localStorage.getItem(`messageUser-${character.id}`);
+        if (messageNotification === "true") {
+            const user = document.getElementById(`thisUser-${character.id}`);
+            user.append(bellNotifUser);
+            // const chatIcone = document.querySelector("#chat");
+            localStorageTracking(`messageUser-${character.id}`, bellNotifUser, user);
         }
     }
 
-    function initWebSocket(roomId, username) {
+    function initWebSocket(roomId, username, userID) {
 
         if (chatSocket !== null) {
             chatSocket.close();
@@ -385,7 +429,7 @@ const data_characters = async () => {
         }
 
         chatSocket = new WebSocket (
-            'ws://' + window.location.hostname + ':8003/ws/chat/' + roomId + '/'
+            'wss://' + window.location.hostname + ':8082/wss/chatt/' + roomId + '/'
         );
     
         chatSocket.onopen = function(e) {
@@ -412,7 +456,10 @@ const data_characters = async () => {
                 else {
                     msgTag.classList.add('friend-msg');
                 }
-                document.getElementById('msgs').appendChild(msgTag);
+                if (!gotBlocked){
+                    document.getElementById('msgs').appendChild(msgTag);
+                    scrollToBottom();
+                }
             }
         }
     
@@ -438,7 +485,11 @@ const data_characters = async () => {
                   'recipient' : username
                 }));
                 messageinput.value = '';
-                scrollToBottom();
+                thisSocket.send(JSON.stringify ({
+                    'type': "notif",
+                    'id': userID,
+                    'senderID': thisCurrUser.id
+                }));
             }
             else {
                 messageinput.value = '';
@@ -446,34 +497,3 @@ const data_characters = async () => {
         };
     }
 };
-
-// const sendMsg = document.querySelector("#something");
-
-// const frontChat = (event)=> {
-//     // alert("chat enter");
-//     if (sendMsg.value != "friend" && sendMsg.value != "alaykum salam") { // you are the sender;
-//         const msg = document.createElement("div");
-//         msg.classList.add("my-msg");
-//         document.querySelector("#msgs").appendChild(msg);
-//         msg.innerHTML = `${sendMsg.value}`;
-//         sendMsg.value = "";
-//         scrollToBottom();
-//     } else {                                                            // you are the receiver;
-//         const msg = document.createElement("div");
-//         document.querySelector("#msgs").appendChild(msg);
-//         msg.classList.add("friend-msg");
-//         msg.innerHTML = `${sendMsg.value}`;
-//         sendMsg.value = "";
-//         scrollToBottom();
-//     }
-// }
-
-// const sendMsgBtn = document.querySelector("#input-group-text-chat");
-// sendMsgBtn.addEventListener("click", frontChat);
-// if (sendMsg) {
-//     sendMsg.addEventListener("keydown", (event)=> {
-//         if (event.key === "Enter") {
-//             frontChat();
-//         }
-//     });
-// }
